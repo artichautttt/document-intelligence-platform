@@ -10,6 +10,7 @@ dependencies = [
     "unstructured[docx]>=0.15",
     "pdfplumber>=0.11",
     "structlog>=24.1",
+    "chromadb>=0.5",
 ]
 
 [dependency-groups]

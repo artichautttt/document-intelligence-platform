@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     log_level: str = Field(default="INFO")
     max_chunk_chars: int = Field(default=1500, gt=0)
+    chroma_persist_directory: str = Field(default=".chroma")
 
 
 settings = Settings()
