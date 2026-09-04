@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      LOG_LEVEL: INFO
+      CHROMA_PERSIST_DIRECTORY: /data/.chroma
+    volumes:
+      - chroma_data:/data/.chroma
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  chroma_data:
+
+# ChromaDB tourne actuellement embarque dans le processus `api` (PersistentClient
+# sur un volume partage) : il n'y a donc qu'un seul service pour l'instant. Le
+# passage a un service de base vectorielle dedie (Qdrant/Pinecone, cf. README)
+# ajoutera un second service ici sans changer le contrat de `VectorStore`.

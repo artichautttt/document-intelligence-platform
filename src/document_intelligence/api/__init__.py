@@ -1,1 +1,1 @@
-# Module implémenté au Sprint 4 (API FastAPI).
+"""API FastAPI de la plateforme (Sprint 4). Point d'entrée : `api.app.create_app`."""

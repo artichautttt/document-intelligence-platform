@@ -3,7 +3,7 @@
 Plateforme d'analyse intelligente de documents d'entreprise (rapports financiers,
 contrats juridiques) basée sur une architecture RAG Multi-Agents.
 
-## État du projet — Sprint 3
+## État du projet — Sprint 4
 
 - **Sprint 1** : `ingestion/` (parsing PDF/DOCX) et `chunking/` (découpage structurel).
 - **Sprint 2** : `vectorization/` — interface abstraite `VectorStore`, implémentation
@@ -13,9 +13,10 @@ contrats juridiques) basée sur une architecture RAG Multi-Agents.
   (`orchestration/nodes.py`) afin d'être portable vers un `StateGraph` LangGraph
   sans changer la logique métier. Interface abstraite `LLMClient` (même principe
   que `VectorStore`) ; aucun fournisseur LLM concret n'est encore branché.
-
-L'API est prévue pour le sprint suivant (module squelette présent dans
-`src/document_intelligence/`).
+- **Sprint 4** : `api/` — API FastAPI exposant l'ingestion (`POST /documents`) et
+  la recherche/synthèse citée (`POST /query`) au-dessus des modules des sprints
+  précédents ; image Docker dédiée et `docker-compose.yml` ; CI GitHub Actions
+  (tests + build des images Docker).
 
 ## Installation
 
@@ -57,18 +58,42 @@ for citation in answer.citations:
     print(citation.chunk_id, citation.provenance.element_ids)
 ```
 
-## Docker (module ingestion uniquement)
+## API
+
+```bash
+uv run uvicorn document_intelligence.api.app:app --reload
+```
+
+- `GET /health` — sonde de disponibilité.
+- `POST /documents` — upload multipart d'un fichier PDF/DOCX ; ingestion, chunking
+  et vectorisation, retourne `{document_id, chunk_count}`.
+- `POST /query` — `{"query": "...", "k": 5}` ; exécute le pipeline d'orchestration
+  et retourne la réponse citée. Répond `503` tant qu'aucun `LLMClient` concret
+  n'est configuré (`create_app(llm=...)`).
+
+## Docker
 
 ```bash
 docker build -f docker/ingestion.Dockerfile -t document-intelligence-ingestion .
+docker build -f docker/api.Dockerfile -t document-intelligence-api .
+docker compose up --build
 ```
 
-## Hors périmètre du Sprint 3 (à venir)
+`docker-compose.yml` ne définit pour l'instant que le service `api` : ChromaDB
+tourne embarqué dans le processus (`PersistentClient` sur un volume partagé).
+Un service de base vectorielle dédié s'ajoutera lors de la migration vers
+Qdrant/Pinecone sans changer le contrat `VectorStore`.
 
-- **Sprint 4** : `api/` — FastAPI + endpoints, docker-compose multi-services,
-  CI/CD GitHub Actions.
+## CI/CD
+
+`.github/workflows/ci.yml` exécute la suite de tests puis construit les deux
+images Docker (`ingestion`, `api`) à chaque push/PR sur `main`.
+
+## Hors périmètre du Sprint 4 (à venir)
+
 - Implémentation concrète de `LLMClient` (Anthropic/OpenAI) et ajout de la
   dépendance LangGraph pour porter `orchestration/nodes.py` sur un vrai
   `StateGraph`.
 - Migration du vector store vers Qdrant/Pinecone (interface déjà abstraite,
-  non implémentée).
+  non implémentée) — introduira un second service dans `docker-compose.yml`.
+- Authentification/autorisation sur l'API, actuellement ouverte.
