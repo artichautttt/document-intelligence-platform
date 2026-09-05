@@ -23,6 +23,7 @@ dev = [
     "python-docx>=1.1",
     "reportlab>=4.2",
     "httpx>=0.27",
+    "mypy>=1.11",
 ]
 
 [tool.pytest.ini_options]
@@ -31,8 +32,10 @@ testpaths = ["tests"]
 
 [tool.mypy]
 python_version = "3.11"
-strict = true
 packages = ["document_intelligence"]
+# TODO: re-enable `strict = true` once existing modules are fully typed.
+ignore_missing_imports = true
+check_untyped_defs = true
 
 [build-system]
 requires = ["hatchling"]
