@@ -28,8 +28,6 @@ jobs:
         run: uv sync --all-groups
 
       - name: Type check
-        # TODO: drop continue-on-error once `strict = true` is restored in pyproject.toml
-        continue-on-error: true
         run: uv run mypy
 
   test:

@@ -34,6 +34,7 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.mypy]
+# 3.13 target: mypy needs >=3.12 semantics to parse recent dependency stubs (e.g. numpy).
 python_version = "3.13"
 strict = true
 packages = ["document_intelligence"]
