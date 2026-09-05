@@ -59,8 +59,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build ingestion image
-        run: docker build -f docker/ingestion.Dockerfile -t document-intelligence-ingestion .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/ingestion.Dockerfile
+          tags: document-intelligence-ingestion:ci
+          push: false
+          load: true
+          cache-from: type=gha,scope=ingestion
+          cache-to: type=gha,mode=max,scope=ingestion
 
       - name: Build api image
-        run: docker build -f docker/api.Dockerfile -t document-intelligence-api .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/api.Dockerfile
+          tags: document-intelligence-api:ci
+          push: false
+          load: true
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
