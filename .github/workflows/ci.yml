@@ -27,6 +27,12 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-groups
 
+      - name: Lint
+        run: uv run ruff check --output-format=github .
+
+      - name: Format
+        run: uv run ruff format --check --diff .
+
       - name: Type check
         run: uv run mypy
 
