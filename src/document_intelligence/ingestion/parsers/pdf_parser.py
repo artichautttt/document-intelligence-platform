@@ -12,8 +12,10 @@ via sa détection de lignes/colonnes.
 import statistics
 import uuid
 from pathlib import Path
+from typing import Any
 
 import pdfplumber
+from pdfplumber.page import Page
 
 from document_intelligence.ingestion.exceptions import CorruptFileError, EmptyDocumentError
 from document_intelligence.ingestion.models import DocumentElement, ElementType, ParsedDocument
@@ -61,14 +63,14 @@ class PdfParser(DocumentParser):
 
         return elements
 
-    def _extract_text_lines(self, page: object, page_number: int) -> list[DocumentElement]:
+    def _extract_text_lines(self, page: Page, page_number: int) -> list[DocumentElement]:
         words = page.extract_words(extra_attrs=["size"])
         if not words:
             return []
 
         median_size = statistics.median(w["size"] for w in words)
 
-        lines: dict[float, list[dict]] = {}
+        lines: dict[float, list[dict[str, Any]]] = {}
         for word in words:
             key = round(word["top"], 1)
             lines.setdefault(key, []).append(word)
@@ -96,7 +98,7 @@ class PdfParser(DocumentParser):
 
         return elements
 
-    def _extract_tables(self, page: object, page_number: int) -> list[DocumentElement]:
+    def _extract_tables(self, page: Page, page_number: int) -> list[DocumentElement]:
         elements: list[DocumentElement] = []
         for table in page.extract_tables():
             rows = [

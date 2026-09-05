@@ -2,13 +2,13 @@
 
 from fastapi import APIRouter, Depends
 
-from document_intelligence.api.dependencies import get_llm, get_store
+from document_intelligence.api.dependencies import get_llm, get_store, verify_api_key
 from document_intelligence.api.schemas import QueryRequest, QueryResponse
 from document_intelligence.orchestration.graph import answer_query
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.store import VectorStore
 
-router = APIRouter(prefix="/query", tags=["query"])
+router = APIRouter(prefix="/query", tags=["query"], dependencies=[Depends(verify_api_key)])
 
 
 @router.post("", response_model=QueryResponse)

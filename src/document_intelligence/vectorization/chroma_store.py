@@ -8,6 +8,8 @@ qui permet de dériver un score de similarité simple (`1 - distance`).
 """
 
 import json
+from collections.abc import Mapping
+from typing import Any
 
 import chromadb
 
@@ -50,6 +52,10 @@ class ChromaStore(VectorStore):
     def query(self, text: str, k: int = 5) -> list[QueryResult]:
         result = self._collection.query(query_texts=[text], n_results=k)
 
+        assert result["documents"] is not None
+        assert result["metadatas"] is not None
+        assert result["distances"] is not None
+
         ids = result["ids"][0]
         documents = result["documents"][0]
         metadatas = result["metadatas"][0]
@@ -76,9 +82,9 @@ class ChromaStore(VectorStore):
         }
 
     @staticmethod
-    def _from_metadata(metadata: dict) -> ChunkProvenance:
+    def _from_metadata(metadata: Mapping[str, Any]) -> ChunkProvenance:
         return ChunkProvenance(
-            document_id=metadata["document_id"],
-            source_path=metadata["source_path"],
-            element_ids=json.loads(metadata["element_ids"]),
+            document_id=str(metadata["document_id"]),
+            source_path=str(metadata["source_path"]),
+            element_ids=json.loads(str(metadata["element_ids"])),
         )

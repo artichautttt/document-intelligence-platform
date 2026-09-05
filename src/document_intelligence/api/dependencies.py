@@ -5,10 +5,32 @@ l'application (voir `api.app.create_app`) et exposés via `app.state`, afin
 d'être injectables et substituables par des doublures dans les tests.
 """
 
-from fastapi import HTTPException, Request, status
+from fastapi import Header, HTTPException, Request, status
 
+from document_intelligence.core.config import settings
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.store import VectorStore
+
+
+def verify_api_key(x_api_key: str | None = Header(default=None)) -> None:
+    """Vérifie la clé d'API transmise dans l'en-tête `X-API-Key`.
+
+    Si `settings.api_key` n'est pas configuré, l'authentification est
+    désactivée (mode développement) : c'est le comportement historique de
+    l'API, conservé pour ne pas casser les déploiements existants qui n'ont
+    pas encore défini de clé.
+
+    Raises:
+        HTTPException: 401 si la clé est absente ou ne correspond pas.
+    """
+    if settings.api_key is None:
+        return
+
+    if x_api_key != settings.api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Clé d'API absente ou invalide.",
+        )
 
 
 def get_store(request: Request) -> VectorStore:

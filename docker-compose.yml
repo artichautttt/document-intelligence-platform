@@ -8,18 +8,31 @@ services:
     environment:
       LOG_LEVEL: INFO
       CHROMA_PERSIST_DIRECTORY: /data/.chroma
+      VECTOR_STORE_BACKEND: ${VECTOR_STORE_BACKEND:-chroma}
+      QDRANT_URL: http://qdrant:6333
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      API_KEY: ${API_KEY:-}
     volumes:
       - chroma_data:/data/.chroma
+    depends_on:
+      - qdrant
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 5s
       retries: 3
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
 volumes:
   chroma_data:
+  qdrant_data:
 
-# ChromaDB tourne actuellement embarque dans le processus `api` (PersistentClient
-# sur un volume partage) : il n'y a donc qu'un seul service pour l'instant. Le
-# passage a un service de base vectorielle dedie (Qdrant/Pinecone, cf. README)
-# ajoutera un second service ici sans changer le contrat de `VectorStore`.
+# Deux vector stores sont disponibles (interface `VectorStore` commune) :
+# ChromaDB (embarque dans le processus `api`, par defaut) et Qdrant (service
+# dedie ci-dessus). Basculer via VECTOR_STORE_BACKEND=qdrant.

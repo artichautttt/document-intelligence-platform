@@ -14,6 +14,9 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "python-multipart>=0.0.9",
+    "anthropic>=0.40",
+    "langgraph>=0.2",
+    "qdrant-client>=1.11",
 ]
 
 [dependency-groups]
@@ -31,11 +34,9 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
+strict = true
 packages = ["document_intelligence"]
-# TODO: re-enable `strict = true` once existing modules are fully typed.
-ignore_missing_imports = true
-check_untyped_defs = true
 
 [build-system]
 requires = ["hatchling"]

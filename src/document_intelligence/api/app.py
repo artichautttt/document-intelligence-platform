@@ -9,20 +9,36 @@ from document_intelligence.api.exception_handlers import register_exception_hand
 from document_intelligence.api.routers import documents, query
 from document_intelligence.core.config import settings
 from document_intelligence.core.logging import configure_logging, get_logger
+from document_intelligence.orchestration.anthropic_client import AnthropicLLMClient
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.chroma_store import ChromaStore
+from document_intelligence.vectorization.qdrant_store import QdrantStore
+from document_intelligence.vectorization.store import VectorStore
 
 logger = get_logger(__name__)
+
+
+def _build_store() -> VectorStore:
+    if settings.vector_store_backend == "qdrant":
+        return QdrantStore(url=settings.qdrant_url, collection_name=settings.qdrant_collection)
+    return ChromaStore(persist_directory=settings.chroma_persist_directory)
+
+
+def _build_llm(override: LLMClient | None) -> LLMClient | None:
+    if override is not None:
+        return override
+    if settings.anthropic_api_key:
+        return AnthropicLLMClient(api_key=settings.anthropic_api_key, model=settings.anthropic_model)
+    # Aucun fournisseur LLM n'est configuré : `/query` répondra 503 (cf. get_llm).
+    return None
 
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     configure_logging()
-    app.state.store = ChromaStore(persist_directory=settings.chroma_persist_directory)
-    # Aucune implémentation concrète de `LLMClient` n'est encore branchée (cf. README) :
-    # `/query` répondra 503 tant qu'un fournisseur n'est pas passé à `create_app`.
-    app.state.llm = app.state.llm_override
-    logger.info("api.startup")
+    app.state.store = _build_store()
+    app.state.llm = _build_llm(app.state.llm_override)
+    logger.info("api.startup", vector_store_backend=settings.vector_store_backend)
     yield
     logger.info("api.shutdown")
 

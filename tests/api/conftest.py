@@ -34,3 +34,13 @@ def client_without_llm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Itera
     app = create_app(llm=None)
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def client_with_api_key(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+    """Client de test avec une clé d'API requise (`settings.api_key` défini)."""
+    monkeypatch.setattr(config.settings, "chroma_persist_directory", str(tmp_path / ".chroma"))
+    monkeypatch.setattr(config.settings, "api_key", "secret-key")
+    app = create_app(llm=FakeLLMClient())
+    with TestClient(app) as test_client:
+        yield test_client

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, UploadFile
 
-from document_intelligence.api.dependencies import get_store
+from document_intelligence.api.dependencies import get_store, verify_api_key
 from document_intelligence.api.schemas import DocumentIngestResponse
 from document_intelligence.chunking.service import chunk_document
 from document_intelligence.core.logging import get_logger
@@ -14,7 +14,7 @@ from document_intelligence.vectorization.store import VectorStore
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+router = APIRouter(prefix="/documents", tags=["documents"], dependencies=[Depends(verify_api_key)])
 
 
 @router.post("", response_model=DocumentIngestResponse, status_code=201)
