@@ -31,10 +31,14 @@ class TestDocxParser:
 
         document = parser.parse(simple_docx)
 
-        titles = [el.text for el in document.elements if el.element_type is ElementType.TITLE]
+        titles = [
+            el.text for el in document.elements if el.element_type is ElementType.TITLE
+        ]
         assert titles == ["Introduction", "Résultats financiers"]
 
-    def test_raises_corrupt_file_error_on_invalid_docx(self, corrupt_docx: Path) -> None:
+    def test_raises_corrupt_file_error_on_invalid_docx(
+        self, corrupt_docx: Path
+    ) -> None:
         parser = DocxParser()
 
         with pytest.raises(CorruptFileError):

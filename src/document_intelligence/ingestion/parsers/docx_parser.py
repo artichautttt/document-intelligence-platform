@@ -8,8 +8,15 @@ from pathlib import Path
 
 from unstructured.partition.docx import partition_docx
 
-from document_intelligence.ingestion.exceptions import CorruptFileError, EmptyDocumentError
-from document_intelligence.ingestion.models import DocumentElement, ElementType, ParsedDocument
+from document_intelligence.ingestion.exceptions import (
+    CorruptFileError,
+    EmptyDocumentError,
+)
+from document_intelligence.ingestion.models import (
+    DocumentElement,
+    ElementType,
+    ParsedDocument,
+)
 from document_intelligence.ingestion.parsers.base import DocumentParser
 
 _TYPE_MAP: dict[str, ElementType] = {
@@ -30,7 +37,9 @@ class DocxParser(DocumentParser):
         try:
             raw_elements = partition_docx(filename=str(path))
         except Exception as exc:
-            raise CorruptFileError(f"Impossible de parser le DOCX '{path}': {exc}") from exc
+            raise CorruptFileError(
+                f"Impossible de parser le DOCX '{path}': {exc}"
+            ) from exc
 
         elements = [
             DocumentElement(
@@ -44,7 +53,9 @@ class DocxParser(DocumentParser):
         ]
 
         if not elements:
-            raise EmptyDocumentError(f"Aucun contenu exploitable extrait du DOCX '{path}'")
+            raise EmptyDocumentError(
+                f"Aucun contenu exploitable extrait du DOCX '{path}'"
+            )
 
         return ParsedDocument(
             document_id=str(uuid.uuid4()),

@@ -43,7 +43,9 @@ class QdrantStore(VectorStore):
             location: réservé aux tests (`":memory:"` pour un Qdrant embarqué en
                 mémoire, sans serveur externe).
         """
-        self._client = QdrantClient(location=location) if location else QdrantClient(url=url)
+        self._client = (
+            QdrantClient(location=location) if location else QdrantClient(url=url)
+        )
         self._collection_name = collection_name
         self._embed = DefaultEmbeddingFunction()
         self._ensure_collection()
@@ -60,7 +62,9 @@ class QdrantStore(VectorStore):
 
     def add_chunks(self, chunks: list[Chunk]) -> None:
         if not chunks:
-            raise EmptyChunkListError("Impossible de vectoriser une liste de chunks vide")
+            raise EmptyChunkListError(
+                "Impossible de vectoriser une liste de chunks vide"
+            )
 
         vectors = self._embed([chunk.text for chunk in chunks])
         points = [
@@ -76,7 +80,9 @@ class QdrantStore(VectorStore):
             for chunk, vector in zip(chunks, vectors, strict=True)
         ]
         self._client.upsert(collection_name=self._collection_name, points=points)
-        logger.info("vectorization.add_chunks", chunk_count=len(chunks), backend="qdrant")
+        logger.info(
+            "vectorization.add_chunks", chunk_count=len(chunks), backend="qdrant"
+        )
 
     def query(self, text: str, k: int = 5) -> list[QueryResult]:
         vector = self._embed([text])[0]

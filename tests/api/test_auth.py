@@ -3,7 +3,9 @@
 from fastapi.testclient import TestClient
 
 
-def test_documents_rejects_request_without_api_key(client_with_api_key: TestClient) -> None:
+def test_documents_rejects_request_without_api_key(
+    client_with_api_key: TestClient,
+) -> None:
     response = client_with_api_key.post(
         "/documents", files={"file": ("notes.txt", b"contenu", "text/plain")}
     )
@@ -11,7 +13,9 @@ def test_documents_rejects_request_without_api_key(client_with_api_key: TestClie
     assert response.status_code == 401
 
 
-def test_documents_rejects_request_with_wrong_api_key(client_with_api_key: TestClient) -> None:
+def test_documents_rejects_request_with_wrong_api_key(
+    client_with_api_key: TestClient,
+) -> None:
     response = client_with_api_key.post(
         "/documents",
         files={"file": ("notes.txt", b"contenu", "text/plain")},
@@ -27,7 +31,9 @@ def test_query_rejects_request_without_api_key(client_with_api_key: TestClient) 
     assert response.status_code == 401
 
 
-def test_query_accepts_request_with_correct_api_key(client_with_api_key: TestClient) -> None:
+def test_query_accepts_request_with_correct_api_key(
+    client_with_api_key: TestClient,
+) -> None:
     response = client_with_api_key.post(
         "/query",
         json={"query": "quelque chose"},

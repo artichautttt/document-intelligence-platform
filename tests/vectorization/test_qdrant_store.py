@@ -35,7 +35,9 @@ class TestQdrantStore:
         chunks = [
             _chunk("Le chat dort paisiblement sur le canape du salon."),
             _chunk("Le chiffre d'affaires trimestriel a augmente de quinze pourcent."),
-            _chunk("La marge operationnelle s'est amelioree grace a la baisse des couts."),
+            _chunk(
+                "La marge operationnelle s'est amelioree grace a la baisse des couts."
+            ),
         ]
         store.add_chunks(chunks)
 
@@ -47,7 +49,9 @@ class TestQdrantStore:
         assert "chat" not in result_texts[0]
 
     def test_query_result_preserves_provenance(self, store: QdrantStore) -> None:
-        chunk = _chunk("Un paragraphe unique pour verifier la tracabilite.", document_id="doc-42")
+        chunk = _chunk(
+            "Un paragraphe unique pour verifier la tracabilite.", document_id="doc-42"
+        )
         store.add_chunks([chunk])
 
         results = store.query("paragraphe tracabilite", k=1)

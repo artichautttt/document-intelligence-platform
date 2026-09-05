@@ -5,7 +5,10 @@ import uuid
 import pytest
 
 from document_intelligence.chunking.models import Chunk, ChunkProvenance
-from document_intelligence.orchestration.exceptions import EmptyQueryError, NoRelevantChunkError
+from document_intelligence.orchestration.exceptions import (
+    EmptyQueryError,
+    NoRelevantChunkError,
+)
 from document_intelligence.orchestration.graph import answer_query
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.exceptions import EmptyChunkListError
@@ -18,7 +21,9 @@ def _chunk(text: str) -> Chunk:
         chunk_id=str(uuid.uuid4()),
         text=text,
         provenance=ChunkProvenance(
-            document_id="doc-1", source_path="/tmp/fake.pdf", element_ids=[str(uuid.uuid4())]
+            document_id="doc-1",
+            source_path="/tmp/fake.pdf",
+            element_ids=[str(uuid.uuid4())],
         ),
     )
 
@@ -36,7 +41,9 @@ class FakeVectorStore(VectorStore):
 
     def query(self, text: str, k: int = 5) -> list[QueryResult]:
         return [
-            QueryResult(chunk_id=c.chunk_id, text=c.text, score=1.0, provenance=c.provenance)
+            QueryResult(
+                chunk_id=c.chunk_id, text=c.text, score=1.0, provenance=c.provenance
+            )
             for c in self._chunks[:k]
         ]
 
@@ -64,7 +71,9 @@ def store() -> FakeVectorStore:
     fake_store.add_chunks(
         [
             _chunk("Le chiffre d'affaires trimestriel a augmente de quinze pourcent."),
-            _chunk("La marge operationnelle s'est amelioree grace a la baisse des couts."),
+            _chunk(
+                "La marge operationnelle s'est amelioree grace a la baisse des couts."
+            ),
         ]
     )
     return fake_store
@@ -79,7 +88,9 @@ class TestAnswerQuery:
     def test_answer_query_returns_citations_for_retrieved_chunks(
         self, store: FakeVectorStore, llm: FakeLLMClient
     ) -> None:
-        result = answer_query("Quels sont les resultats financiers ?", store=store, llm=llm, k=2)
+        result = answer_query(
+            "Quels sont les resultats financiers ?", store=store, llm=llm, k=2
+        )
 
         assert result.query == "Quels sont les resultats financiers ?"
         assert len(result.citations) == 2

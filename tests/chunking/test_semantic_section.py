@@ -2,12 +2,20 @@
 
 import uuid
 
-from document_intelligence.chunking.strategies.semantic_section import SemanticSectionChunker
-from document_intelligence.ingestion.models import DocumentElement, ElementType, ParsedDocument
+from document_intelligence.chunking.strategies.semantic_section import (
+    SemanticSectionChunker,
+)
+from document_intelligence.ingestion.models import (
+    DocumentElement,
+    ElementType,
+    ParsedDocument,
+)
 
 
 def _element(element_type: ElementType, text: str) -> DocumentElement:
-    return DocumentElement(element_id=str(uuid.uuid4()), element_type=element_type, text=text)
+    return DocumentElement(
+        element_id=str(uuid.uuid4()), element_type=element_type, text=text
+    )
 
 
 def _document(elements: list[DocumentElement]) -> ParsedDocument:
@@ -80,7 +88,9 @@ class TestSemanticSectionChunker:
         assert len(chunks) == 1
         assert chunks[0].provenance.document_id == document.document_id
         assert chunks[0].provenance.source_path == document.source_path
-        assert set(chunks[0].provenance.element_ids) == {el.element_id for el in elements}
+        assert set(chunks[0].provenance.element_ids) == {
+            el.element_id for el in elements
+        }
 
     def test_empty_document_produces_no_chunks(self) -> None:
         chunker = SemanticSectionChunker(max_chunk_chars=1000)

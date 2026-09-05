@@ -18,7 +18,9 @@ def simple_docx(tmp_path: Path) -> Path:
 
     doc = Document()
     doc.add_heading("Introduction", level=1)
-    doc.add_paragraph("Ceci est un paragraphe de test décrivant le contexte du document.")
+    doc.add_paragraph(
+        "Ceci est un paragraphe de test décrivant le contexte du document."
+    )
     doc.add_heading("Résultats financiers", level=1)
     doc.add_paragraph("Le chiffre d'affaires a augmenté de 12% sur l'exercice.")
     table = doc.add_table(rows=2, cols=2)
@@ -42,7 +44,9 @@ def simple_pdf(tmp_path: Path) -> Path:
     c.setFont("Helvetica-Bold", 16)
     c.drawString(72, 750, "Rapport Annuel")
     c.setFont("Helvetica", 11)
-    c.drawString(72, 720, "Ce document presente les resultats financiers de l'exercice.")
+    c.drawString(
+        72, 720, "Ce document presente les resultats financiers de l'exercice."
+    )
     c.save()
     return path
 

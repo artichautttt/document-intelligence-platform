@@ -67,7 +67,9 @@ from document_intelligence.orchestration.anthropic_client import AnthropicLLMCli
 from document_intelligence.orchestration.graph import answer_query
 
 llm = AnthropicLLMClient(api_key="sk-ant-...")
-answer = answer_query("Quels sont les resultats financiers du trimestre ?", store=store, llm=llm)
+answer = answer_query(
+    "Quels sont les resultats financiers du trimestre ?", store=store, llm=llm
+)
 print(answer.answer)
 for citation in answer.citations:
     print(citation.chunk_id, citation.provenance.element_ids)

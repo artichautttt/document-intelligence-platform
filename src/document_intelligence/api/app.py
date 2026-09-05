@@ -20,7 +20,9 @@ logger = get_logger(__name__)
 
 def _build_store() -> VectorStore:
     if settings.vector_store_backend == "qdrant":
-        return QdrantStore(url=settings.qdrant_url, collection_name=settings.qdrant_collection)
+        return QdrantStore(
+            url=settings.qdrant_url, collection_name=settings.qdrant_collection
+        )
     return ChromaStore(persist_directory=settings.chroma_persist_directory)
 
 
@@ -28,7 +30,9 @@ def _build_llm(override: LLMClient | None) -> LLMClient | None:
     if override is not None:
         return override
     if settings.anthropic_api_key:
-        return AnthropicLLMClient(api_key=settings.anthropic_api_key, model=settings.anthropic_model)
+        return AnthropicLLMClient(
+            api_key=settings.anthropic_api_key, model=settings.anthropic_model
+        )
     # Aucun fournisseur LLM n'est configuré : `/query` répondra 503 (cf. get_llm).
     return None
 

@@ -8,7 +8,9 @@ from document_intelligence.orchestration.graph import answer_query
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.store import VectorStore
 
-router = APIRouter(prefix="/query", tags=["query"], dependencies=[Depends(verify_api_key)])
+router = APIRouter(
+    prefix="/query", tags=["query"], dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("", response_model=QueryResponse)
@@ -19,4 +21,6 @@ async def query_documents(
 ) -> QueryResponse:
     """Exécute le pipeline routage → retrieval → synthèse pour la requête soumise."""
     result = answer_query(request.query, store=store, llm=llm, k=request.k)
-    return QueryResponse(query=result.query, answer=result.answer, citations=result.citations)
+    return QueryResponse(
+        query=result.query, answer=result.answer, citations=result.citations
+    )

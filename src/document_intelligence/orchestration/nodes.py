@@ -7,7 +7,10 @@ consistera à enregistrer ces mêmes fonctions comme nœuds du graphe sans
 modifier leur logique.
 """
 
-from document_intelligence.orchestration.exceptions import EmptyQueryError, NoRelevantChunkError
+from document_intelligence.orchestration.exceptions import (
+    EmptyQueryError,
+    NoRelevantChunkError,
+)
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.orchestration.models import (
     AgentState,
@@ -44,7 +47,9 @@ def retrieve(state: AgentState, store: VectorStore, k: int = 5) -> AgentState:
     """
     results = store.query(state.query, k=k)
     if not results:
-        raise NoRelevantChunkError(f"Aucun chunk pertinent trouvé pour la requête : {state.query!r}")
+        raise NoRelevantChunkError(
+            f"Aucun chunk pertinent trouvé pour la requête : {state.query!r}"
+        )
 
     return state.model_copy(update={"retrieved": results})
 
@@ -56,7 +61,9 @@ def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
         NoRelevantChunkError: si aucun chunk n'a été récupéré au préalable.
     """
     if not state.retrieved:
-        raise NoRelevantChunkError("Impossible de synthétiser une réponse sans chunk récupéré.")
+        raise NoRelevantChunkError(
+            "Impossible de synthétiser une réponse sans chunk récupéré."
+        )
 
     context = "\n\n".join(
         f"[{result.chunk_id}] {result.text}" for result in state.retrieved
@@ -65,7 +72,9 @@ def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
     answer_text = llm.complete(prompt)
 
     citations = [
-        Citation(chunk_id=result.chunk_id, provenance=result.provenance, score=result.score)
+        Citation(
+            chunk_id=result.chunk_id, provenance=result.provenance, score=result.score
+        )
         for result in state.retrieved
     ]
 

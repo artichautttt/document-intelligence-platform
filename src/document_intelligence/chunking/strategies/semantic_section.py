@@ -25,7 +25,11 @@ import uuid
 
 from document_intelligence.chunking.models import Chunk, ChunkProvenance
 from document_intelligence.chunking.strategies.base import ChunkingStrategy
-from document_intelligence.ingestion.models import DocumentElement, ElementType, ParsedDocument
+from document_intelligence.ingestion.models import (
+    DocumentElement,
+    ElementType,
+    ParsedDocument,
+)
 
 _SENTENCE_BOUNDARY = re.compile(r"(?<=[.!?])\s+")
 

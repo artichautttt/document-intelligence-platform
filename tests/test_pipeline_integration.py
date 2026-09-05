@@ -21,7 +21,9 @@ def _fixture_files(fixtures_dir: Path) -> list[Path]:
 
 
 class TestPipelineIntegration:
-    def test_fixtures_directory_has_at_least_three_documents(self, fixtures_dir: Path) -> None:
+    def test_fixtures_directory_has_at_least_three_documents(
+        self, fixtures_dir: Path
+    ) -> None:
         files = _fixture_files(fixtures_dir)
         assert len(files) >= 3, (
             "Attendu au moins 3 documents dans tests/fixtures/documents/ "
@@ -32,7 +34,9 @@ class TestPipelineIntegration:
         "filename",
         ["financial_report.pdf", "legal_contract.docx", "audit_report.docx"],
     )
-    def test_ingest_and_chunk_real_documents(self, fixtures_dir: Path, filename: str) -> None:
+    def test_ingest_and_chunk_real_documents(
+        self, fixtures_dir: Path, filename: str
+    ) -> None:
         path = fixtures_dir / filename
         assert path.exists(), f"Fixture manquante: {path}"
 
@@ -51,12 +55,16 @@ class TestPipelineIntegration:
             valid_ids = {el.element_id for el in document.elements}
             assert set(chunk.provenance.element_ids).issubset(valid_ids)
 
-    def test_financial_report_table_is_isolated_in_own_chunk(self, fixtures_dir: Path) -> None:
+    def test_financial_report_table_is_isolated_in_own_chunk(
+        self, fixtures_dir: Path
+    ) -> None:
         document = ingest(fixtures_dir / "financial_report.pdf")
         chunks = chunk_document(document)
 
         table_element_ids = {
-            el.element_id for el in document.elements if el.element_type is ElementType.TABLE
+            el.element_id
+            for el in document.elements
+            if el.element_type is ElementType.TABLE
         }
         if not table_element_ids:
             pytest.skip("Aucun tableau détecté dans ce document synthétique")
@@ -66,7 +74,9 @@ class TestPipelineIntegration:
             if chunk_element_ids & table_element_ids:
                 assert chunk_element_ids.issubset(table_element_ids)
 
-    def test_legal_contract_preserves_article_sections(self, fixtures_dir: Path) -> None:
+    def test_legal_contract_preserves_article_sections(
+        self, fixtures_dir: Path
+    ) -> None:
         document = ingest(fixtures_dir / "legal_contract.docx")
         chunks = chunk_document(document)
 

@@ -23,7 +23,9 @@ from document_intelligence.vectorization.store import VectorStore
 logger = get_logger(__name__)
 
 
-def _build_graph(store: VectorStore, llm: LLMClient, k: int) -> CompiledStateGraph[Any, Any, Any, Any]:
+def _build_graph(
+    store: VectorStore, llm: LLMClient, k: int
+) -> CompiledStateGraph[Any, Any, Any, Any]:
     graph: StateGraph[AgentState, None, AgentState, AgentState] = StateGraph(AgentState)
     graph.add_node("route", route_query)
     graph.add_node("retrieve", partial(retrieve, store=store, k=k))
@@ -37,7 +39,9 @@ def _build_graph(store: VectorStore, llm: LLMClient, k: int) -> CompiledStateGra
     return graph.compile()
 
 
-def answer_query(query: str, store: VectorStore, llm: LLMClient, k: int = 5) -> AnswerResult:
+def answer_query(
+    query: str, store: VectorStore, llm: LLMClient, k: int = 5
+) -> AnswerResult:
     """Exécute le pipeline routage → retrieval → synthèse pour une requête utilisateur.
 
     Args:
@@ -48,7 +52,9 @@ def answer_query(query: str, store: VectorStore, llm: LLMClient, k: int = 5) -> 
     """
     compiled_graph = _build_graph(store=store, llm=llm, k=k)
     final_state = compiled_graph.invoke(AgentState(query=query))
-    answer = final_state["answer"] if isinstance(final_state, dict) else final_state.answer
+    answer = (
+        final_state["answer"] if isinstance(final_state, dict) else final_state.answer
+    )
 
     if not isinstance(answer, AnswerResult):
         raise OrchestrationError("Le nœud de synthèse n'a produit aucune réponse.")

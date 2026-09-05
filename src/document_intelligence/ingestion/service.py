@@ -14,7 +14,9 @@ logger = get_logger(__name__)
 _DEFAULT_PARSERS: list[DocumentParser] = [PdfParser(), DocxParser()]
 
 
-def ingest(path: str | Path, parsers: list[DocumentParser] | None = None) -> ParsedDocument:
+def ingest(
+    path: str | Path, parsers: list[DocumentParser] | None = None
+) -> ParsedDocument:
     """Parse un fichier en sélectionnant automatiquement le parser adapté à son format.
 
     Args:

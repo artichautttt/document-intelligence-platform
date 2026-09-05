@@ -40,7 +40,9 @@ class ChromaStore(VectorStore):
 
     def add_chunks(self, chunks: list[Chunk]) -> None:
         if not chunks:
-            raise EmptyChunkListError("Impossible de vectoriser une liste de chunks vide")
+            raise EmptyChunkListError(
+                "Impossible de vectoriser une liste de chunks vide"
+            )
 
         self._collection.upsert(
             ids=[chunk.chunk_id for chunk in chunks],

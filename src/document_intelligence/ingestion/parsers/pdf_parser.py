@@ -17,8 +17,15 @@ from typing import Any
 import pdfplumber
 from pdfplumber.page import Page
 
-from document_intelligence.ingestion.exceptions import CorruptFileError, EmptyDocumentError
-from document_intelligence.ingestion.models import DocumentElement, ElementType, ParsedDocument
+from document_intelligence.ingestion.exceptions import (
+    CorruptFileError,
+    EmptyDocumentError,
+)
+from document_intelligence.ingestion.models import (
+    DocumentElement,
+    ElementType,
+    ParsedDocument,
+)
 from document_intelligence.ingestion.parsers.base import DocumentParser
 
 _TITLE_SIZE_RATIO = 1.15
@@ -36,10 +43,14 @@ class PdfParser(DocumentParser):
         except CorruptFileError:
             raise
         except Exception as exc:  # pdfminer/pdfplumber lèvent des exceptions variées
-            raise CorruptFileError(f"Impossible de parser le PDF '{path}': {exc}") from exc
+            raise CorruptFileError(
+                f"Impossible de parser le PDF '{path}': {exc}"
+            ) from exc
 
         if not elements:
-            raise EmptyDocumentError(f"Aucun contenu exploitable extrait du PDF '{path}'")
+            raise EmptyDocumentError(
+                f"Aucun contenu exploitable extrait du PDF '{path}'"
+            )
 
         return ParsedDocument(
             document_id=str(uuid.uuid4()),
@@ -63,7 +74,9 @@ class PdfParser(DocumentParser):
 
         return elements
 
-    def _extract_text_lines(self, page: Page, page_number: int) -> list[DocumentElement]:
+    def _extract_text_lines(
+        self, page: Page, page_number: int
+    ) -> list[DocumentElement]:
         words = page.extract_words(extra_attrs=["size"])
         if not words:
             return []
@@ -84,7 +97,8 @@ class PdfParser(DocumentParser):
 
             avg_size = sum(w["size"] for w in line_words) / len(line_words)
             element_type = (
-                ElementType.TITLE if avg_size > median_size * _TITLE_SIZE_RATIO
+                ElementType.TITLE
+                if avg_size > median_size * _TITLE_SIZE_RATIO
                 else ElementType.NARRATIVE_TEXT
             )
             elements.append(

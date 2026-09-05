@@ -21,25 +21,35 @@ class FakeLLMClient(LLMClient):
 @pytest.fixture
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     """Client de test avec un ChromaStore isolé et un `LLMClient` factice branché."""
-    monkeypatch.setattr(config.settings, "chroma_persist_directory", str(tmp_path / ".chroma"))
+    monkeypatch.setattr(
+        config.settings, "chroma_persist_directory", str(tmp_path / ".chroma")
+    )
     app = create_app(llm=FakeLLMClient())
     with TestClient(app) as test_client:
         yield test_client
 
 
 @pytest.fixture
-def client_without_llm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+def client_without_llm(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[TestClient]:
     """Client de test sans `LLMClient` configuré, pour vérifier le 503 de `/query`."""
-    monkeypatch.setattr(config.settings, "chroma_persist_directory", str(tmp_path / ".chroma"))
+    monkeypatch.setattr(
+        config.settings, "chroma_persist_directory", str(tmp_path / ".chroma")
+    )
     app = create_app(llm=None)
     with TestClient(app) as test_client:
         yield test_client
 
 
 @pytest.fixture
-def client_with_api_key(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+def client_with_api_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[TestClient]:
     """Client de test avec une clé d'API requise (`settings.api_key` défini)."""
-    monkeypatch.setattr(config.settings, "chroma_persist_directory", str(tmp_path / ".chroma"))
+    monkeypatch.setattr(
+        config.settings, "chroma_persist_directory", str(tmp_path / ".chroma")
+    )
     monkeypatch.setattr(config.settings, "api_key", "secret-key")
     app = create_app(llm=FakeLLMClient())
     with TestClient(app) as test_client:

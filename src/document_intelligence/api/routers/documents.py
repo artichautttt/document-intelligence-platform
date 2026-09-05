@@ -14,7 +14,9 @@ from document_intelligence.vectorization.store import VectorStore
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/documents", tags=["documents"], dependencies=[Depends(verify_api_key)])
+router = APIRouter(
+    prefix="/documents", tags=["documents"], dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("", response_model=DocumentIngestResponse, status_code=201)
@@ -37,5 +39,11 @@ async def upload_document(
         chunks = chunk_document(document)
         store.add_chunks(chunks)
 
-    logger.info("api.document_ingested", document_id=document.document_id, chunk_count=len(chunks))
-    return DocumentIngestResponse(document_id=document.document_id, chunk_count=len(chunks))
+    logger.info(
+        "api.document_ingested",
+        document_id=document.document_id,
+        chunk_count=len(chunks),
+    )
+    return DocumentIngestResponse(
+        document_id=document.document_id, chunk_count=len(chunks)
+    )

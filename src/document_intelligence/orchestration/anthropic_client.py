@@ -32,10 +32,14 @@ class AnthropicLLMClient(LLMClient):
                 messages=[{"role": "user", "content": prompt}],
             )
         except anthropic.APIError as exc:
-            raise LLMGenerationError(f"L'appel à l'API Anthropic a échoué : {exc}") from exc
+            raise LLMGenerationError(
+                f"L'appel à l'API Anthropic a échoué : {exc}"
+            ) from exc
 
         text_blocks = [block.text for block in response.content if block.type == "text"]
         if not text_blocks:
-            raise LLMGenerationError("L'API Anthropic n'a retourné aucun contenu textuel.")
+            raise LLMGenerationError(
+                "L'API Anthropic n'a retourné aucun contenu textuel."
+            )
 
         return "".join(text_blocks)

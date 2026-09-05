@@ -33,7 +33,9 @@ def register_exception_handlers(app: FastAPI) -> None:
     """Enregistre les handlers traduisant les exceptions métier en réponses HTTP."""
 
     @app.exception_handler(UnsupportedFormatError)
-    async def _unsupported_format(request: Request, exc: UnsupportedFormatError) -> JSONResponse:
+    async def _unsupported_format(
+        request: Request, exc: UnsupportedFormatError
+    ) -> JSONResponse:
         return _error_response(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, exc)
 
     @app.exception_handler(CorruptFileError)
@@ -41,11 +43,15 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _error_response(status.HTTP_422_UNPROCESSABLE_ENTITY, exc)
 
     @app.exception_handler(EmptyDocumentError)
-    async def _empty_document(request: Request, exc: EmptyDocumentError) -> JSONResponse:
+    async def _empty_document(
+        request: Request, exc: EmptyDocumentError
+    ) -> JSONResponse:
         return _error_response(status.HTTP_422_UNPROCESSABLE_ENTITY, exc)
 
     @app.exception_handler(EmptyChunkListError)
-    async def _empty_chunk_list(request: Request, exc: EmptyChunkListError) -> JSONResponse:
+    async def _empty_chunk_list(
+        request: Request, exc: EmptyChunkListError
+    ) -> JSONResponse:
         return _error_response(status.HTTP_422_UNPROCESSABLE_ENTITY, exc)
 
     @app.exception_handler(VectorStoreConnectionError)
@@ -59,9 +65,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _error_response(status.HTTP_400_BAD_REQUEST, exc)
 
     @app.exception_handler(NoRelevantChunkError)
-    async def _no_relevant_chunk(request: Request, exc: NoRelevantChunkError) -> JSONResponse:
+    async def _no_relevant_chunk(
+        request: Request, exc: NoRelevantChunkError
+    ) -> JSONResponse:
         return _error_response(status.HTTP_404_NOT_FOUND, exc)
 
     @app.exception_handler(LLMGenerationError)
-    async def _llm_generation(request: Request, exc: LLMGenerationError) -> JSONResponse:
+    async def _llm_generation(
+        request: Request, exc: LLMGenerationError
+    ) -> JSONResponse:
         return _error_response(status.HTTP_502_BAD_GATEWAY, exc)

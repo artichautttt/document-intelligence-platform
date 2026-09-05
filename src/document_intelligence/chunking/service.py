@@ -2,7 +2,9 @@
 
 from document_intelligence.chunking.models import Chunk
 from document_intelligence.chunking.strategies.base import ChunkingStrategy
-from document_intelligence.chunking.strategies.semantic_section import SemanticSectionChunker
+from document_intelligence.chunking.strategies.semantic_section import (
+    SemanticSectionChunker,
+)
 from document_intelligence.core.config import settings
 from document_intelligence.core.logging import get_logger
 from document_intelligence.ingestion.models import ParsedDocument
@@ -19,8 +21,10 @@ def chunk_document(
         document: document préalablement produit par le module d'ingestion.
         strategy: stratégie de chunking à utiliser (par défaut `SemanticSectionChunker`).
     """
-    active_strategy = strategy if strategy is not None else SemanticSectionChunker(
-        max_chunk_chars=settings.max_chunk_chars
+    active_strategy = (
+        strategy
+        if strategy is not None
+        else SemanticSectionChunker(max_chunk_chars=settings.max_chunk_chars)
     )
 
     chunks = active_strategy.chunk(document)

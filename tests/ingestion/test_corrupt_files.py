@@ -4,12 +4,17 @@ from pathlib import Path
 
 import pytest
 
-from document_intelligence.ingestion.exceptions import CorruptFileError, UnsupportedFormatError
+from document_intelligence.ingestion.exceptions import (
+    CorruptFileError,
+    UnsupportedFormatError,
+)
 from document_intelligence.ingestion.service import ingest
 
 
 class TestIngestionRobustness:
-    def test_raises_unsupported_format_error_for_unknown_extension(self, tmp_path: Path) -> None:
+    def test_raises_unsupported_format_error_for_unknown_extension(
+        self, tmp_path: Path
+    ) -> None:
         unknown_file = tmp_path / "notes.txt"
         unknown_file.write_text("some content")
 
