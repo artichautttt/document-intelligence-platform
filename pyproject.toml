@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Plateforme d'analyse intelligente de documents d'entreprise (RAG Multi-Agents)"
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 dependencies = [
     "pydantic>=2.7",
     "pydantic-settings>=2.3",

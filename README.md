@@ -1,6 +1,10 @@
 # Document Intelligence Platform
 
 [![CI](https://github.com/artichautttt/document-intelligence-platform/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/artichautttt/document-intelligence-platform/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/)
+[![Ruff](https://img.shields.io/badge/lint-ruff-261230)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://img.shields.io/badge/mypy-strict-2a6db2)](https://mypy-lang.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Plateforme d'analyse intelligente de documents d'entreprise (rapports financiers,
 contrats juridiques) basée sur une architecture RAG Multi-Agents.
@@ -39,11 +43,16 @@ contrats juridiques) basée sur une architecture RAG Multi-Agents.
 uv sync
 ```
 
-## Tests
+## Qualité
 
 ```bash
-uv run pytest
+uv run ruff check .        # lint
+uv run ruff format --check .  # formatage
+uv run mypy               # typage strict
+uv run pytest            # tests (48 tests, 1 skip)
 ```
+
+Ces quatre commandes sont exécutées en CI sur chaque push/PR (voir *CI/CD*).
 
 ## Utilisation
 
@@ -110,8 +119,12 @@ changer le contrat `VectorStore`.
 
 ## CI/CD
 
-`.github/workflows/ci.yml` exécute la suite de tests puis construit les deux
-images Docker (`ingestion`, `api`) à chaque push/PR sur `main`.
+`.github/workflows/ci.yml` s'exécute à chaque push/PR sur `main`, en trois jobs :
+
+- **lint** — `ruff check`, `ruff format --check`, puis `mypy --strict` (0 erreur).
+- **test** — `pytest` avec couverture, en matrice Python 3.11 et 3.12.
+- **docker-build** — build des images `ingestion` et `api` via Buildx, avec cache
+  de layers GitHub Actions ; ne démarre que si `lint` et `test` passent.
 
 ## Hors périmètre (à venir)
 
@@ -122,3 +135,7 @@ images Docker (`ingestion`, `api`) à chaque push/PR sur `main`.
 - Authentification par clé d'API unique et partagée : pas de gestion
   multi-utilisateurs, de rotation de clé ou de scopes ; à envisager si l'API
   est exposée à plusieurs clients distincts.
+
+## Licence
+
+MIT — voir [LICENSE](LICENSE).
