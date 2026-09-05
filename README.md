@@ -1,5 +1,7 @@
 # Document Intelligence Platform
 
+[![CI](https://github.com/artichautttt/document-intelligence-platform/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/artichautttt/document-intelligence-platform/actions/workflows/ci.yml)
+
 Plateforme d'analyse intelligente de documents d'entreprise (rapports financiers,
 contrats juridiques) basée sur une architecture RAG Multi-Agents.
 
