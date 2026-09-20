@@ -1,0 +1,48 @@
+{"question": "Combien d'utilisateurs la licence HelioCore autorise-t-elle ?", "relevant_substrings": ["250 utilisateurs nommés"]}
+{"question": "À quelle date le contrat de licence prend-il effet et pour quelle durée ?", "relevant_substrings": ["1er mars 2026 pour une durée de trois ans"]}
+{"question": "Quel préavis faut-il respecter pour ne pas renouveler le contrat ?", "relevant_substrings": ["quatre-vingt-dix jours"]}
+{"question": "Quel est le montant de la redevance annuelle ?", "relevant_substrings": ["184 000 euros HT"]}
+{"question": "Quel plafond limite l'augmentation annuelle des redevances ?", "relevant_substrings": ["plafonnée à 4 pour cent"]}
+{"question": "Quelle disponibilité mensuelle l'éditeur garantit-il ?", "relevant_substrings": ["99,7 pour cent"]}
+{"question": "Quel crédit le client obtient-il si le service est indisponible ?", "relevant_substrings": ["crédit de 5 pour cent"]}
+{"question": "Quel est le plafond des crédits de pénalité ?", "relevant_substrings": ["limite de 25 pour cent"]}
+{"question": "Sous quel délai un incident critique est-il pris en charge ?", "relevant_substrings": ["pris en charge en deux heures"]}
+{"question": "Où sont hébergées les données du client ?", "relevant_substrings": ["centre de données de Francfort"]}
+{"question": "Sous quel délai l'éditeur doit-il signaler une fuite de données personnelles ?", "relevant_substrings": ["délai de 48 heures"]}
+{"question": "Pendant combien de temps la confidentialité survit-elle à la fin du contrat ?", "relevant_substrings": ["sept ans après son terme"]}
+{"question": "Quelle est la limite de responsabilité de l'éditeur ?", "relevant_substrings": ["plafonnée au montant des redevances versées"]}
+{"question": "À partir de quand le client peut-il résilier sans faute de l'éditeur ?", "relevant_substrings": ["vingt-cinquième mois"]}
+{"question": "Quel tribunal est compétent en cas de litige contractuel ?", "relevant_substrings": ["tribunal de commerce de Lyon"]}
+{"question": "Combien coûte une journée de formation ?", "relevant_substrings": ["Formation (par jour) 1 200"]}
+{"question": "Quel est le forfait de migration de données ?", "relevant_substrings": ["Migration de données (forfait) 18 500"]}
+{"question": "Quel est le chiffre d'affaires du premier semestre 2026 ?", "relevant_substrings": ["63,4 millions"]}
+{"question": "Quelle société a été rachetée et à quel prix ?", "relevant_substrings": ["Tecnomar pour 14,2 millions"]}
+{"question": "Quelle est la marge d'EBITDA du semestre ?", "relevant_substrings": ["18,8 pour cent"]}
+{"question": "Quel est le bénéfice par action ?", "relevant_substrings": ["0,92 euro par action"]}
+{"question": "Combien le segment Services a-t-il généré ?", "relevant_substrings": ["24,3 millions"]}
+{"question": "Quel est le niveau d'endettement net au 30 juin 2026 ?", "relevant_substrings": ["27,5 millions d'euros au 30 juin"]}
+{"question": "Quel est le montant de la trésorerie disponible ?", "relevant_substrings": ["21,6 millions"]}
+{"question": "Combien de salariés compte le groupe Nordvale ?", "relevant_substrings": ["1 240 collaborateurs"]}
+{"question": "Quel acompte sur dividende a été décidé ?", "relevant_substrings": ["0,30 euro par action"]}
+{"question": "Quelle part du chiffre d'affaires dépend des trois principaux clients ?", "relevant_substrings": ["31 pour cent du chiffre d'affaires"]}
+{"question": "Quelle croissance annuelle le groupe vise-t-il ?", "relevant_substrings": ["entre 9 et 11 pour cent"]}
+{"question": "Quel client a signé un contrat-cadre après la clôture ?", "relevant_substrings": ["Kessler Rail"]}
+{"question": "Quel chiffre d'affaires a été réalisé au deuxième trimestre ?", "relevant_substrings": ["T2 2026 33,2"]}
+{"question": "Quelle est la période de la mission d'audit de sécurité ?", "relevant_substrings": ["du 4 au 29 mai 2026"]}
+{"question": "Quels référentiels ont servi de base à l'audit de sécurité ?", "relevant_substrings": ["ISO 27001"]}
+{"question": "Combien de comptes administrateurs orphelins ont été trouvés ?", "relevant_substrings": ["17 comptes administrateurs orphelins"]}
+{"question": "Quel accès n'est pas protégé par une authentification multifacteur ?", "relevant_substrings": ["accès VPN des prestataires"]}
+{"question": "Quelle part des serveurs a du retard sur les correctifs critiques ?", "relevant_substrings": ["23 pour cent des serveurs"]}
+{"question": "Quelle application n'a jamais fait l'objet d'un test de restauration ?", "relevant_substrings": ["application de paie"]}
+{"question": "Combien de temps les journaux d'événements sont-ils conservés actuellement ?", "relevant_substrings": ["conservés 90 jours"]}
+{"question": "Quel pourcentage de collaborateurs a saisi ses identifiants lors de l'hameçonnage simulé ?", "relevant_substrings": ["9 pour cent ont saisi"]}
+{"question": "Quel site a une salle serveur sans contrôle d'accès par badge ?", "relevant_substrings": ["site de Nantes"]}
+{"question": "Quel est le budget du plan d'action de sécurité ?", "relevant_substrings": ["220 000 euros"]}
+{"question": "Combien de risques critiques ont été relevés par l'audit de sécurité ?", "relevant_substrings": ["2 risques critiques"]}
+{"question": "Que faut-il déployer avant la fin septembre 2026 ?", "relevant_substrings": ["avant le 30 septembre 2026"]}
+{"question": "Quelle prime de bonus a été versée au directeur financier de Nordvale ?", "answerable": false}
+{"question": "Le contrat Helio prévoit-il une clause de non-concurrence ?", "answerable": false}
+{"question": "Quel éditeur d'antivirus est déployé sur les postes de travail ?", "answerable": false}
+{"question": "Quel est le taux d'intérêt de l'emprunt souscrit pour financer l'acquisition de Tecnomar ?", "answerable": false}
+{"question": "Combien de jours de tests d'intrusion ont été facturés par l'auditeur ?", "answerable": false}
+{"question": "Quel est le numéro SIRET de Helio Analytics ?", "answerable": false}

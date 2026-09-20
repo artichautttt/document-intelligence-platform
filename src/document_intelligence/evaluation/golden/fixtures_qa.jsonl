@@ -1,0 +1,15 @@
+{"question": "Quel est le chiffre d'affaires consolidé de l'exercice 2025 ?", "relevant_substrings": ["48.2 millions"], "reference_answer": "48,2 millions d'euros, en hausse de 12 %."}
+{"question": "Quelle est la marge opérationnelle et comment a-t-elle évolué ?", "relevant_substrings": ["marge operationnelle s'etablit a 18.4"], "reference_answer": "18,4 % contre 16,9 % l'année précédente."}
+{"question": "Quel revenu a été réalisé au troisième trimestre ?", "relevant_substrings": ["Q3 12 400"], "reference_answer": "12 400 k EUR au Q3."}
+{"question": "Quels sont les principaux facteurs de risque identifiés dans le rapport financier annuel 2025 ?", "relevant_substrings": ["volatilite des cours des matieres premieres"], "reference_answer": "Volatilité des matières premières, change sur la zone dollar, concurrence accrue en Asie."}
+{"question": "Quel budget de R&D est prévu pour 2026 ?", "relevant_substrings": ["6.5 millions"], "reference_answer": "6,5 millions d'euros."}
+{"question": "Combien de temps dure la confidentialité après la fin du contrat ?", "relevant_substrings": ["cinq ans suivant son terme"], "reference_answer": "Cinq ans après le terme du contrat."}
+{"question": "Dans quel délai les honoraires sont-ils payables ?", "relevant_substrings": ["delai de trente jours"], "reference_answer": "Trente jours à réception de facture."}
+{"question": "Quel est le tarif journalier d'un consultant senior ?", "relevant_substrings": ["Conseil senior 1 400"], "reference_answer": "1 400 EUR par jour."}
+{"question": "Dans quels cas le contrat peut-il être résilié sans indemnité ?", "relevant_substrings": ["manquement grave"], "reference_answer": "En cas de manquement grave non réparé sous trente jours après mise en demeure."}
+{"question": "Quelle est la durée initiale du contrat de prestation ?", "relevant_substrings": ["duree initiale de douze mois"], "reference_answer": "Douze mois à compter de la signature."}
+{"question": "Combien de transactions l'audit a-t-il examinées ?", "relevant_substrings": ["cinquante transactions"], "reference_answer": "Cinquante transactions représentatives de l'exercice 2025."}
+{"question": "Quel écart l'audit a-t-il relevé sur la validation des commandes ?", "relevant_substrings": ["absence de double validation"], "reference_answer": "Absence de double validation pour les commandes supérieures à 20 000 euros dans 4 cas sur 50."}
+{"question": "Que recommande l'audit concernant les délais de paiement ?", "relevant_substrings": ["tableau de bord mensuel"], "reference_answer": "Un tableau de bord mensuel de suivi partagé avec la direction financière."}
+{"question": "Quel est le montant des pénalités de retard prévues au contrat ?", "answerable": false}
+{"question": "Qui est le directeur général de la société ?", "answerable": false}
