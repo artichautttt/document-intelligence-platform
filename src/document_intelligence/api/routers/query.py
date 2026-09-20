@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 
 from document_intelligence.api.dependencies import get_llm, get_store, verify_api_key
 from document_intelligence.api.schemas import QueryRequest, QueryResponse
+from document_intelligence.observability import trace_span
 from document_intelligence.orchestration.graph import answer_query
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.store import VectorStore
@@ -20,7 +21,11 @@ async def query_documents(
     llm: LLMClient = Depends(get_llm),
 ) -> QueryResponse:
     """Exécute le pipeline routage → retrieval → synthèse pour la requête soumise."""
-    result = answer_query(request.query, store=store, llm=llm, k=request.k)
+    with trace_span("api.query", k=request.k):
+        result = answer_query(request.query, store=store, llm=llm, k=request.k)
     return QueryResponse(
-        query=result.query, answer=result.answer, citations=result.citations
+        query=result.query,
+        answer=result.answer,
+        citations=result.citations,
+        sufficient_context=result.sufficient_context,
     )

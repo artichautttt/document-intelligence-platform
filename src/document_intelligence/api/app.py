@@ -2,28 +2,43 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
 
 from document_intelligence.api.exception_handlers import register_exception_handlers
-from document_intelligence.api.routers import documents, query
+from document_intelligence.api.routers import documents, metrics, query
 from document_intelligence.core.config import settings
 from document_intelligence.core.logging import configure_logging, get_logger
+from document_intelligence.observability import (
+    SqliteMetricsStore,
+    registry,
+    remove_sink,
+)
 from document_intelligence.orchestration.anthropic_client import AnthropicLLMClient
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.vectorization.chroma_store import ChromaStore
+from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.qdrant_store import QdrantStore
 from document_intelligence.vectorization.store import VectorStore
+
+if TYPE_CHECKING:
+    from document_intelligence.observability.otel import OtelSink
 
 logger = get_logger(__name__)
 
 
 def _build_store() -> VectorStore:
+    store: VectorStore
     if settings.vector_store_backend == "qdrant":
-        return QdrantStore(
+        store = QdrantStore(
             url=settings.qdrant_url, collection_name=settings.qdrant_collection
         )
-    return ChromaStore(persist_directory=settings.chroma_persist_directory)
+    else:
+        store = ChromaStore(persist_directory=settings.chroma_persist_directory)
+    if settings.retrieval_mode == "hybrid":
+        return HybridStore(store)
+    return store
 
 
 def _build_llm(override: LLMClient | None) -> LLMClient | None:
@@ -37,13 +52,49 @@ def _build_llm(override: LLMClient | None) -> LLMClient | None:
     return None
 
 
+def _start_otel() -> "OtelSink | None":
+    if not settings.otel_exporter_otlp_endpoint:
+        return None
+    try:
+        from document_intelligence.observability.otel import setup_otel
+    except ImportError:
+        logger.warning(
+            "otel.unavailable",
+            hint="installer le groupe de dépendances `otel` (uv sync --group otel)",
+        )
+        return None
+    return setup_otel(
+        endpoint=settings.otel_exporter_otlp_endpoint,
+        headers=settings.otel_exporter_otlp_headers,
+    )
+
+
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     configure_logging()
     app.state.store = _build_store()
     app.state.llm = _build_llm(app.state.llm_override)
-    logger.info("api.startup", vector_store_backend=settings.vector_store_backend)
+
+    metrics_store: SqliteMetricsStore | None = None
+    if settings.metrics_db_path:
+        metrics_store = SqliteMetricsStore(settings.metrics_db_path)
+        registry.attach_store(metrics_store)
+    otel_sink = _start_otel()
+
+    logger.info(
+        "api.startup",
+        vector_store_backend=settings.vector_store_backend,
+        retrieval_mode=settings.retrieval_mode,
+        metrics_persistent=metrics_store is not None,
+        otel_enabled=otel_sink is not None,
+    )
     yield
+    if otel_sink is not None:
+        remove_sink(otel_sink)
+        otel_sink.shutdown()
+    if metrics_store is not None:
+        registry.detach_store()
+        metrics_store.close()
     logger.info("api.shutdown")
 
 
@@ -65,6 +116,7 @@ def create_app(llm: LLMClient | None = None) -> FastAPI:
     register_exception_handlers(app)
     app.include_router(documents.router)
     app.include_router(query.router)
+    app.include_router(metrics.router)
 
     @app.get("/health", tags=["health"])
     async def health() -> dict[str, str]:

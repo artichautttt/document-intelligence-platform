@@ -7,6 +7,7 @@ consistera à enregistrer ces mêmes fonctions comme nœuds du graphe sans
 modifier leur logique.
 """
 
+from document_intelligence.core.logging import get_logger
 from document_intelligence.orchestration.exceptions import (
     EmptyQueryError,
     NoRelevantChunkError,
@@ -16,15 +17,16 @@ from document_intelligence.orchestration.models import (
     AgentState,
     AnswerResult,
     Citation,
+    GroundedAnswer,
     RouteDecision,
+)
+from document_intelligence.orchestration.prompts import (
+    SYNTHESIS_SYSTEM_PROMPT,
+    build_synthesis_prompt,
 )
 from document_intelligence.vectorization.store import VectorStore
 
-_SYNTHESIS_PROMPT_TEMPLATE = (
-    "Réponds à la question suivante en te basant uniquement sur les extraits fournis.\n\n"
-    "Question : {query}\n\n"
-    "Extraits :\n{context}"
-)
+logger = get_logger(__name__)
 
 
 def route_query(state: AgentState) -> AgentState:
@@ -65,18 +67,37 @@ def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
             "Impossible de synthétiser une réponse sans chunk récupéré."
         )
 
-    context = "\n\n".join(
-        f"[{result.chunk_id}] {result.text}" for result in state.retrieved
+    prompt = build_synthesis_prompt(state.query, state.retrieved)
+    grounded = llm.complete_structured(
+        prompt, GroundedAnswer, system=SYNTHESIS_SYSTEM_PROMPT
     )
-    prompt = _SYNTHESIS_PROMPT_TEMPLATE.format(query=state.query, context=context)
-    answer_text = llm.complete(prompt)
+
+    # Seules les citations déclarées par le modèle ET présentes dans le contexte
+    # récupéré sont conservées ; un identifiant inconnu est une hallucination.
+    cited_ids = set(grounded.cited_chunk_ids)
+    known_ids = {result.chunk_id for result in state.retrieved}
+    unknown_ids = cited_ids - known_ids
+    if unknown_ids:
+        logger.warning(
+            "synthesis.unknown_citations",
+            chunk_ids=sorted(unknown_ids),
+            query=state.query,
+        )
+    if grounded.sufficient_context and not cited_ids & known_ids:
+        logger.warning("synthesis.no_valid_citation", query=state.query)
 
     citations = [
         Citation(
             chunk_id=result.chunk_id, provenance=result.provenance, score=result.score
         )
         for result in state.retrieved
+        if result.chunk_id in cited_ids and grounded.sufficient_context
     ]
 
-    answer = AnswerResult(query=state.query, answer=answer_text, citations=citations)
+    answer = AnswerResult(
+        query=state.query,
+        answer=grounded.answer,
+        citations=citations,
+        sufficient_context=grounded.sufficient_context,
+    )
     return state.model_copy(update={"answer": answer})

@@ -25,6 +25,7 @@ class QueryResponse(BaseModel):
     query: str
     answer: str
     citations: list[Citation]
+    sufficient_context: bool = True
 
 
 class ErrorResponse(BaseModel):

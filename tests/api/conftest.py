@@ -1,5 +1,6 @@
 """Fixtures partagées pour les tests de l'API FastAPI."""
 
+import re
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -8,14 +9,26 @@ from fastapi.testclient import TestClient
 
 from document_intelligence.api.app import create_app
 from document_intelligence.core import config
-from document_intelligence.orchestration.llm import LLMClient
+from document_intelligence.orchestration.llm import LLMClient, T
 
 
 class FakeLLMClient(LLMClient):
-    """Client LLM déterministe utilisé pour éviter tout appel réseau en test."""
+    """Client LLM déterministe : cite tous les extraits reçus dans son prompt."""
 
     def complete(self, prompt: str) -> str:
         return f"Réponse synthétique pour : {prompt}"
+
+    def complete_structured(
+        self, prompt: str, schema: type[T], system: str | None = None
+    ) -> T:
+        chunk_ids = re.findall(r'<extrait id="([^"]+)"', prompt)
+        return schema.model_validate(
+            {
+                "answer": f"Réponse synthétique pour : {prompt}",
+                "cited_chunk_ids": chunk_ids,
+                "sufficient_context": True,
+            }
+        )
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 """Modèles Pydantic représentant l'état et le résultat du pipeline d'agents."""
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from document_intelligence.chunking.models import ChunkProvenance
 from document_intelligence.vectorization.models import QueryResult
@@ -25,12 +25,34 @@ class Citation(BaseModel):
     score: float
 
 
+class GroundedAnswer(BaseModel):
+    """Sortie structurée attendue du LLM à l'étape de synthèse.
+
+    Le modèle déclare lui-même quels extraits fondent sa réponse
+    (`cited_chunk_ids`) et s'il a pu répondre (`sufficient_context`), ce qui
+    rend les citations vérifiables plutôt que présumées.
+    """
+
+    answer: str = Field(
+        description="Réponse rédigée, uniquement fondée sur les extraits."
+    )
+    cited_chunk_ids: list[str] = Field(
+        default_factory=list,
+        description="Identifiants des extraits effectivement utilisés pour répondre.",
+    )
+    sufficient_context: bool = Field(
+        default=True,
+        description="False si les extraits ne permettent pas de répondre.",
+    )
+
+
 class AnswerResult(BaseModel):
     """Réponse finale produite par le pipeline, avec ses citations source."""
 
     query: str
     answer: str
     citations: list[Citation]
+    sufficient_context: bool = True
 
 
 class AgentState(BaseModel):
