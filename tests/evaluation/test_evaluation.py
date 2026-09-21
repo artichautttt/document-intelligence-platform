@@ -149,6 +149,8 @@ class TestEvaluate:
         assert report.aggregate["answer_relevance"] == 1.0
         assert report.aggregate["citation_precision"] == 1.0
         assert report.aggregate["abstention_accuracy"] == 1.0
+        assert report.aggregate["unanswerable_abstention_rate"] == 1.0
+        assert report.aggregate["false_abstention_rate"] == 0.0
         # la question sans réponse n'entre pas dans les métriques de retrieval
         assert report.results[1].retrieval is None
         assert report.results[1].generation is not None
@@ -164,6 +166,8 @@ class TestEvaluate:
         report = evaluate(examples, store, k=1, llm=ScriptedLLM())
 
         assert report.aggregate["abstention_accuracy"] == 0.0
+        # le passage était dans le contexte : le refus est imputable à la génération
+        assert report.aggregate["false_abstention_rate"] == 1.0
 
 
 def test_citation_precision() -> None:

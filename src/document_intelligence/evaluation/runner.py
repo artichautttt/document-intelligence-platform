@@ -69,6 +69,18 @@ def _aggregate(results: list[ExampleResult]) -> dict[str, float]:
             add("answer_relevance", result.generation.answer_relevance)
             add("citation_precision", result.generation.citation_precision)
             add("abstention_accuracy", result.generation.abstention_correct)
+            if not result.answerable:
+                # Part des questions sans réponse correctement refusées.
+                add(
+                    "unanswerable_abstention_rate", result.generation.abstention_correct
+                )
+            elif result.retrieval and result.retrieval.hit:
+                # Refus injustifié alors que le passage attendu était dans le
+                # contexte : isole la génération des échecs de retrieval.
+                add(
+                    "false_abstention_rate",
+                    not result.generation.abstention_correct,
+                )
             add("latency_ms_mean", result.generation.latency_ms)
 
     aggregate = {
@@ -164,7 +176,11 @@ def evaluate(
             if example.answerable and example.relevant_substrings
             else None
         )
-        result = ExampleResult(question=example.question, retrieval=retrieval)
+        result = ExampleResult(
+            question=example.question,
+            answerable=example.answerable,
+            retrieval=retrieval,
+        )
 
         if llm is not None:
             result.answer, result.generation = _score_generation(

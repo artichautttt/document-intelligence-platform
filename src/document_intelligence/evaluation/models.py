@@ -43,6 +43,7 @@ class ExampleResult(BaseModel):
     question: str
     retrieval: RetrievalScores | None = None
     generation: GenerationScores | None = None
+    answerable: bool = True
     answer: str | None = None
     errors: list[str] = Field(default_factory=list)
 

@@ -191,9 +191,49 @@ Limites à connaître :
   précisée quand le corpus s'est élargi.
 - Corpus synthétique et peu volumineux : ces chiffres servent à détecter une
   régression, ce n'est pas un benchmark.
-- Les métriques de génération n'ont pas encore été mesurées sur un vrai modèle
-  (aucune clé API dans l'environnement de développement) ; les tests les
-  valident avec un juge déterministe.
+- La génération n'a été mesurée que sur les 15 questions de `fixtures_qa.jsonl`
+  (voir ci-dessous), avec un juge identique au générateur.
+
+### Génération mesurée (`claude-sonnet-5`, 15 questions, k=5)
+
+Un seul run, sur `fixtures_qa.jsonl` (13 questions répondables, 2 sans réponse),
+sur le corpus de 6 documents :
+
+| Métrique | Valeur |
+|---|---|
+| faithfulness | 0.96 |
+| answer relevance | 0.84 |
+| citation precision | 0.93 |
+| refus des questions sans réponse | 2 / 2 |
+| latence moyenne (retrieval + synthèse, hors juge) | 3.7 s |
+
+À lire avec précaution :
+
+- **15 questions, un seul run** : l'ordre de grandeur est utile, pas les
+  décimales.
+- **Le juge est le même modèle que le générateur**, ce qui tend à surestimer la
+  faithfulness. Un juge d'une autre famille serait plus fiable.
+- **Le retrieval borne la qualité de bout en bout.** Ce run a 10 questions sur
+  13 avec le passage attendu dans les 5 chunks (hit rate 0.77) : sur les 3
+  autres, le modèle répond « les extraits ne le mentionnent pas », ce qui est
+  correct vis-à-vis du contexte reçu.
+- **Deux questions du jeu étaient ambiguës** : l'ajout du contrat Helio au
+  corpus a créé deux contrats aux durées différentes, et le modèle a signalé
+  l'incohérence des extraits au lieu de trancher. Ces deux questions ont été
+  précisées depuis ; le run n'a pas été refait, donc ces chiffres ne les
+  reflètent pas.
+- L'ancien indicateur `abstention_accuracy` (0.67 dans ce run) mélange échecs de
+  retrieval et refus injustifiés. Il est remplacé dans l'analyse par
+  `unanswerable_abstention_rate` (questions sans réponse bien refusées) et
+  `false_abstention_rate` (refus alors que le passage était dans le contexte),
+  qui isolent la génération.
+- Un run à 63 questions n'a pas encore été fait.
+
+Ce run a aussi révélé un cas que les tests avec doublures ne pouvaient pas
+montrer : le modèle renvoie parfois un champ liste sous forme de chaîne JSON
+dans l'appel d'outil. `validate_tool_input` le répare, et une sortie inexploitable
+est consignée par question (`output_errors`) sans interrompre l'évaluation, alors
+qu'une erreur d'API (clé, crédit, réseau) l'interrompt.
 
 Un garde-fou de régression (`hit_rate >= 0.78`, `MRR >= 0.64` à k=5, mode
 hybride) et un test « le hybride n'est pas pire que le dense » s'exécutent dans

@@ -13,3 +13,6 @@ htmlcov/
 .chroma/
 .idea/
 *.log
+
+# Rapports d evaluation locaux
+rapport*.json
