@@ -44,6 +44,7 @@ class ExampleResult(BaseModel):
     retrieval: RetrievalScores | None = None
     generation: GenerationScores | None = None
     answer: str | None = None
+    errors: list[str] = Field(default_factory=list)
 
 
 class EvaluationReport(BaseModel):

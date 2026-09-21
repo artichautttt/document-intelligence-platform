@@ -11,11 +11,13 @@ repli par prompt JSON.
 import json
 import re
 from abc import ABC, abstractmethod
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
-from document_intelligence.orchestration.exceptions import LLMGenerationError
+from document_intelligence.orchestration.exceptions import (
+    LLMOutputError,
+)
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -33,13 +35,67 @@ def parse_structured_output(text: str, schema: type[T]) -> T:
     cleaned = _CODE_FENCE.sub("", text.strip())
     start, end = cleaned.find("{"), cleaned.rfind("}")
     if start == -1 or end <= start:
-        raise LLMGenerationError("La sortie du modèle ne contient aucun objet JSON.")
+        raise LLMOutputError("La sortie du modèle ne contient aucun objet JSON.")
     try:
         return schema.model_validate_json(cleaned[start : end + 1])
     except ValidationError as exc:
-        raise LLMGenerationError(
+        raise LLMOutputError(
             f"La sortie du modèle ne respecte pas le schéma {schema.__name__} : {exc}"
         ) from exc
+
+
+def _decode_stringified_fields(
+    schema: type[T], payload: dict[str, Any]
+) -> dict[str, Any]:
+    """Décode les champs non textuels que le modèle a sérialisés en chaîne JSON.
+
+    Le function calling renvoie parfois une liste sous forme de chaîne, voire
+    l'objet entier sérialisé dans le champ (observé sur `claims` avec le vrai
+    modèle). Seuls les champs dont le schéma n'est pas `str` sont décodés, pour
+    ne jamais altérer un champ texte qui commencerait par « [ » ou « { ».
+    """
+    fixed: dict[str, Any] = {}
+    for name, value in payload.items():
+        field = schema.model_fields.get(name)
+        fixed[name] = value
+        if not (
+            isinstance(value, str)
+            and field is not None
+            and field.annotation is not str
+            and value.lstrip()[:1] in ("[", "{")
+        ):
+            continue
+        try:
+            decoded = json.loads(value)
+        except json.JSONDecodeError:
+            continue
+        # La chaîne peut contenir l'objet entier (`'{"claims": [...]}'`) plutôt
+        # que la seule valeur du champ.
+        if isinstance(decoded, dict) and set(decoded) == {name}:
+            decoded = decoded[name]
+        fixed[name] = decoded
+    return fixed
+
+
+def validate_tool_input(schema: type[T], payload: Any) -> T:
+    """Valide les arguments d'un appel d'outil, avec une réparation ciblée.
+
+    Raises:
+        LLMOutputError: si la charge utile ne respecte pas `schema`, même après réparation.
+    """
+    try:
+        return schema.model_validate(payload)
+    except ValidationError as first_error:
+        if isinstance(payload, dict):
+            try:
+                return schema.model_validate(
+                    _decode_stringified_fields(schema, payload)
+                )
+            except ValidationError:
+                pass
+        raise LLMOutputError(
+            f"La sortie du modèle ne respecte pas le schéma {schema.__name__} : {first_error}"
+        ) from first_error
 
 
 class LLMClient(ABC):

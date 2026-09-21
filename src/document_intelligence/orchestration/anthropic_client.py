@@ -5,12 +5,15 @@ from contextlib import AbstractContextManager
 from typing import Any
 
 import anthropic
-from pydantic import ValidationError
 
 from document_intelligence.core.logging import get_logger
 from document_intelligence.observability import registry, trace_span
 from document_intelligence.orchestration.exceptions import LLMGenerationError
-from document_intelligence.orchestration.llm import LLMClient, T
+from document_intelligence.orchestration.llm import (
+    LLMClient,
+    T,
+    validate_tool_input,
+)
 
 logger = get_logger(__name__)
 
@@ -116,12 +119,6 @@ class AnthropicLLMClient(LLMClient):
 
         for block in response.content:
             if block.type == "tool_use" and block.name == _STRUCTURED_TOOL_NAME:
-                try:
-                    return schema.model_validate(block.input)
-                except ValidationError as exc:
-                    raise LLMGenerationError(
-                        f"La sortie du modèle ne respecte pas le schéma "
-                        f"{schema.__name__} : {exc}"
-                    ) from exc
+                return validate_tool_input(schema, block.input)
 
         raise LLMGenerationError("L'API Anthropic n'a retourné aucun appel d'outil.")
