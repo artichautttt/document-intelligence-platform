@@ -8,7 +8,10 @@ import anthropic
 
 from document_intelligence.core.logging import get_logger
 from document_intelligence.observability import registry, trace_span
-from document_intelligence.orchestration.exceptions import LLMGenerationError
+from document_intelligence.orchestration.exceptions import (
+    LLMGenerationError,
+    LLMOutputError,
+)
 from document_intelligence.orchestration.llm import (
     LLMClient,
     T,
@@ -19,6 +22,7 @@ logger = get_logger(__name__)
 
 _DEFAULT_MAX_TOKENS = 1024
 _STRUCTURED_TOOL_NAME = "submit_answer"
+_OUTPUT_RETRIES = 1
 
 
 def _token_count(value: Any) -> int:
@@ -93,7 +97,29 @@ class AnthropicLLMClient(LLMClient):
 
         Le schéma JSON de `schema` est fourni comme `input_schema` de l'outil ;
         les arguments de l'appel d'outil sont ensuite validés par Pydantic.
+
+        Une sortie invalide (observée avec le vrai modèle : balisage d'appel
+        d'outil écrit dans un champ texte, champ requis absent) est retentée
+        `_OUTPUT_RETRIES` fois. Les erreurs d'API ne sont jamais retentées ici.
+
+        Raises:
+            LLMOutputError: si la sortie reste invalide après les nouvelles tentatives.
+            LLMGenerationError: si l'appel à l'API échoue.
         """
+        for attempt in range(_OUTPUT_RETRIES + 1):
+            try:
+                return self._structured_attempt(prompt, schema, system)
+            except LLMOutputError:
+                if attempt == _OUTPUT_RETRIES:
+                    raise
+                logger.warning(
+                    "llm.structured_retry", schema=schema.__name__, attempt=attempt + 1
+                )
+        raise AssertionError("inatteignable")  # pragma: no cover
+
+    def _structured_attempt(
+        self, prompt: str, schema: type[T], system: str | None
+    ) -> T:
         started_at = time.perf_counter()
         with self._span("structured") as span:
             try:

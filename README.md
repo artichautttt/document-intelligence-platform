@@ -191,49 +191,57 @@ Limites à connaître :
   précisée quand le corpus s'est élargi.
 - Corpus synthétique et peu volumineux : ces chiffres servent à détecter une
   régression, ce n'est pas un benchmark.
-- La génération n'a été mesurée que sur les 15 questions de `fixtures_qa.jsonl`
-  (voir ci-dessous), avec un juge identique au générateur.
+- La génération a été mesurée une fois sur les 63 questions (voir ci-dessous),
+  avec un juge identique au générateur.
 
-### Génération mesurée (`claude-sonnet-5`, 15 questions, k=5)
+### Génération mesurée (`claude-sonnet-5`, 63 questions, k=5, mode hybride)
 
-Un seul run, sur `fixtures_qa.jsonl` (13 questions répondables, 2 sans réponse),
-sur le corpus de 6 documents :
+Un seul run complet. 55 questions répondables, 8 sans réponse dans les documents.
 
-| Métrique | Valeur |
-|---|---|
-| faithfulness | 0.96 |
-| answer relevance | 0.84 |
-| citation precision | 0.93 |
-| refus des questions sans réponse | 2 / 2 |
-| latence moyenne (retrieval + synthèse, hors juge) | 3.7 s |
+| Métrique | Valeur | Sur |
+|---|---|---|
+| hit rate / MRR / nDCG (retrieval) | 0.84 / 0.70 / 0.74 | 55 répondables |
+| faithfulness | 1.00 | 44 réponses jugées |
+| answer relevance | 0.90 | 39 réponses (voir ci-dessous) |
+| citation precision | 0.97 | réponses citant au moins un chunk |
+| questions sans réponse refusées | 8 / 8 | 8 |
+| refus injustifié (passage dans le contexte) | 0.04 (2 / 46) | répondables bien retrouvées |
+| latence moyenne (retrieval + synthèse, hors juge) | 3.6 s | 63 |
+
+Sur les 55 questions répondables, le modèle a refusé de répondre 11 fois : 9 de
+ces refus correspondent à un échec de retrieval (le passage attendu n'était pas
+dans les 5 chunks, le refus est donc justifié par le contexte reçu), et 2 sont
+des refus injustifiés. **La qualité de bout en bout est bornée par le
+retrieval, pas par la génération.**
 
 À lire avec précaution :
 
-- **15 questions, un seul run** : l'ordre de grandeur est utile, pas les
-  décimales.
-- **Le juge est le même modèle que le générateur**, ce qui tend à surestimer la
-  faithfulness. Un juge d'une autre famille serait plus fiable.
-- **Le retrieval borne la qualité de bout en bout.** Ce run a 10 questions sur
-  13 avec le passage attendu dans les 5 chunks (hit rate 0.77) : sur les 3
-  autres, le modèle répond « les extraits ne le mentionnent pas », ce qui est
-  correct vis-à-vis du contexte reçu.
-- **Deux questions du jeu étaient ambiguës** : l'ajout du contrat Helio au
-  corpus a créé deux contrats aux durées différentes, et le modèle a signalé
-  l'incohérence des extraits au lieu de trancher. Ces deux questions ont été
-  précisées depuis ; le run n'a pas été refait, donc ces chiffres ne les
-  reflètent pas.
-- L'ancien indicateur `abstention_accuracy` (0.67 dans ce run) mélange échecs de
-  retrieval et refus injustifiés. Il est remplacé dans l'analyse par
-  `unanswerable_abstention_rate` (questions sans réponse bien refusées) et
-  `false_abstention_rate` (refus alors que le passage était dans le contexte),
-  qui isolent la génération.
-- Un run à 63 questions n'a pas encore été fait.
+- **Un seul run, un seul juge.** Le juge est le même modèle que le générateur, ce
+  qui tend à surestimer la faithfulness. Un score de 1.00 sur 44 réponses est
+  plausible pour des réponses courtes extraites de passages précis, mais il n'a
+  pas été validé par un test de calibration (par exemple soumettre au juge des
+  réponses volontairement fausses et vérifier qu'il les signale). Ne pas le
+  présenter comme une preuve d'absence d'hallucination.
+- **Answer relevance calculée sur 39 réponses sur 44** : pour 5 d'entre elles, le
+  juge a écrit le balisage d'appel d'outil dans un champ texte et laissé `score`
+  vide (`output_errors = 5`, tous sur ce juge). Ces réponses sont donc exclues de
+  la moyenne. Une nouvelle tentative automatique a été ajoutée depuis
+  (`AnthropicLLMClient.complete_structured`) ; le run n'a pas été refait, donc
+  ces chiffres ne la reflètent pas.
+- Le jeu est de petite taille et en partie synthétique (voir plus haut) ;
+  il sert à comparer des variantes et détecter des régressions, pas à annoncer
+  un niveau absolu.
+- L'ancien indicateur `abstention_accuracy` (0.83 dans ce run) mélange échecs de
+  retrieval et refus injustifiés ; lisez plutôt `unanswerable_abstention_rate` et
+  `false_abstention_rate`.
 
-Ce run a aussi révélé un cas que les tests avec doublures ne pouvaient pas
-montrer : le modèle renvoie parfois un champ liste sous forme de chaîne JSON
-dans l'appel d'outil. `validate_tool_input` le répare, et une sortie inexploitable
-est consignée par question (`output_errors`) sans interrompre l'évaluation, alors
-qu'une erreur d'API (clé, crédit, réseau) l'interrompt.
+Deux formes de sortie mal formée du modèle ont été observées en conditions
+réelles, que les tests avec doublures ne pouvaient pas montrer : un champ liste
+renvoyé sous forme de chaîne JSON (réparé par `validate_tool_input`), et du
+balisage d'appel d'outil fuyant dans un champ texte (retenté une fois). Une
+sortie qui reste inexploitable est consignée par question (`output_errors`) sans
+interrompre l'évaluation, alors qu'une erreur d'API (clé, crédit, réseau)
+l'interrompt.
 
 Un garde-fou de régression (`hit_rate >= 0.78`, `MRR >= 0.64` à k=5, mode
 hybride) et un test « le hybride n'est pas pire que le dense » s'exécutent dans
