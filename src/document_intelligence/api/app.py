@@ -15,8 +15,12 @@ from document_intelligence.observability import (
     registry,
     remove_sink,
 )
-from document_intelligence.orchestration.anthropic_client import AnthropicLLMClient
 from document_intelligence.orchestration.llm import LLMClient
+from document_intelligence.orchestration.tiering import (
+    LLMRole,
+    build_llm_client,
+    build_response_cache,
+)
 from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.qdrant_store import QdrantStore
@@ -45,8 +49,10 @@ def _build_llm(override: LLMClient | None) -> LLMClient | None:
     if override is not None:
         return override
     if settings.anthropic_api_key:
-        return AnthropicLLMClient(
-            api_key=settings.anthropic_api_key, model=settings.anthropic_model
+        return build_llm_client(
+            LLMRole.SYNTHESIS,
+            api_key=settings.anthropic_api_key,
+            cache=build_response_cache(),
         )
     # Aucun fournisseur LLM n'est configuré : `/query` répondra 503 (cf. get_llm).
     return None

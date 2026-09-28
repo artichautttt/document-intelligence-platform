@@ -55,3 +55,5 @@ class EvaluationReport(BaseModel):
     example_count: int
     aggregate: dict[str, float]
     results: list[ExampleResult]
+    # Coût LLM du run : réel vs sans optimisation (cf. `orchestration.cost`).
+    cost: dict[str, float] | None = None

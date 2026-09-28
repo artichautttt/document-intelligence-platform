@@ -22,6 +22,20 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = Field(default=None)
     anthropic_model: str = Field(default="claude-sonnet-5")
 
+    # Model tiering : modèle par rôle d'appel LLM. Vide = `anthropic_model`, qui
+    # sert aussi de référence « sans optimisation » pour chiffrer les économies.
+    llm_synthesis_model: str | None = Field(default=None)
+    llm_judge_model: str | None = Field(default=None)
+    # Étapes simples (reformulation, classification, extraction de métadonnées).
+    llm_light_model: str = Field(default="claude-haiku-4-5")
+
+    # Cache exact-match des réponses LLM (clé = prompt normalisé + modèle).
+    # `llm_cache_path` vide = cache en mémoire seule ; sinon fichier JSON local.
+    llm_cache_enabled: bool = Field(default=True)
+    llm_cache_ttl_seconds: float = Field(default=3600.0, gt=0)
+    llm_cache_max_entries: int = Field(default=1024, gt=0)
+    llm_cache_path: str | None = Field(default=None)
+
     # Tarifs en USD par million de tokens, utilisés pour estimer le coût des appels LLM.
     # Volontairement à 0 par défaut : à renseigner d'après la grille tarifaire en vigueur.
     llm_input_price_per_mtok: float = Field(default=0.0, ge=0)

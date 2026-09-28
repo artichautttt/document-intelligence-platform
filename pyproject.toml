@@ -30,6 +30,10 @@ dev = [
     "mypy>=1.11",
     "ruff>=0.6",
 ]
+# Tracking des runs d'évaluation (paramètres/métriques/artefacts), local par défaut.
+mlflow = [
+    "mlflow>=2.14",
+]
 # Export des traces vers un backend OpenTelemetry (Langfuse, Jaeger, Tempo...)
 otel = [
     "opentelemetry-sdk>=1.27",

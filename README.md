@@ -247,6 +247,92 @@ Un garde-fou de régression (`hit_rate >= 0.78`, `MRR >= 0.64` à k=5, mode
 hybride) et un test « le hybride n'est pas pire que le dense » s'exécutent dans
 la suite de tests, donc en CI.
 
+### Suivi des runs (MLflow)
+
+Chaque exécution de `python -m document_intelligence.evaluation` est aussi
+enregistrée comme un run MLflow : la config (méthode de retrieval, modèle du
+LLM-juge, `k`, taille du jeu de test) en paramètres, les métriques agrégées
+(hit rate, MRR, faithfulness, citation precision...) en métriques, et le
+rapport JSON détaillé des 63 questions en artefact. Le tracking est **local**
+(`file:./mlruns`, pas de serveur dédié) ; `mlflow` est un groupe de
+dépendances optionnel (`uv sync --group mlflow` ou `--all-groups`), et son
+absence ne bloque ni l'évaluation ni la CI — le run est alors simplement
+consigné comme non tracé.
+
+Pour consulter les runs :
+
+```bash
+uv run mlflow ui --backend-store-uri file:./mlruns
+```
+
+### Optimisation des coûts LLM (model tiering + cache)
+
+Le pipeline fait trois types d'appels à l'API Anthropic, tous via
+`AnthropicLLMClient` : la **synthèse** de la réponse RAG (un appel par
+question), et le **LLM-juge** d'évaluation (faithfulness, answer relevance).
+Le routage est une règle Python, sans appel LLM.
+
+- **Model tiering** (`orchestration/tiering.py`) : un modèle par rôle,
+  configurable par variable d'environnement. `LLM_SYNTHESIS_MODEL` et
+  `LLM_JUDGE_MODEL` valent `ANTHROPIC_MODEL` s'ils sont vides (comportement
+  inchangé par défaut) ; `LLM_LIGHT_MODEL` (Claude Haiku par défaut) est réservé
+  aux étapes simples (reformulation, classification, extraction de
+  métadonnées), qui n'existent pas encore dans le pipeline.
+- **Cache exact-match** (`orchestration/cache.py`) : clé = modèle + prompt
+  système + prompt **normalisé** (Unicode NFKC, casse, espaces) + schéma de
+  sortie. Le prompt contient les extraits récupérés : une réponse n'est jamais
+  resservie pour un contexte différent. TTL (`LLM_CACHE_TTL_SECONDS`, 1 h),
+  taille bornée en LRU (`LLM_CACHE_MAX_ENTRIES`), en mémoire ou dans un fichier
+  JSON local (`LLM_CACHE_PATH`). Seules les sorties valides sont mises en cache.
+- **Coût par run** (`orchestration/cost.py`) : chaque appel est journalisé avec
+  son rôle et son modèle. Le rapport JSON (`cost`) et le run MLflow reçoivent
+  `cost_actual_usd` (tiering + cache), `cost_unoptimized_usd` (tous les appels,
+  cache compris, au tarif de `ANTHROPIC_MODEL`) et `cost_savings_pct`, au total
+  et par rôle (`_synthesis`, `_judge`).
+
+```bash
+# Synthèse sur Haiku, juge sur Sonnet
+LLM_SYNTHESIS_MODEL=claude-haiku-4-5 uv run python -m document_intelligence.evaluation --output rapport.json
+```
+
+**Mesure : synthèse Sonnet vs Haiku** (63 questions, k=5, mode hybride, juge
+`claude-sonnet-5` dans les deux cas, un run chacun) :
+
+| | Tout `claude-sonnet-5` | Synthèse `claude-haiku-4-5` | Écart |
+|---|---|---|---|
+| coût synthèse (mesuré) | 0.390 $ | 0.173 $ | **−55.6 %** |
+| coût total du run (synthèse + juge) | 0.753 $ | 0.536 $ | −28.9 % |
+| faithfulness | 0.977 (44 réponses) | 0.994 (45) | +0.017 |
+| citation precision | 0.966 | 0.967 | = |
+| answer relevance | 0.835 | 0.822 | −0.013 |
+| questions sans réponse refusées | 8 / 8 | 8 / 8 | = |
+| refus injustifiés | 2 / 46 | 1 / 46 | −1 |
+| latence moyenne (hors juge) | 3.8 s | 2.4 s | −37 % |
+| sorties invalides (`output_errors`) | 0 | 0 | = |
+
+**Aucune dégradation mesurable de la qualité** : les écarts de faithfulness et
+de relevance restent sous la variation observée d'un run Sonnet à l'autre
+(relevance 0.90 lors du run précédent, 0.835 ici ; faithfulness 1.00 puis
+0.977). En production, seule la synthèse appelle le LLM, donc **passer la
+synthèse sur Haiku divise le coût LLM par ~2.25 (−55.6 %)**. Le défaut reste
+Sonnet ; basculer se fait avec `LLM_SYNTHESIS_MODEL=claude-haiku-4-5`.
+
+À lire avec précaution :
+
+- Un run par configuration, 63 questions : suffisant pour écarter une
+  régression nette, pas pour détecter un écart de quelques points.
+- Le gain *estimé* par le journal pendant le run Haiku (50 %) est inférieur au
+  gain *mesuré* (55.6 %). L'estimation valorise au tarif Sonnet les tokens
+  comptés par Haiku, alors que la synthèse Sonnet a consommé ~13 % de tokens
+  de plus pour les mêmes questions (tokenizers différents, réponses de longueur
+  différente). Pour chiffrer un gain, comparez deux runs.
+- **Le cache n'a rien économisé pendant l'évaluation** (0 hit) : les 63
+  questions sont toutes distinctes. Son gain en production est égal à la part
+  de requêtes répétées (même question, même contexte récupéré) dans la fenêtre
+  du TTL ; il n'a pas été mesuré sur du trafic réel.
+- Le juge reste Sonnet. Dans le run baseline il juge ses propres réponses, ce
+  qui tend à le favoriser : le résultat Haiku n'est donc pas gonflé par ce biais.
+
 ## Observabilité
 
 - **Tracing** : chaque nœud (`node.route|retrieve|synthesize`), le pipeline,

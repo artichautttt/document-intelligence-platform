@@ -24,9 +24,16 @@ from document_intelligence.evaluation.runner import (
     format_report,
     load_dataset,
 )
+from document_intelligence.evaluation.tracking import log_evaluation_run
 from document_intelligence.ingestion.service import ingest
-from document_intelligence.orchestration.anthropic_client import AnthropicLLMClient
+from document_intelligence.orchestration.cost import CostLedger
 from document_intelligence.orchestration.llm import LLMClient
+from document_intelligence.orchestration.tiering import (
+    LLMRole,
+    build_llm_client,
+    build_response_cache,
+    model_for,
+)
 from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.store import VectorStore
@@ -69,9 +76,22 @@ def main(argv: list[str] | None = None) -> int:
     configure_logging()
 
     llm: LLMClient | None = None
+    judge: LLMClient | None = None
+    ledger = CostLedger()
     if not args.retrieval_only and settings.anthropic_api_key:
-        llm = AnthropicLLMClient(
-            api_key=settings.anthropic_api_key, model=settings.anthropic_model
+        # Cache en mémoire partagé par les deux rôles, propre à ce run.
+        cache = build_response_cache()
+        llm = build_llm_client(
+            LLMRole.SYNTHESIS,
+            api_key=settings.anthropic_api_key,
+            cache=cache,
+            ledger=ledger,
+        )
+        judge = build_llm_client(
+            LLMRole.JUDGE,
+            api_key=settings.anthropic_api_key,
+            cache=cache,
+            ledger=ledger,
         )
     elif not args.retrieval_only:
         print("ANTHROPIC_API_KEY absent : évaluation du retrieval uniquement.")
@@ -92,12 +112,26 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         examples = [ex for dataset in args.dataset for ex in load_dataset(dataset)]
-        report = evaluate(examples, store, k=args.k, llm=llm)
+        report = evaluate(examples, store, k=args.k, llm=llm, judge=judge)
+
+    if llm is not None:
+        report.cost = ledger.summary(reference_model=settings.anthropic_model)
 
     print(f"[retrieval={args.retrieval_mode}]")
     print(format_report(report))
+    if report.cost:
+        print(f"Coût LLM (référence sans optimisation : {settings.anthropic_model})")
+        print("\n".join(f"  {k:<32} {v:.6g}" for k, v in report.cost.items()))
     if args.output:
         dump_report(report, args.output)
+
+    log_evaluation_run(
+        report,
+        retrieval_mode=args.retrieval_mode,
+        llm_model=model_for(LLMRole.JUDGE) if llm is not None else None,
+        synthesis_model=model_for(LLMRole.SYNTHESIS) if llm is not None else None,
+        report_path=args.output,
+    )
 
     if (
         args.min_hit_rate is not None
