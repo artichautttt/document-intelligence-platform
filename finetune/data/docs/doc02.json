@@ -1,0 +1,126 @@
+{
+ "title": "Contrat-Cadre de Fourniture de Composants Industriels n°3 — MECATRONIX INDUSTRIES SAS / FERROTEK COMPOSANTS SA",
+ "sections": [
+  {
+   "heading": "Article 1 – Objet du contrat",
+   "paragraphs": [
+    "Le présent contrat-cadre de fourniture (ci-après le « Contrat ») est conclu entre la société MECATRONIX INDUSTRIES SAS, au capital social de 2 450 000 euros, immatriculée au RCS de Lyon sous le numéro 512 348 976, dont le siège social est situé 14 rue des Forges, 69007 Lyon, représentée par Madame Sylvie Granchamp, Directrice des Achats, ci-après dénommée « le Client », et la société FERROTEK COMPOSANTS SA, au capital social de 1 820 000 euros, immatriculée au RCS de Saint-Étienne sous le numéro 498 221 034, dont le siège social est situé 27 avenue du Pilat, 42000 Saint-Étienne, représentée par Monsieur Bertrand Olinsky, Directeur Général, ci-après dénommée « le Fournisseur ».",
+    "Le Contrat a pour objet de définir les conditions générales et particulières dans lesquelles le Fournisseur s'engage à livrer au Client des composants industriels de la gamme référencée FTK-4000, incluant roulements à billes céramiques, vérins pneumatiques et carters d'engrenage usinés, destinés à la ligne de production du site de Vénissieux (69200)."
+   ]
+  },
+  {
+   "heading": "Article 2 – Durée et reconduction",
+   "paragraphs": [
+    "Le présent Contrat est conclu pour une durée initiale de trente-six (36) mois à compter de sa date de signature, soit du 1er mars 2024 au 28 février 2027. Il pourra être reconduit tacitement par périodes successives de douze (12) mois, sauf dénonciation par l'une des parties notifiée par lettre recommandée avec accusé de réception au moins quatre-vingt-dix (90) jours avant l'échéance.",
+    "Le nombre de reconductions tacites est limité à trois (3), portant ainsi la durée maximale totale du Contrat à soixante-douze (72) mois, soit jusqu'au 28 février 2030 au plus tard."
+   ]
+  },
+  {
+   "heading": "Article 3 – Volumes et engagements d'achat",
+   "paragraphs": [
+    "Le Client s'engage à commander un volume minimum annuel de 180 000 unités de composants référencés dans l'Annexe technique n°3, réparti selon un calendrier prévisionnel communiqué trimestriellement. Tout écart à la baisse supérieur à 15 % par rapport au volume engagé entraînera l'application d'une pénalité de sous-achat égale à 3,5 % du montant non consommé.",
+    "Le Fournisseur s'engage réciproquement à réserver une capacité de production prioritaire équivalente à 22 % de sa capacité totale de l'usine de Saint-Étienne au bénéfice exclusif du Client, et ce durant toute la durée du Contrat."
+   ]
+  },
+  {
+   "heading": "Article 4 – Conditions tarifaires et révision des prix",
+   "paragraphs": [
+    "Les prix unitaires applicables au 1er mars 2024 sont fixés en Annexe tarifaire n°1 et demeurent fermes pendant les douze premiers mois du Contrat. À compter du 1er mars 2025, les prix pourront être révisés annuellement selon la formule suivante : Prix révisé = Prix initial x (0,65 + 0,20 x (Indice acier ILB/Indice acier ILB0) + 0,15 x (Indice énergie IEN/Indice énergie IEN0)), les indices de référence (ILB0, IEN0) étant ceux publiés par l'INSEE au 1er janvier 2024.",
+    "Toute révision ne pourra excéder un plafond de 6 % par an, sauf accord exprès et écrit des deux parties. Les remises de fin d'année (RFA) sont fixées à 1,8 % du chiffre d'affaires annuel hors taxes réalisé au titre du Contrat, versées sous forme d'avoir avant le 31 janvier de l'exercice suivant."
+   ]
+  },
+  {
+   "heading": "Article 5 – Modalités de livraison et délais",
+   "paragraphs": [
+    "Les livraisons s'effectuent en Incoterm DAP (Delivered At Place) selon la norme Incoterms 2020, à l'entrepôt logistique du Client situé 8 rue des Ateliers, 69200 Vénissieux. Le délai standard de livraison est fixé à vingt et un (21) jours calendaires à compter de la validation de la commande, ramené à douze (12) jours pour les commandes dites « urgentes » moyennant une majoration tarifaire de 8 %.",
+    "Tout retard de livraison supérieur à cinq (5) jours ouvrés entraîne l'application d'une pénalité de retard égale à 0,4 % du montant hors taxes de la commande concernée par jour de retard, plafonnée à 12 % du montant total de ladite commande."
+   ]
+  },
+  {
+   "heading": "Article 6 – Contrôle qualité et taux de conformité",
+   "paragraphs": [
+    "Le Fournisseur garantit un taux de conformité des lots livrés supérieur ou égal à 98,5 %, mesuré selon le protocole d'échantillonnage AQL 1,0 défini par la norme ISO 2859-1. Tout lot présentant un taux de non-conformité supérieur à 1,5 % fera l'objet d'un retour intégral aux frais exclusifs du Fournisseur, dans un délai de dix (10) jours ouvrés.",
+    "Un audit qualité conjoint sera organisé semestriellement, les 15 mai et 15 novembre de chaque année, dans les locaux du Fournisseur à Saint-Étienne, en présence de Monsieur Antoine Rivaille, Responsable Qualité du Client, et de Madame Caroline Fessandier, Responsable Assurance Qualité du Fournisseur."
+   ]
+  },
+  {
+   "heading": "Article 7 – Garanties et responsabilité",
+   "paragraphs": [
+    "Le Fournisseur garantit les composants livrés contre tout défaut de fabrication ou de matière pendant une durée de vingt-quatre (24) mois à compter de la date de réception, portée à trente-six (36) mois pour les carters d'engrenage usinés de la référence FTK-4120.",
+    "La responsabilité globale du Fournisseur au titre du Contrat, tous préjudices confondus, est plafonnée à 100 % du montant total des commandes passées au cours des douze (12) derniers mois précédant le fait générateur, à l'exclusion des cas de faute lourde ou dolosive."
+   ]
+  },
+  {
+   "heading": "Article 8 – Conditions de paiement",
+   "paragraphs": [
+    "Les factures sont émises mensuellement et payables à soixante (60) jours fin de mois, par virement bancaire sur le compte IBAN FR76 3000 4028 1700 0012 3456 789 ouvert au nom de FERROTEK COMPOSANTS SA. Tout retard de paiement donne lieu à l'application d'intérêts de retard au taux de 10 % l'an, ainsi qu'à une indemnité forfaitaire de recouvrement de 40 euros par facture impayée, conformément à l'article L441-10 du Code de commerce.",
+    "Un escompte de 1,2 % est accordé pour tout paiement anticipé réalisé dans un délai de quinze (15) jours à compter de la date d'émission de la facture."
+   ]
+  },
+  {
+   "heading": "Article 9 – Confidentialité et propriété industrielle",
+   "paragraphs": [
+    "Les parties s'engagent à conserver strictement confidentielles toutes informations techniques, commerciales ou financières échangées dans le cadre du Contrat, pendant toute sa durée et pour une période supplémentaire de cinq (5) ans après son terme. Cette obligation ne s'applique pas aux informations tombées dans le domaine public indépendamment d'un manquement des parties.",
+    "Les plans, dessins industriels et spécifications techniques fournis par le Client, notamment ceux relatifs au brevet FR3 125 487 déposé le 4 septembre 2022, demeurent sa propriété exclusive et ne pourront être utilisés par le Fournisseur à d'autres fins que l'exécution du présent Contrat."
+   ]
+  },
+  {
+   "heading": "Article 10 – Résiliation",
+   "paragraphs": [
+    "Chaque partie pourra résilier le Contrat de plein droit, sans indemnité, en cas de manquement grave de l'autre partie à ses obligations contractuelles non régularisé dans un délai de trente (30) jours suivant une mise en demeure restée infructueuse, notifiée par lettre recommandée avec accusé de réception.",
+    "En cas de résiliation anticipée à l'initiative du Client sans faute du Fournisseur, une indemnité de résiliation égale à 5 % du montant moyen annuel des commandes des deux derniers exercices sera due au Fournisseur, dans la limite de 250 000 euros."
+   ]
+  },
+  {
+   "heading": "Article 11 – Loi applicable et règlement des litiges",
+   "paragraphs": [
+    "Le présent Contrat est soumis au droit français. Les parties s'efforceront de résoudre à l'amiable tout différend relatif à son interprétation ou son exécution, dans un délai de trente (30) jours à compter de sa notification écrite.",
+    "À défaut d'accord amiable, tout litige sera soumis à la compétence exclusive du Tribunal de commerce de Lyon, nonobstant pluralité de défendeurs ou appel en garantie."
+   ]
+  }
+ ],
+ "table": [
+  [
+   "Référence produit",
+   "Désignation",
+   "Prix unitaire HT (EUR)",
+   "Volume annuel engagé (unités)",
+   "Délai de livraison standard"
+  ],
+  [
+   "FTK-4010",
+   "Roulement à billes céramique Ø25mm",
+   "4,85",
+   "65 000",
+   "21 jours"
+  ],
+  [
+   "FTK-4050",
+   "Vérin pneumatique double effet",
+   "18,20",
+   "42 000",
+   "21 jours"
+  ],
+  [
+   "FTK-4120",
+   "Carter d'engrenage usiné aluminium",
+   "37,60",
+   "28 500",
+   "25 jours"
+  ],
+  [
+   "FTK-4200",
+   "Joint torique haute température",
+   "1,15",
+   "38 500",
+   "18 jours"
+  ],
+  [
+   "FTK-4300",
+   "Arbre de transmission strié",
+   "24,90",
+   "6 000",
+   "28 jours"
+  ]
+ ]
+}

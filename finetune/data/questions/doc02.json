@@ -1,0 +1,164 @@
+{
+ "questions": [
+  {
+   "question": "Quelle est la durée initiale du contrat-cadre entre Mecatronix et Ferrotek ?",
+   "answerable": true,
+   "evidence": "Le présent Contrat est conclu pour une durée initiale de trente-six (36) mois à compter de sa date de signature, soit du 1er mars 2024 au 28 février 2027."
+  },
+  {
+   "question": "Combien de fois le contrat peut-il être tacitement reconduit et pour quelle durée totale maximale ?",
+   "answerable": true,
+   "evidence": "Le nombre de reconductions tacites est limité à trois (3), portant ainsi la durée maximale totale du Contrat à soixante-douze (72) mois, soit jusqu'au 28 février 2030 au plus tard."
+  },
+  {
+   "question": "Quel préavis doit être respecté pour dénoncer la reconduction tacite du contrat ?",
+   "answerable": true,
+   "evidence": "sauf dénonciation par l'une des parties notifiée par lettre recommandée avec accusé de réception au moins quatre-vingt-dix (90) jours avant l'échéance."
+  },
+  {
+   "question": "Quel est le volume minimum annuel d'unités que le Client s'engage à commander ?",
+   "answerable": true,
+   "evidence": "Le Client s'engage à commander un volume minimum annuel de 180 000 unités de composants référencés dans l'Annexe technique n°3"
+  },
+  {
+   "question": "Quelle pénalité s'applique en cas d'écart à la baisse trop important par rapport au volume d'achat engagé ?",
+   "answerable": true,
+   "evidence": "Tout écart à la baisse supérieur à 15 % par rapport au volume engagé entraînera l'application d'une pénalité de sous-achat égale à 3,5 % du montant non consommé."
+  },
+  {
+   "question": "Quel pourcentage de sa capacité de production le Fournisseur doit-il réserver au Client ?",
+   "answerable": true,
+   "evidence": "Le Fournisseur s'engage réciproquement à réserver une capacité de production prioritaire équivalente à 22 % de sa capacité totale de l'usine de Saint-Étienne au bénéfice exclusif du Client"
+  },
+  {
+   "question": "Pendant combien de temps les prix initiaux restent-ils fermes avant de pouvoir être révisés ?",
+   "answerable": true,
+   "evidence": "Les prix unitaires applicables au 1er mars 2024 sont fixés en Annexe tarifaire n°1 et demeurent fermes pendant les douze premiers mois du Contrat."
+  },
+  {
+   "question": "Quel est le plafond maximal d'augmentation annuelle des prix prévu dans la formule de révision ?",
+   "answerable": true,
+   "evidence": "Toute révision ne pourra excéder un plafond de 6 % par an, sauf accord exprès et écrit des deux parties."
+  },
+  {
+   "question": "Quel est le taux des remises de fin d'année (RFA) accordées au Client ?",
+   "answerable": true,
+   "evidence": "Les remises de fin d'année (RFA) sont fixées à 1,8 % du chiffre d'affaires annuel hors taxes réalisé au titre du Contrat, versées sous forme d'avoir avant le 31 janvier de l'exercice suivant."
+  },
+  {
+   "question": "Quel Incoterm régit les livraisons et à quelle adresse sont-elles effectuées ?",
+   "answerable": true,
+   "evidence": "Les livraisons s'effectuent en Incoterm DAP (Delivered At Place) selon la norme Incoterms 2020, à l'entrepôt logistique du Client situé 8 rue des Ateliers, 69200 Vénissieux."
+  },
+  {
+   "question": "Quel est le délai de livraison standard, et quel délai réduit est proposé pour les commandes urgentes ?",
+   "answerable": true,
+   "evidence": "Le délai standard de livraison est fixé à vingt et un (21) jours calendaires à compter de la validation de la commande, ramené à douze (12) jours pour les commandes dites « urgentes » moyennant une majoration tarifaire de 8 %."
+  },
+  {
+   "question": "Comment est calculée la pénalité de retard de livraison et quel est son plafond ?",
+   "answerable": true,
+   "evidence": "Tout retard de livraison supérieur à cinq (5) jours ouvrés entraîne l'application d'une pénalité de retard égale à 0,4 % du montant hors taxes de la commande concernée par jour de retard, plafonnée à 12 % du montant total de ladite commande."
+  },
+  {
+   "question": "Quel taux de conformité minimum le Fournisseur doit-il garantir sur les lots livrés ?",
+   "answerable": true,
+   "evidence": "Le Fournisseur garantit un taux de conformité des lots livrés supérieur ou égal à 98,5 %, mesuré selon le protocole d'échantillonnage AQL 1,0 défini par la norme ISO 2859-1."
+  },
+  {
+   "question": "À quelles dates sont organisés les audits qualité conjoints et qui y participe ?",
+   "answerable": true,
+   "evidence": "Un audit qualité conjoint sera organisé semestriellement, les 15 mai et 15 novembre de chaque année, dans les locaux du Fournisseur à Saint-Étienne, en présence de Monsieur Antoine Rivaille, Responsable Qualité du Client, et de Madame Caroline Fessandier, Responsable Assurance Qualité du Fournisseur."
+  },
+  {
+   "question": "Quelle est la durée de garantie standard des composants et quelle exception existe pour les carters d'engrenage ?",
+   "answerable": true,
+   "evidence": "Le Fournisseur garantit les composants livrés contre tout défaut de fabrication ou de matière pendant une durée de vingt-quatre (24) mois à compter de la date de réception, portée à trente-six (36) mois pour les carters d'engrenage usinés de la référence FTK-4120."
+  },
+  {
+   "question": "À combien est plafonnée la responsabilité globale du Fournisseur au titre du contrat ?",
+   "answerable": true,
+   "evidence": "La responsabilité globale du Fournisseur au titre du Contrat, tous préjudices confondus, est plafonnée à 100 % du montant total des commandes passées au cours des douze (12) derniers mois précédant le fait générateur, à l'exclusion des cas de faute lourde ou dolosive."
+  },
+  {
+   "question": "Quel est le délai de paiement des factures et quel est le taux d'intérêt de retard applicable ?",
+   "answerable": true,
+   "evidence": "Les factures sont émises mensuellement et payables à soixante (60) jours fin de mois, par virement bancaire sur le compte IBAN FR76 3000 4028 1700 0012 3456 789 ouvert au nom de FERROTEK COMPOSANTS SA. Tout retard de paiement donne lieu à l'application d'intérêts de retard au taux de 10 % l'an, ainsi qu'à une indemnité forfaitaire de recouvrement de 40 euros par facture impayée"
+  },
+  {
+   "question": "Quel escompte est proposé en cas de paiement anticipé et sous quel délai ?",
+   "answerable": true,
+   "evidence": "Un escompte de 1,2 % est accordé pour tout paiement anticipé réalisé dans un délai de quinze (15) jours à compter de la date d'émission de la facture."
+  },
+  {
+   "question": "Pendant combien de temps l'obligation de confidentialité perdure-t-elle après la fin du contrat ?",
+   "answerable": true,
+   "evidence": "Les parties s'engagent à conserver strictement confidentielles toutes informations techniques, commerciales ou financières échangées dans le cadre du Contrat, pendant toute sa durée et pour une période supplémentaire de cinq (5) ans après son terme."
+  },
+  {
+   "question": "Quel brevet est mentionné en lien avec les plans et spécifications fournis par le Client ?",
+   "answerable": true,
+   "evidence": "notamment ceux relatifs au brevet FR3 125 487 déposé le 4 septembre 2022, demeurent sa propriété exclusive"
+  },
+  {
+   "question": "Quel délai de régularisation est accordé après une mise en demeure avant qu'une partie puisse résilier le contrat pour manquement grave ?",
+   "answerable": true,
+   "evidence": "Chaque partie pourra résilier le Contrat de plein droit, sans indemnité, en cas de manquement grave de l'autre partie à ses obligations contractuelles non régularisé dans un délai de trente (30) jours suivant une mise en demeure restée infructueuse"
+  },
+  {
+   "question": "Quelle indemnité est due au Fournisseur en cas de résiliation anticipée à l'initiative du Client sans faute du Fournisseur ?",
+   "answerable": true,
+   "evidence": "En cas de résiliation anticipée à l'initiative du Client sans faute du Fournisseur, une indemnité de résiliation égale à 5 % du montant moyen annuel des commandes des deux derniers exercices sera due au Fournisseur, dans la limite de 250 000 euros."
+  },
+  {
+   "question": "Quel tribunal est compétent en cas de litige non résolu à l'amiable ?",
+   "answerable": true,
+   "evidence": "À défaut d'accord amiable, tout litige sera soumis à la compétence exclusive du Tribunal de commerce de Lyon, nonobstant pluralité de défendeurs ou appel en garantie."
+  },
+  {
+   "question": "Quel est le prix unitaire et le délai de livraison standard du joint torique haute température FTK-4200 ?",
+   "answerable": true,
+   "evidence": "FTK-4200 | Joint torique haute température | 1,15 | 38 500 | 18 jours"
+  },
+  {
+   "question": "Quel est le volume annuel engagé pour l'arbre de transmission strié FTK-4300 ?",
+   "answerable": true,
+   "evidence": "FTK-4300 | Arbre de transmission strié | 24,90 | 6 000 | 28 jours"
+  },
+  {
+   "question": "Quels sont les capitaux sociaux respectifs du Client et du Fournisseur ?",
+   "answerable": true,
+   "evidence": "MECATRONIX INDUSTRIES SAS, au capital social de 2 450 000 euros... FERROTEK COMPOSANTS SA, au capital social de 1 820 000 euros"
+  },
+  {
+   "question": "Quel pourcentage du chiffre d'affaires annuel est consacré au budget recherche et développement du Fournisseur ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la procédure d'arbitrage international prévue en cas d'échec de la résolution amiable ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Le contrat prévoit-il une clause de force majeure et quelles en sont les modalités ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nombre total de salariés employés par Ferrotek Composants SA ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelles sont les conditions de transfert ou de cession du contrat à un tiers ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant total estimé du contrat sur toute sa durée maximale ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

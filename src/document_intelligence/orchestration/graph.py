@@ -19,7 +19,13 @@ from document_intelligence.observability import trace_span
 from document_intelligence.orchestration.exceptions import OrchestrationError
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.orchestration.models import AgentState, AnswerResult
-from document_intelligence.orchestration.nodes import retrieve, route_query, synthesize
+from document_intelligence.orchestration.nodes import (
+    retrieve,
+    route_query,
+    synthesize,
+    verify_answer,
+)
+from document_intelligence.orchestration.verification import AnswerVerifier
 from document_intelligence.vectorization.store import VectorStore
 
 logger = get_logger(__name__)
@@ -63,8 +69,30 @@ def _describe_synthesis(state: AgentState) -> dict[str, Any]:
     }
 
 
+def _describe_verification(state: AgentState) -> dict[str, Any]:
+    answer = state.answer
+    return {
+        "verified": answer.verified if answer else None,
+        "regenerations": state.regenerations,
+    }
+
+
+def _after_verification(state: AgentState, max_regenerations: int) -> str:
+    """Régénère tant que le vérificateur rejette la réponse, dans la limite fixée."""
+    if (
+        state.verification_feedback is not None
+        and state.regenerations < max_regenerations
+    ):
+        return "synthesize"
+    return END
+
+
 def _build_graph(
-    store: VectorStore, llm: LLMClient, k: int
+    store: VectorStore,
+    llm: LLMClient,
+    k: int,
+    verifier: AnswerVerifier | None = None,
+    max_regenerations: int = 1,
 ) -> CompiledStateGraph[Any, Any, Any, Any]:
     graph: StateGraph[AgentState, None, AgentState, AgentState] = StateGraph(AgentState)
     graph.add_node("route", _traced("route", route_query))
@@ -80,23 +108,54 @@ def _build_graph(
     graph.set_entry_point("route")
     graph.add_edge("route", "retrieve")
     graph.add_edge("retrieve", "synthesize")
-    graph.add_edge("synthesize", END)
+    if verifier is None:
+        graph.add_edge("synthesize", END)
+        return graph.compile()
 
+    # synthèse → vérification → (régénération avec le retour du vérificateur | fin)
+    graph.add_node(
+        "verify",
+        _traced(
+            "verify",
+            partial(verify_answer, verifier=verifier),
+            _describe_verification,
+        ),
+    )
+    graph.add_edge("synthesize", "verify")
+    graph.add_conditional_edges(
+        "verify",
+        partial(_after_verification, max_regenerations=max_regenerations),
+        ["synthesize", END],
+    )
     return graph.compile()
 
 
 def answer_query(
-    query: str, store: VectorStore, llm: LLMClient, k: int = 5
+    query: str,
+    store: VectorStore,
+    llm: LLMClient,
+    k: int = 5,
+    verifier: AnswerVerifier | None = None,
+    max_regenerations: int = 1,
 ) -> AnswerResult:
-    """Exécute le pipeline routage → retrieval → synthèse pour une requête utilisateur.
+    """Exécute le pipeline routage → retrieval → synthèse (→ vérification) pour une requête.
 
     Args:
         query: question posée par l'utilisateur.
         store: vector store interrogé pour la recherche de contexte.
         llm: client LLM utilisé pour générer la réponse.
         k: nombre de chunks récupérés pour la synthèse.
+        verifier: agent de vérification ; `None` = graphe sans vérification.
+        max_regenerations: régénérations au plus après un verdict négatif. Au-delà,
+            la réponse est rendue avec `verified=False`.
     """
-    compiled_graph = _build_graph(store=store, llm=llm, k=k)
+    compiled_graph = _build_graph(
+        store=store,
+        llm=llm,
+        k=k,
+        verifier=verifier,
+        max_regenerations=max_regenerations,
+    )
     with trace_span("pipeline", k=k):
         final_state = compiled_graph.invoke(AgentState(query=query))
     answer = (

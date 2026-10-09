@@ -1,0 +1,159 @@
+{
+ "questions": [
+  {
+   "question": "Quelle est la durée totale de l'audit, et combien de jours ont été consacrés aux entretiens sur site ?",
+   "answerable": true,
+   "evidence": "L'audit s'est déroulé du 3 février 2024 au 28 mars 2024, soit une durée totale de 54 jours calendaires, incluant 11 jours d'entretiens sur site et 6 jours d'analyse documentaire à distance."
+  },
+  {
+   "question": "Combien d'entreprises clientes utilisent la plateforme Orvalys RH et dans combien de pays sont-elles réparties ?",
+   "answerable": true,
+   "evidence": "utilisée par 1 842 entreprises clientes réparties dans 14 pays européens, pour un volume cumulé estimé à 3,7 millions de profils salariés actifs au 31 décembre 2023."
+  },
+  {
+   "question": "Qui compose l'équipe d'audit et combien d'entretiens ont-ils menés ?",
+   "answerable": true,
+   "evidence": "L'équipe d'audit, composée de Mme Solène Ardanne (auditrice principale, certifiée CIPP/E) et de M. Benoît Kervazec (expert technique), a examiné 212 documents internes et mené 23 entretiens individuels avec des collaborateurs des services juridique, technique et commercial."
+  },
+  {
+   "question": "Quelles filiales étrangères sont exclues du périmètre de cet audit et quand seront-elles auditées ?",
+   "answerable": true,
+   "evidence": "Le périmètre exclut les filiales étrangères de SoftLynx Technologies, notamment SoftLynx Iberia SL (Barcelone) et SoftLynx Benelux BV (Anvers), qui feront l'objet d'audits distincts programmés respectivement pour le troisième et quatrième trimestre 2024."
+  },
+  {
+   "question": "Pour combien de clients SoftLynx Technologies est-elle qualifiée de responsable de traitement conjoint ?",
+   "answerable": true,
+   "evidence": "SoftLynx Technologies est qualifiée de sous-traitant au sens de l'article 28 du RGPD pour 1 603 de ses clients, et de responsable de traitement conjoint pour les 239 clients ayant souscrit l'option de traitement analytique avancé."
+  },
+  {
+   "question": "Quel est le numéro d'enregistrement du DPO auprès de la CNIL et quand a-t-il été désigné ?",
+   "answerable": true,
+   "evidence": "Le délégué à la protection des données de l'entreprise, M. Thibault Hoursin, a été désigné le 12 septembre 2019 et enregistré auprès de la Commission Nationale de l'Informatique et des Libertés sous le numéro DPO-2019-048721."
+  },
+  {
+   "question": "Combien de traitements ne mentionnent pas de durée de conservation précise, et quel pourcentage cela représente-t-il ?",
+   "answerable": true,
+   "evidence": "L'audit révèle que 6 traitements, représentant 12,7 % du total, ne mentionnent pas de durée de conservation précise, en violation de l'article 30 du RGPD qui impose une documentation exhaustive des finalités et durées."
+  },
+  {
+   "question": "Quel traitement n'était pas inscrit au registre lors de l'audit et comment a-t-il été classé ?",
+   "answerable": true,
+   "evidence": "Par ailleurs, le traitement relatif au module de notation des performances salariales, déployé le 4 avril 2023, ne figurait pas dans le registre au moment de l'audit, constituant une non-conformité majeure classée en priorité 1."
+  },
+  {
+   "question": "Où sont situés les centres de données hébergeant Orvalys RH et depuis quand sont-ils certifiés ISO 27001 ?",
+   "answerable": true,
+   "evidence": "Les serveurs hébergeant les données d'Orvalys RH sont localisés dans deux centres de données exploités par la société DatacenterLoire Infrastructures, situés à Orléans et à Tours, certifiés ISO 27001 depuis le 15 juin 2021."
+  },
+  {
+   "question": "Quel pourcentage de comptes administrateurs internes n'avait pas d'authentification à deux facteurs, et combien de profils cela expose-t-il ?",
+   "answerable": true,
+   "evidence": "Toutefois, l'audit a identifié que 18 % des comptes administrateurs internes ne disposaient pas d'authentification à deux facteurs au 15 février 2024, exposant un risque d'accès non autorisé à environ 664 000 profils de salariés."
+  },
+  {
+   "question": "Quel délai a été imposé pour le plan de remédiation concernant l'authentification à deux facteurs ?",
+   "answerable": true,
+   "evidence": "Un plan de remédiation a été exigé sous 30 jours ouvrés."
+  },
+  {
+   "question": "Quels sont les deux principaux sous-traitants ultérieurs de SoftLynx Technologies et quelle part du volume de données traitent-ils ?",
+   "answerable": true,
+   "evidence": "Parmi ceux-ci, la société MarignacCloud Services, basée à Lyon, traite 34 % du volume total de données, suivie par Astreon Support SAS avec 21 % du volume."
+  },
+  {
+   "question": "Combien de contrats de sous-traitance ne respectent pas l'article 28-3 du RGPD, et avant quelle date doivent-ils être mis à jour ?",
+   "answerable": true,
+   "evidence": "L'audit constate que 3 contrats sur 11, soit 27 %, ne contiennent pas de clause conforme à l'article 28-3 du RGPD concernant l'assistance obligatoire en cas de violation de données. Ces contrats, signés avant le 1er janvier 2020, nécessitent une mise à jour contractuelle avant le 30 juin 2024."
+  },
+  {
+   "question": "Quel pourcentage des données d'Orvalys RH transite hors de l'Espace économique européen, et avec quelle société américaine un partenariat existe-t-il ?",
+   "answerable": true,
+   "evidence": "Environ 8,4 % des données traitées par Orvalys RH transitent vers des serveurs situés hors de l'Espace économique européen, notamment via un partenariat avec la société américaine BridgewayTech Inc. pour des fonctionnalités d'intelligence artificielle prédictive."
+  },
+  {
+   "question": "Quand remonte la dernière analyse d'impact relative aux transferts (TIA) et pourquoi une mise à jour est-elle recommandée ?",
+   "answerable": true,
+   "evidence": "L'audit recommande la réalisation d'une analyse d'impact relative aux transferts (TIA) actualisée, la dernière datant du 11 mai 2022, afin de tenir compte des évolutions législatives américaines intervenues depuis l'arrêt Schrems II."
+  },
+  {
+   "question": "Combien de demandes d'exercice de droits ont été enregistrées et quel est le délai moyen de traitement ?",
+   "answerable": true,
+   "evidence": "Sur la période analysée, 1 284 demandes d'exercice de droits ont été enregistrées, dont 71 % concernaient le droit d'accès et 18 % le droit à l'effacement. Le délai moyen de traitement s'établit à 21 jours, en deçà du délai légal maximal d'un mois prévu par l'article 12 du RGPD, sauf pour 47 demandes ayant dépassé ce délai en raison d'un sous-dimensionnement temporaire de l'équipe support."
+  },
+  {
+   "question": "Combien d'incidents de sécurité ont été notifiés à la CNIL et ont-ils respecté le délai légal de notification ?",
+   "answerable": true,
+   "evidence": "Trois incidents de sécurité ont été notifiés à la CNIL durant les 24 derniers mois : le 17 janvier 2023 (exposition temporaire de 340 adresses courriel), le 2 août 2023 (accès non autorisé à 1 120 fiches de paie pendant 6 heures) et le 29 novembre 2023 (erreur de configuration ayant affecté 58 comptes). Ces trois notifications ont respecté le délai de 72 heures imposé par l'article 33 du RGPD."
+  },
+  {
+   "question": "Quel est le coût cumulé de gestion des incidents de sécurité, et quelle part a été consacrée au renforcement de la détection d'intrusion ?",
+   "answerable": true,
+   "evidence": "Le coût cumulé de gestion de ces incidents, incluant les mesures correctives et la communication aux personnes concernées, est estimé à 186 400 euros, dont 94 000 euros consacrés au renforcement de l'infrastructure de détection d'intrusion."
+  },
+  {
+   "question": "Quel est le taux de couverture de la formation à la protection des données en 2023 ?",
+   "answerable": true,
+   "evidence": "Sur un effectif total de 428 collaborateurs, 356 ont suivi un module de formation obligatoire à la protection des données en 2023, soit un taux de couverture de 83,2 %."
+  },
+  {
+   "question": "Combien de mesures comporte le plan d'actions correctives et quand a-t-il été validé par la direction générale ?",
+   "answerable": true,
+   "evidence": "Un plan d'actions correctives comportant 14 mesures a été établi conjointement avec M. Hoursin et validé par la direction générale le 2 avril 2024."
+  },
+  {
+   "question": "Comment le budget du plan d'actions correctives est-il réparti entre les départements ?",
+   "answerable": true,
+   "evidence": "Un budget prévisionnel de 142 000 euros a été alloué à la mise en œuvre de ce plan, financé à hauteur de 60 % par le département technique et 40 % par le département juridique et conformité."
+  },
+  {
+   "question": "Quel est le score de conformité global de SoftLynx Technologies et comment a-t-il évolué par rapport à l'audit précédent ?",
+   "answerable": true,
+   "evidence": "Au terme de cet audit, le niveau global de conformité de SoftLynx Technologies SAS est évalué à 78 sur 100, en progression de 9 points par rapport à l'audit précédent de mars 2022 qui affichait un score de 69 sur 100."
+  },
+  {
+   "question": "D'après le tableau récapitulatif, quel est le taux de conformité du domaine des transferts internationaux ?",
+   "answerable": true,
+   "evidence": "Transferts internationaux | 1 analyse d'impact obsolète | N/A | 31 juillet 2024"
+  },
+  {
+   "question": "Quelle est l'échéance de remédiation pour les contrats de sous-traitance selon le tableau, et correspond-elle à celle mentionnée dans le texte ?",
+   "answerable": true,
+   "evidence": "Contrats de sous-traitance | 3 sur 11 contrats | 72,7 % | 30 juin 2024"
+  },
+  {
+   "question": "Quel est le nom du prochain document de la série d'audits et avant quelle date doit-il être programmé ?",
+   "answerable": true,
+   "evidence": "Le cabinet Dravigny & Pelcor Conseil recommande la programmation d'un audit de suivi, constituant le document n°10 de la présente série, au plus tard le 30 septembre 2024, afin de vérifier l'effectivité des mesures correctives engagées."
+  },
+  {
+   "question": "Quel est le montant total des amendes infligées par la CNIL à SoftLynx Technologies à la suite de cet audit ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels sont les noms des 23 collaborateurs interrogés lors des entretiens individuels ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la position du DPO M. Hoursin concernant la décision de ne pas inclure les filiales étrangères dans l'audit ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel logiciel de gestion des cookies est utilisé sur le site web d'Orvalys RH ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels sont les résultats détaillés de l'audit de suivi (document n°10) prévu pour septembre 2024 ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du responsable sécurité informatique ayant supervisé la mise en place du chiffrement AES-256 ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

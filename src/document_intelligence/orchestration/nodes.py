@@ -1,4 +1,4 @@
-"""Nœuds du pipeline d'agents : routage, retrieval, synthèse, citation.
+"""Nœuds du pipeline d'agents : routage, retrieval, synthèse, citation, vérification.
 
 Chaque nœud est une fonction pure `AgentState -> AgentState`, conçue pour
 correspondre 1:1 aux nœuds d'un `StateGraph` LangGraph : l'introduction de
@@ -8,8 +8,10 @@ modifier leur logique.
 """
 
 from document_intelligence.core.logging import get_logger
+from document_intelligence.observability.prometheus import record_verification
 from document_intelligence.orchestration.exceptions import (
     EmptyQueryError,
+    LLMOutputError,
     NoRelevantChunkError,
 )
 from document_intelligence.orchestration.llm import LLMClient
@@ -23,6 +25,11 @@ from document_intelligence.orchestration.models import (
 from document_intelligence.orchestration.prompts import (
     SYNTHESIS_SYSTEM_PROMPT,
     build_synthesis_prompt,
+)
+from document_intelligence.orchestration.verification import (
+    AnswerVerifier,
+    build_feedback_block,
+    describe_unsupported,
 )
 from document_intelligence.vectorization.store import VectorStore
 
@@ -68,6 +75,15 @@ def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
         )
 
     prompt = build_synthesis_prompt(state.query, state.retrieved)
+    regenerations = state.regenerations
+    rejected = list(state.answer.rejected_answers) if state.answer else []
+    if state.verification_feedback is not None:
+        if state.answer is not None:
+            rejected.append(state.answer.answer)
+        # Régénération : le prompt diffère, donc le cache ne resert jamais
+        # la réponse rejetée par le vérificateur.
+        prompt += build_feedback_block(state.verification_feedback)
+        regenerations += 1
     grounded = llm.complete_structured(
         prompt, GroundedAnswer, system=SYNTHESIS_SYSTEM_PROMPT
     )
@@ -99,5 +115,53 @@ def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
         answer=grounded.answer,
         citations=citations,
         sufficient_context=grounded.sufficient_context,
+        verifications=state.verifications,
+        regenerations=regenerations,
+        rejected_answers=rejected,
     )
-    return state.model_copy(update={"answer": answer})
+    return state.model_copy(
+        update={
+            "answer": answer,
+            "regenerations": regenerations,
+            "verification_feedback": None,
+        }
+    )
+
+
+def verify_answer(state: AgentState, verifier: AnswerVerifier) -> AgentState:
+    """Fait vérifier la réponse par l'agent ; prépare une régénération si besoin.
+
+    Une abstention n'est pas vérifiée (aucune affirmation à contrôler). Un
+    verdict inexploitable laisse la réponse non vérifiée (`verified=None`)
+    sans interrompre le pipeline ; une erreur d'API est propagée.
+    """
+    answer = state.answer
+    if answer is None or not answer.sufficient_context:
+        return state
+
+    try:
+        verdict = verifier.verify(state.query, answer.answer, state.retrieved)
+    except LLMOutputError:
+        logger.warning("verification.invalid_verdict", query=state.query, exc_info=True)
+        return state
+
+    record_verification(verdict.grounded)
+    if not verdict.grounded:
+        logger.warning(
+            "verification.flagged",
+            query=state.query,
+            unsupported_claims=verdict.unsupported_claims,
+            regenerations=state.regenerations,
+        )
+    verifications = [*state.verifications, verdict]
+    return state.model_copy(
+        update={
+            "answer": answer.model_copy(
+                update={"verifications": verifications, "verified": verdict.grounded}
+            ),
+            "verifications": verifications,
+            "verification_feedback": (
+                None if verdict.grounded else describe_unsupported(verdict)
+            ),
+        }
+    )

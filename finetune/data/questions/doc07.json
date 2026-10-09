@@ -1,0 +1,174 @@
+{
+ "questions": [
+  {
+   "question": "Quelles sont les dates de déroulement de l'audit du site de Vauclairmont ?",
+   "answerable": true,
+   "evidence": "L'audit a été conduit du 14 au 17 octobre 2024 par le cabinet Quintessence Audit & Conseil"
+  },
+  {
+   "question": "Quel est le numéro du contrat par lequel Quintessence Audit & Conseil a été mandaté ?",
+   "answerable": true,
+   "evidence": "mandaté par contrat n°QAC-2024-0192 daté du 2 septembre 2024"
+  },
+  {
+   "question": "Quelles lignes de production sont couvertes par le périmètre de l'audit ?",
+   "answerable": true,
+   "evidence": "Le périmètre couvre les processus de production des lignes L1 (vérins hydrauliques), L2 (raccords et flexibles) et L3 (assemblage final), ainsi que les fonctions support achats, maintenance et logistique."
+  },
+  {
+   "question": "Qui a délivré la certification ISO 9001:2015 initiale et à quelle date ?",
+   "answerable": true,
+   "evidence": "la perspective du renouvellement de la certification délivrée initialement le 11 mars 2019 par l'organisme certificateur Bellatrix Certification International"
+  },
+  {
+   "question": "Combien d'heures d'audit sur site ont été réalisées au total ?",
+   "answerable": true,
+   "evidence": "Les travaux ont représenté un total de 28 heures d'audit sur site réparties sur 4 journées"
+  },
+  {
+   "question": "Combien d'entretiens individuels et d'observations directes de poste ont été menés ?",
+   "answerable": true,
+   "evidence": "incluant 42 entretiens individuels avec le personnel et 17 observations directes de poste"
+  },
+  {
+   "question": "Sur combien de documents l'échantillonnage documentaire a-t-il porté, par rapport au corpus total de procédures actives ?",
+   "answerable": true,
+   "evidence": "La méthodologie appliquée repose sur l'échantillonnage documentaire (112 documents examinés sur un corpus de 340 procédures actives)"
+  },
+  {
+   "question": "Combien de lots de production ont été tracés et quel volume cumulé représentent-ils ?",
+   "answerable": true,
+   "evidence": "la traçabilité de 6 lots de production sélectionnés aléatoirement entre juin et septembre 2024, représentant un volume cumulé de 9 870 unités fabriquées"
+  },
+  {
+   "question": "Quel est l'effectif du site de Vauclairmont en CDI et en intérim ?",
+   "answerable": true,
+   "evidence": "Le site de Vauclairmont emploie 187 salariés en contrat à durée indéterminée et 23 intérimaires au 30 septembre 2024"
+  },
+  {
+   "question": "Quel chiffre d'affaires le site a-t-il généré en 2023 et quelle est son évolution par rapport à 2022 ?",
+   "answerable": true,
+   "evidence": "Le site a généré un chiffre d'affaires de 34,6 millions d'euros sur l'exercice clos le 31 décembre 2023, en hausse de 6,2 % par rapport à 2022."
+  },
+  {
+   "question": "Qui dirige le site et depuis quand ?",
+   "answerable": true,
+   "evidence": "Le directeur de site, M. Armand Delcroze, est en poste depuis le 1er avril 2021."
+  },
+  {
+   "question": "Combien de personnes composent le service qualité et comment sont-elles réparties ?",
+   "answerable": true,
+   "evidence": "La responsable qualité, Mme Florine Bachetta, dirige un service composé de 7 personnes, dont 2 techniciens métrologie et 3 contrôleurs qualité affectés en ligne."
+  },
+  {
+   "question": "Quel est le taux de conformité global obtenu lors de cet audit ?",
+   "answerable": true,
+   "evidence": "Sur les 94 exigences normatives évaluées, 81 ont été jugées pleinement satisfaites, soit un taux de conformité global de 86,2 %."
+  },
+  {
+   "question": "Combien de non-conformités majeures et mineures ont été relevées lors de l'audit ?",
+   "answerable": true,
+   "evidence": "Cinq non-conformités majeures et neuf non-conformités mineures ont été relevées, auxquelles s'ajoutent six remarques d'amélioration sans incidence immédiate sur la certification."
+  },
+  {
+   "question": "Comment le taux de conformité de cet audit se compare-t-il à celui de l'audit précédent ?",
+   "answerable": true,
+   "evidence": "Le taux de conformité constaté est en léger recul par rapport à l'audit précédent (document n°7, daté du 9 novembre 2023), qui affichait 89,4 %."
+  },
+  {
+   "question": "Quelle est la cause principale évoquée pour expliquer la baisse du taux de conformité ?",
+   "answerable": true,
+   "evidence": "Cette baisse s'explique principalement par le renouvellement de 34 % de l'effectif en ligne L2 au cours des douze derniers mois, générant des écarts de formation documentés en section 6."
+  },
+  {
+   "question": "En quoi consiste la non-conformité majeure NC-M-01 ?",
+   "answerable": true,
+   "evidence": "NC-M-01 : absence de validation documentée du processus de soudure par friction sur la ligne L1 depuis le 3 juillet 2024, en violation du point 8.5.1 de la norme. Un volume estimé à 14 200 pièces a été produit sans enregistrement de qualification du poste."
+  },
+  {
+   "question": "Combien de bancs de test de pression hydraulique présentent un dépassement de l'intervalle d'étalonnage, et depuis quand ?",
+   "answerable": true,
+   "evidence": "NC-M-02 : dépassement de l'intervalle d'étalonnage sur 4 des 11 bancs de test de pression hydraulique, le dernier contrôle datant du 18 janvier 2023 alors que la périodicité contractuelle avec le prestataire Calibréa Instruments est fixée à 12 mois."
+  },
+  {
+   "question": "Quel produit est concerné par les réclamations clients mentionnées dans la NC-M-03 ?",
+   "answerable": true,
+   "evidence": "NC-M-03 concerne l'absence de plan d'actions correctives suite à 3 réclamations clients consécutives entre mars et août 2024 portant sur des fuites au niveau des raccords série RX-400."
+  },
+  {
+   "question": "Quel est le taux d'achèvement des formations sécurité constaté par rapport à l'objectif fixé ?",
+   "answerable": true,
+   "evidence": "un taux d'achèvement des formations sécurité limité à 71 % sur l'objectif contractuel de 95 % fixé par la direction"
+  },
+  {
+   "question": "Quel est le délai moyen de traitement des réclamations clients et comment se compare-t-il à l'engagement interne ?",
+   "answerable": true,
+   "evidence": "le délai moyen de traitement des réclamations clients s'élève à 18,4 jours, contre un engagement interne de 10 jours inscrit dans la procédure PQ-112 version 4 du 5 janvier 2022."
+  },
+  {
+   "question": "Quel est le coût de la non-qualité interne sur les neuf premiers mois de 2024 et quel pourcentage du chiffre d'affaires représente-t-il ?",
+   "answerable": true,
+   "evidence": "Le coût de la non-qualité interne est évalué à 412 000 euros sur les neuf premiers mois de 2024, représentant 1,19 % du chiffre d'affaires du site, contre un seuil d'alerte interne fixé à 1,5 % par la direction financière du groupe Meridion Industries."
+  },
+  {
+   "question": "Quel délai Fabritec Meridion SAS a-t-il pour transmettre un plan d'actions correctives, et à quelle date échoit-il ?",
+   "answerable": true,
+   "evidence": "Fabritec Meridion SAS dispose d'un délai de 60 jours calendaires à compter de la date de réception du présent rapport, soit jusqu'au 16 décembre 2024, pour transmettre à Quintessence Audit & Conseil un plan d'actions correctives détaillé pour chacune des cinq non-conformités majeures."
+  },
+  {
+   "question": "Quand est prévu l'audit de suivi et quelle condition doit être remplie pour le maintien de la certification ?",
+   "answerable": true,
+   "evidence": "Un audit de suivi ciblé, limité aux cinq non-conformités majeures, est programmé pour le 20 janvier 2025. Le maintien de la certification délivrée par Bellatrix Certification International reste conditionné à la clôture effective d'au moins quatre des cinq non-conformités majeures à cette date."
+  },
+  {
+   "question": "Quel est le taux de rebut moyen constaté en 2024 par rapport à l'objectif cible et au résultat de 2023 ?",
+   "answerable": true,
+   "evidence": "Taux de rebut production | 2,3 % | 2,0 % | 1,8 % | +0,5 pt"
+  },
+  {
+   "question": "Quel budget formation annuel est actuellement alloué au site, et quel investissement complémentaire est recommandé ?",
+   "answerable": true,
+   "evidence": "L'équipe d'audit recommande le renforcement du budget formation, actuellement fixé à 54 000 euros annuels pour l'ensemble du site, afin d'atteindre le taux cible de 95 % de couverture formation sécurité évoqué en section 6. Un investissement complémentaire estimé entre 15 000 et 20 000 euros est suggéré."
+  },
+  {
+   "question": "À quel pourcentage de ses fonctionnalités le logiciel Maintenia GMAO est-il utilisé selon l'entretien avec le responsable maintenance ?",
+   "answerable": true,
+   "evidence": "actuellement utilisé à 60 % de ses fonctionnalités disponibles selon les déclarations de M. Ravanel lors de l'entretien du 16 octobre 2024 avec le responsable maintenance, M. Cédric Hannequin."
+  },
+  {
+   "question": "Quel est le montant prévisionnel de l'intervention d'étalonnage des bancs de test prévue avec Calibréa Instruments ?",
+   "answerable": true,
+   "evidence": "L'étalonnage des quatre bancs de test (NC-M-02) a été planifié avec Calibréa Instruments pour intervention les 4 et 5 novembre 2024, pour un montant prévisionnel de 8 450 euros HT."
+  },
+  {
+   "question": "Quel est le montant total des pénalités financières infligées à Fabritec Meridion SAS suite aux non-conformités majeures ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels sont les noms des membres du comité de direction ayant validé le budget qualité du site ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la marge bénéficiaire nette réalisée par le site de Vauclairmont en 2023 ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le taux de satisfaction des employés mesuré lors d'une enquête interne au site ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels fournisseurs alternatifs ont été évalués pour remplacer Sidérance Alliages suite au défaut de traçabilité constaté ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du successeur pressenti de M. Armand Delcroze à la direction du site ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

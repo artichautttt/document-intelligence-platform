@@ -1,0 +1,154 @@
+{
+ "questions": [
+  {
+   "question": "Quel est le numéro RCS de Ferrandis Mécanique Industrielle SAS et à quel greffe est-elle immatriculée ?",
+   "answerable": true,
+   "evidence": "immatriculée au Registre du Commerce et des Sociétés de Besançon sous le numéro 487 612 905"
+  },
+  {
+   "question": "Qui a fondé la société et à quelle date ?",
+   "answerable": true,
+   "evidence": "a été fondée le 14 mars 1998 par Monsieur Grégoire Lasalle"
+  },
+  {
+   "question": "Quelle est la surface du site de production principal de Pirey ?",
+   "answerable": true,
+   "evidence": "son site de production principal se trouve à Pirey (Doubs) sur une surface de 6 400 m²"
+  },
+  {
+   "question": "Combien de salariés en CDI et CDD la société comptait-elle au 31 décembre 2024, et quelle était la situation un an plus tôt ?",
+   "answerable": true,
+   "evidence": "la société emploie 187 salariés en contrat à durée indéterminée et 14 en contrat à durée déterminée, contre 179 et 11 respectivement au 31 décembre 2023"
+  },
+  {
+   "question": "Quel est le montant du capital social et comment se décompose-t-il en actions ?",
+   "answerable": true,
+   "evidence": "Le capital social s'élève à 1 250 000 euros, divisé en 125 000 actions de 10 euros de valeur nominale chacune."
+  },
+  {
+   "question": "Quel investissement a été inauguré le 3 février 2024 et comment a-t-il été financé ?",
+   "answerable": true,
+   "evidence": "Le 3 février 2024, la société a inauguré une nouvelle ligne de fraisage numérique représentant un investissement de 1 840 000 euros, financé à hauteur de 60 % par un emprunt bancaire contracté auprès de la Banque Régionale de Franche-Comté et à 40 % par autofinancement."
+  },
+  {
+   "question": "Quel est le montant prévisionnel cumulé du contrat-cadre signé avec Tramonex Rail et sur quelle durée ?",
+   "answerable": true,
+   "evidence": "a signé un contrat-cadre de trois ans avec le groupe Tramonex Rail, portant sur la fourniture de bogies usinés pour un montant prévisionnel cumulé de 9 200 000 euros sur la durée du contrat"
+  },
+  {
+   "question": "Quelles ont été les conséquences de l'incendie survenu le 9 octobre 2024 ?",
+   "answerable": true,
+   "evidence": "un incendie limité a endommagé l'atelier B, entraînant un arrêt de production de 11 jours et une perte d'exploitation estimée à 215 000 euros, intégralement couverte par la police d'assurance souscrite auprès de Solvarex Assurances"
+  },
+  {
+   "question": "Quel est le chiffre d'affaires consolidé 2024 et sa progression par rapport à 2023 ?",
+   "answerable": true,
+   "evidence": "Le chiffre d'affaires consolidé de l'exercice clos le 31 décembre 2024 s'établit à 24 680 000 euros, en progression de 7,3 % par rapport à 2023 (22 990 000 euros)."
+  },
+  {
+   "question": "Quelle part du chiffre d'affaires représente le segment ferroviaire en 2024, comparé à 2023 ?",
+   "answerable": true,
+   "evidence": "le segment ferroviaire, qui représente désormais 42 % du chiffre d'affaires total, contre 36 % en 2023"
+  },
+  {
+   "question": "Quel est le résultat net après impôt de 2024 et son évolution par rapport à 2023 ?",
+   "answerable": true,
+   "evidence": "Le résultat net après impôt s'élève à 1 312 000 euros, en hausse de 14,8 % par rapport à 2023."
+  },
+  {
+   "question": "Quel est le ratio d'autonomie financière de la société au 31 décembre 2024 ?",
+   "answerable": true,
+   "evidence": "Les capitaux propres s'établissent à 9 180 000 euros, soit un ratio d'autonomie financière de 46,2 %."
+  },
+  {
+   "question": "Pourquoi le besoin en fonds de roulement a-t-il progressé en 2024 ?",
+   "answerable": true,
+   "evidence": "Le besoin en fonds de roulement a progressé de 680 000 euros sur l'exercice, atteignant 3 110 000 euros au 31 décembre 2024, en raison d'un allongement du délai moyen de paiement clients passé de 52 à 58 jours."
+  },
+  {
+   "question": "Quel budget a été approuvé pour le programme pluriannuel 2025-2027 et quel en est l'objet principal ?",
+   "answerable": true,
+   "evidence": "Un programme pluriannuel 2025-2027 a été approuvé par le conseil d'administration le 12 novembre 2024, prévoyant un budget total de 5 600 000 euros destiné notamment à la construction d'un nouvel atelier de 2 100 m² sur le site de Pirey, avec une livraison prévue au premier trimestre 2026."
+  },
+  {
+   "question": "Qui a remplacé Monsieur Thibault Senart comme directeur des ressources humaines et à quelle date ?",
+   "answerable": true,
+   "evidence": "Madame Élodie Rambaud a été nommée directrice des ressources humaines le 1er avril 2024, en remplacement de Monsieur Thibault Senart, parti à la retraite après 22 ans d'ancienneté."
+  },
+  {
+   "question": "Combien de membres compose le conseil d'administration et qui le préside ?",
+   "answerable": true,
+   "evidence": "Le conseil d'administration de Ferrandis Mécanique Industrielle SAS est composé de sept membres au 31 décembre 2024, présidé par Madame Corinne Vasseur depuis le 6 mai 2021."
+  },
+  {
+   "question": "À combien de reprises le conseil d'administration s'est-il réuni en 2024 et à quelles dates ?",
+   "answerable": true,
+   "evidence": "Le conseil s'est réuni cinq fois au cours de l'exercice, les 14 février, 18 avril, 12 juillet, 12 novembre et 9 décembre 2024."
+  },
+  {
+   "question": "Quel est le montant de l'emprunt d'équipement contracté en février 2024 et à quel taux ?",
+   "answerable": true,
+   "evidence": "un emprunt d'équipement de 3 760 000 euros contracté en février 2024 sur une durée de huit ans, au taux fixe de 3,65 %"
+  },
+  {
+   "question": "Quel est le ratio dette nette sur excédent brut d'exploitation et quel est le seuil contractuel à ne pas dépasser ?",
+   "answerable": true,
+   "evidence": "le ratio dette nette sur excédent brut d'exploitation, qui s'établit à 1,98, en deçà du seuil contractuel maximal de 3,0 fixé par la convention de crédit du 5 février 2024"
+  },
+  {
+   "question": "De combien les émissions de gaz à effet de serre scope 1 et 2 ont-elles baissé entre 2023 et 2024 ?",
+   "answerable": true,
+   "evidence": "Les émissions de gaz à effet de serre de scope 1 et 2 ont été réduites de 9,4 % entre 2023 et 2024, passant de 1 840 tonnes équivalent CO2 à 1 667 tonnes équivalent CO2"
+  },
+  {
+   "question": "Quelle acquisition la société a-t-elle réalisée le 18 janvier 2025 et pour quel montant ?",
+   "answerable": true,
+   "evidence": "Le 18 janvier 2025, la société a procédé à l'acquisition de 100 % des titres de la société Delmonte Usinage SARL, basée à Dole, pour un montant de 1 480 000 euros, afin de renforcer sa capacité de production dans le secteur agroalimentaire."
+  },
+  {
+   "question": "Quel dividende par action a été proposé pour 2024 et quel montant total représente-t-il ?",
+   "answerable": true,
+   "evidence": "le conseil d'administration a proposé à l'assemblée générale ordinaire, convoquée pour le 28 avril 2025, la distribution d'un dividende de 0,85 euro par action, représentant une distribution totale de 106 250 euros."
+  },
+  {
+   "question": "Quelles sont les perspectives de chiffre d'affaires et de marge opérationnelle pour l'exercice 2025 ?",
+   "answerable": true,
+   "evidence": "La direction générale anticipe un chiffre d'affaires compris entre 26 500 000 et 27 800 000 euros pour l'exercice 2025... La marge opérationnelle cible pour 2025 est fixée à 8,5 %"
+  },
+  {
+   "question": "Comment le résultat net a-t-il évolué entre 2022 et 2024 d'après le tableau financier ?",
+   "answerable": true,
+   "evidence": "Résultat net (en milliers d'euros) | 980 | 1 143 | 1 312"
+  },
+  {
+   "question": "Quel est le montant de la prime versée aux salariés pour performance exceptionnelle en 2024 ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du directeur financier de la société et depuis quand occupe-t-il ce poste ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la répartition géographique des ventes à l'export de la société ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant des honoraires versés au cabinet Auvignac & Belloy pour la certification des comptes ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels sont les principaux concurrents de Ferrandis Mécanique Industrielle SAS sur le marché ferroviaire ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la durée du bail commercial pour un nouveau site envisagé en région parisienne ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

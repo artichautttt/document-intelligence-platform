@@ -121,9 +121,22 @@ class LLMClient(ABC):
         Raises:
             LLMGenerationError: si la génération échoue ou si la sortie est invalide.
         """
-        instruction = (
-            "Réponds uniquement avec un objet JSON conforme à ce schéma JSON :\n"
-            f"{json.dumps(schema.model_json_schema(), ensure_ascii=False)}"
+        return parse_structured_output(
+            self.complete(json_instruction_prompt(prompt, schema, system)), schema
         )
-        parts = [system, prompt, instruction] if system else [prompt, instruction]
-        return parse_structured_output(self.complete("\n\n".join(parts)), schema)
+
+
+def json_instruction_prompt(
+    prompt: str, schema: type[BaseModel], system: str | None = None
+) -> str:
+    """Prompt du repli « JSON par instruction » (modèles sans function calling).
+
+    Partagé avec la construction du jeu de fine-tuning, pour que le modèle soit
+    entraîné exactement sur le texte qu'il recevra à l'inférence.
+    """
+    instruction = (
+        "Réponds uniquement avec un objet JSON conforme à ce schéma JSON :\n"
+        f"{json.dumps(schema.model_json_schema(), ensure_ascii=False)}"
+    )
+    parts = [system, prompt, instruction] if system else [prompt, instruction]
+    return "\n\n".join(parts)

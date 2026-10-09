@@ -1,0 +1,9 @@
+# Dépendances de l'expérience de fine-tuning, volontairement hors de pyproject :
+# la CI (`uv sync --all-groups`, Linux) téléchargerait sinon torch avec CUDA (plusieurs Go).
+# Installation dans le venv du projet : uv pip install -r finetune/requirements.txt
+# (un `uv sync` ultérieur les retire ; les réinstaller au besoin).
+# Versions utilisées et vérifiées le 2026-10-07 (Windows, CPU, Python 3.14) :
+torch==2.14.1
+transformers==5.19.0
+peft==0.21.2
+accelerate==1.15.0

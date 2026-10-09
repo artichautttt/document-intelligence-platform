@@ -9,6 +9,7 @@ from fastapi import Header, HTTPException, Request, status
 
 from document_intelligence.core.config import settings
 from document_intelligence.orchestration.llm import LLMClient
+from document_intelligence.orchestration.verification import AnswerVerifier
 from document_intelligence.vectorization.store import VectorStore
 
 
@@ -23,7 +24,9 @@ def verify_api_key(x_api_key: str | None = Header(default=None)) -> None:
     Raises:
         HTTPException: 401 si la clé est absente ou ne correspond pas.
     """
-    if settings.api_key is None:
+    # Chaîne vide = non configurée : `docker-compose.yml` transmet `API_KEY=`
+    # quand la variable n'est pas définie sur l'hôte.
+    if not settings.api_key:
         return
 
     if x_api_key != settings.api_key:
@@ -36,6 +39,11 @@ def verify_api_key(x_api_key: str | None = Header(default=None)) -> None:
 def get_store(request: Request) -> VectorStore:
     """Retourne le vector store partagé de l'application."""
     return request.app.state.store  # type: ignore[no-any-return]
+
+
+def get_verifier(request: Request) -> AnswerVerifier | None:
+    """Agent de vérification partagé ; `None` si la vérification est désactivée."""
+    return getattr(request.app.state, "verifier", None)
 
 
 def get_llm(request: Request) -> LLMClient:

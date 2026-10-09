@@ -1,0 +1,127 @@
+{
+ "title": "Rapport d'audit de conformité RGPD — SoftLynx Technologies SAS — Document n°9",
+ "sections": [
+  {
+   "heading": "Article 1 — Contexte et objet de l'audit",
+   "paragraphs": [
+    "Le présent rapport constitue le document n°9 de la série des audits de conformité menés par le cabinet Dravigny & Pelcor Conseil pour le compte de la société SoftLynx Technologies SAS, éditeur de solutions logicielles de gestion des ressources humaines basé à Clermont-Ferrand (63000), 14 rue des Meules d'Argent. L'audit s'est déroulé du 3 février 2024 au 28 mars 2024, soit une durée totale de 54 jours calendaires, incluant 11 jours d'entretiens sur site et 6 jours d'analyse documentaire à distance.",
+    "L'objectif principal consistait à évaluer la conformité du traitement des données personnelles opéré par la plateforme phare de l'éditeur, dénommée Orvalys RH, utilisée par 1 842 entreprises clientes réparties dans 14 pays européens, pour un volume cumulé estimé à 3,7 millions de profils salariés actifs au 31 décembre 2023."
+   ]
+  },
+  {
+   "heading": "Article 2 — Méthodologie et périmètre",
+   "paragraphs": [
+    "L'audit a couvert cinq domaines : la gouvernance des données, la sécurité technique, les registres de traitement, les contrats de sous-traitance et la gestion des droits des personnes concernées. L'équipe d'audit, composée de Mme Solène Ardanne (auditrice principale, certifiée CIPP/E) et de M. Benoît Kervazec (expert technique), a examiné 212 documents internes et mené 23 entretiens individuels avec des collaborateurs des services juridique, technique et commercial.",
+    "Le périmètre exclut les filiales étrangères de SoftLynx Technologies, notamment SoftLynx Iberia SL (Barcelone) et SoftLynx Benelux BV (Anvers), qui feront l'objet d'audits distincts programmés respectivement pour le troisième et quatrième trimestre 2024."
+   ]
+  },
+  {
+   "heading": "Article 3 — Cadre réglementaire applicable",
+   "paragraphs": [
+    "L'analyse s'appuie sur le Règlement (UE) 2016/679 du 27 avril 2016, entré en application le 25 mai 2018, ainsi que sur la loi n°78-17 du 6 janvier 1978 modifiée relative à l'informatique, aux fichiers et aux libertés. SoftLynx Technologies est qualifiée de sous-traitant au sens de l'article 28 du RGPD pour 1 603 de ses clients, et de responsable de traitement conjoint pour les 239 clients ayant souscrit l'option de traitement analytique avancé.",
+    "Le délégué à la protection des données de l'entreprise, M. Thibault Hoursin, a été désigné le 12 septembre 2019 et enregistré auprès de la Commission Nationale de l'Informatique et des Libertés sous le numéro DPO-2019-048721."
+   ]
+  },
+  {
+   "heading": "Article 4 — Constats relatifs au registre des traitements",
+   "paragraphs": [
+    "Le registre des traitements recense 47 activités de traitement distinctes, dont 9 ont été ajoutées depuis le précédent audit réalisé en mars 2022. L'audit révèle que 6 traitements, représentant 12,7 % du total, ne mentionnent pas de durée de conservation précise, en violation de l'article 30 du RGPD qui impose une documentation exhaustive des finalités et durées.",
+    "Par ailleurs, le traitement relatif au module de notation des performances salariales, déployé le 4 avril 2023, ne figurait pas dans le registre au moment de l'audit, constituant une non-conformité majeure classée en priorité 1."
+   ]
+  },
+  {
+   "heading": "Article 5 — Sécurité des systèmes d'information",
+   "paragraphs": [
+    "Les serveurs hébergeant les données d'Orvalys RH sont localisés dans deux centres de données exploités par la société DatacenterLoire Infrastructures, situés à Orléans et à Tours, certifiés ISO 27001 depuis le 15 juin 2021. Le chiffrement des données au repos utilise l'algorithme AES-256, tandis que les flux en transit sont protégés par TLS 1.3 depuis la mise à jour du 9 octobre 2023.",
+    "Toutefois, l'audit a identifié que 18 % des comptes administrateurs internes ne disposaient pas d'authentification à deux facteurs au 15 février 2024, exposant un risque d'accès non autorisé à environ 664 000 profils de salariés. Un plan de remédiation a été exigé sous 30 jours ouvrés."
+   ]
+  },
+  {
+   "heading": "Article 6 — Gestion des sous-traitants ultérieurs",
+   "paragraphs": [
+    "SoftLynx Technologies fait appel à 11 sous-traitants ultérieurs pour des prestations d'hébergement, de support technique et d'analyse de données. Parmi ceux-ci, la société MarignacCloud Services, basée à Lyon, traite 34 % du volume total de données, suivie par Astreon Support SAS avec 21 % du volume.",
+    "L'audit constate que 3 contrats sur 11, soit 27 %, ne contiennent pas de clause conforme à l'article 28-3 du RGPD concernant l'assistance obligatoire en cas de violation de données. Ces contrats, signés avant le 1er janvier 2020, nécessitent une mise à jour contractuelle avant le 30 juin 2024."
+   ]
+  },
+  {
+   "heading": "Article 7 — Transferts internationaux de données",
+   "paragraphs": [
+    "Environ 8,4 % des données traitées par Orvalys RH transitent vers des serveurs situés hors de l'Espace économique européen, notamment via un partenariat avec la société américaine BridgewayTech Inc. pour des fonctionnalités d'intelligence artificielle prédictive. Ce transfert repose sur les clauses contractuelles types adoptées par la Commission européenne le 4 juin 2021.",
+    "L'audit recommande la réalisation d'une analyse d'impact relative aux transferts (TIA) actualisée, la dernière datant du 11 mai 2022, afin de tenir compte des évolutions législatives américaines intervenues depuis l'arrêt Schrems II."
+   ]
+  },
+  {
+   "heading": "Article 8 — Droits des personnes concernées",
+   "paragraphs": [
+    "Sur la période analysée, 1 284 demandes d'exercice de droits ont été enregistrées, dont 71 % concernaient le droit d'accès et 18 % le droit à l'effacement. Le délai moyen de traitement s'établit à 21 jours, en deçà du délai légal maximal d'un mois prévu par l'article 12 du RGPD, sauf pour 47 demandes ayant dépassé ce délai en raison d'un sous-dimensionnement temporaire de l'équipe support.",
+    "Le formulaire dédié à l'exercice des droits, accessible depuis le portail client, affiche un taux de satisfaction de 4,2 sur 5 selon une enquête menée auprès de 312 utilisateurs entre septembre et novembre 2023."
+   ]
+  },
+  {
+   "heading": "Article 9 — Violations de données et incidents",
+   "paragraphs": [
+    "Trois incidents de sécurité ont été notifiés à la CNIL durant les 24 derniers mois : le 17 janvier 2023 (exposition temporaire de 340 adresses courriel), le 2 août 2023 (accès non autorisé à 1 120 fiches de paie pendant 6 heures) et le 29 novembre 2023 (erreur de configuration ayant affecté 58 comptes). Ces trois notifications ont respecté le délai de 72 heures imposé par l'article 33 du RGPD.",
+    "Le coût cumulé de gestion de ces incidents, incluant les mesures correctives et la communication aux personnes concernées, est estimé à 186 400 euros, dont 94 000 euros consacrés au renforcement de l'infrastructure de détection d'intrusion."
+   ]
+  },
+  {
+   "heading": "Article 10 — Formation et sensibilisation du personnel",
+   "paragraphs": [
+    "Sur un effectif total de 428 collaborateurs, 356 ont suivi un module de formation obligatoire à la protection des données en 2023, soit un taux de couverture de 83,2 %. La durée moyenne de formation s'élève à 3,5 heures par collaborateur, dispensée par l'organisme externe CivraFormation Pro.",
+    "L'audit recommande de porter ce taux à 95 % avant le 31 décembre 2024 et d'intégrer un module spécifique destiné aux 62 développeurs travaillant directement sur les bases de données de production."
+   ]
+  },
+  {
+   "heading": "Article 11 — Plan d'actions correctives et échéancier",
+   "paragraphs": [
+    "Un plan d'actions correctives comportant 14 mesures a été établi conjointement avec M. Hoursin et validé par la direction générale le 2 avril 2024. Parmi ces mesures figurent la mise à jour des 3 contrats de sous-traitance non conformes, le déploiement généralisé de l'authentification à deux facteurs avant le 15 mai 2024, et l'intégration formelle du module de notation des performances au registre des traitements avant le 30 avril 2024.",
+    "Un budget prévisionnel de 142 000 euros a été alloué à la mise en œuvre de ce plan, financé à hauteur de 60 % par le département technique et 40 % par le département juridique et conformité."
+   ]
+  },
+  {
+   "heading": "Article 12 — Conclusion générale de l'auditeur",
+   "paragraphs": [
+    "Au terme de cet audit, le niveau global de conformité de SoftLynx Technologies SAS est évalué à 78 sur 100, en progression de 9 points par rapport à l'audit précédent de mars 2022 qui affichait un score de 69 sur 100. Les non-conformités identifiées sont jugées maîtrisables sous réserve du respect strict de l'échéancier proposé à l'article 11.",
+    "Le cabinet Dravigny & Pelcor Conseil recommande la programmation d'un audit de suivi, constituant le document n°10 de la présente série, au plus tard le 30 septembre 2024, afin de vérifier l'effectivité des mesures correctives engagées."
+   ]
+  }
+ ],
+ "table": [
+  [
+   "Domaine audité",
+   "Non-conformités relevées",
+   "Taux de conformité",
+   "Échéance de remédiation"
+  ],
+  [
+   "Registre des traitements",
+   "6 sur 47 traitements",
+   "87,3 %",
+   "30 avril 2024"
+  ],
+  [
+   "Sécurité des accès (2FA)",
+   "18 % des comptes admin",
+   "82,0 %",
+   "15 mai 2024"
+  ],
+  [
+   "Contrats de sous-traitance",
+   "3 sur 11 contrats",
+   "72,7 %",
+   "30 juin 2024"
+  ],
+  [
+   "Transferts internationaux",
+   "1 analyse d'impact obsolète",
+   "N/A",
+   "31 juillet 2024"
+  ],
+  [
+   "Formation du personnel",
+   "72 collaborateurs non formés",
+   "83,2 %",
+   "31 décembre 2024"
+  ]
+ ]
+}

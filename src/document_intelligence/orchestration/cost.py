@@ -30,6 +30,11 @@ MODEL_PRICES: dict[str, ModelPrice] = {
     "claude-sonnet-5": ModelPrice(2.0, 10.0),
     "claude-sonnet-4-6": ModelPrice(3.0, 15.0),
     "claude-haiku-4-5": ModelPrice(1.0, 5.0),
+    # OpenAI et Mistral : relevés sur des agrégateurs de prix (2026-10), pas
+    # sur la grille officielle ; `mistral-small-latest` est un alias dont le
+    # modèle (et donc le tarif) peut changer — Small 4 à la date du relevé.
+    "gpt-4.1-mini": ModelPrice(0.40, 1.60),
+    "mistral-small-latest": ModelPrice(0.15, 0.60),
 }
 
 

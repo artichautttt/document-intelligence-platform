@@ -10,6 +10,7 @@ jeux de questions de `evaluation/golden/`.
 """
 
 import argparse
+import random
 import sys
 import tempfile
 from pathlib import Path
@@ -30,10 +31,14 @@ from document_intelligence.orchestration.cost import CostLedger
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.orchestration.tiering import (
     LLMRole,
+    active_provider,
     build_llm_client,
     build_response_cache,
     model_for,
+    provider_api_key,
+    reference_model,
 )
+from document_intelligence.orchestration.verification import AnswerVerifier
 from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.store import VectorStore
@@ -62,6 +67,36 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         default=settings.retrieval_mode,
     )
     parser.add_argument("--retrieval-only", action="store_true")
+    parser.add_argument(
+        "--sample",
+        type=int,
+        help="Évalue un sous-ensemble tiré au hasard (graine --seed) de N questions.",
+    )
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Insère l'agent de vérification CrewAI dans le pipeline (groupe `agents`).",
+    )
+    parser.add_argument(
+        "--calibrate-verifier",
+        action="store_true",
+        help="Avec --verify : soumet aussi une copie faussée de chaque réponse.",
+    )
+    parser.add_argument(
+        "--max-regenerations",
+        type=int,
+        default=settings.verification_max_regenerations,
+    )
+    parser.add_argument(
+        "--local-model",
+        help=(
+            "Synthèse par un modèle Hugging Face local (ex. Qwen/Qwen2.5-0.5B-Instruct) "
+            "au lieu du fournisseur ; le juge reste celui du fournisseur. "
+            "Dépendances : finetune/requirements.txt."
+        ),
+    )
+    parser.add_argument("--local-adapter", help="Adaptateur LoRA à fusionner.")
     parser.add_argument("--output", type=Path, help="Écrit le rapport JSON détaillé.")
     parser.add_argument(
         "--min-hit-rate",
@@ -78,23 +113,37 @@ def main(argv: list[str] | None = None) -> int:
     llm: LLMClient | None = None
     judge: LLMClient | None = None
     ledger = CostLedger()
-    if not args.retrieval_only and settings.anthropic_api_key:
+    if not args.retrieval_only and provider_api_key():
         # Cache en mémoire partagé par les deux rôles, propre à ce run.
         cache = build_response_cache()
         llm = build_llm_client(
             LLMRole.SYNTHESIS,
-            api_key=settings.anthropic_api_key,
             cache=cache,
             ledger=ledger,
         )
         judge = build_llm_client(
             LLMRole.JUDGE,
-            api_key=settings.anthropic_api_key,
             cache=cache,
             ledger=ledger,
         )
-    elif not args.retrieval_only:
-        print("ANTHROPIC_API_KEY absent : évaluation du retrieval uniquement.")
+        if args.local_model:
+            from document_intelligence.orchestration.hf_local_client import (
+                HFLocalLLMClient,
+            )
+
+            llm = HFLocalLLMClient(args.local_model, adapter=args.local_adapter)
+    verifier: AnswerVerifier | None = None
+    if llm is not None and args.verify:
+        from document_intelligence.orchestration.crew_verifier import CrewAIVerifier
+
+        verifier = CrewAIVerifier(
+            build_llm_client(LLMRole.VERIFIER, cache=cache, ledger=ledger)
+        )
+    elif not args.retrieval_only and not llm:
+        print(
+            f"Clé d'API absente pour LLM_PROVIDER={active_provider()} : "
+            "évaluation du retrieval uniquement."
+        )
 
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         directories = args.documents
@@ -112,15 +161,30 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         examples = [ex for dataset in args.dataset for ex in load_dataset(dataset)]
-        report = evaluate(examples, store, k=args.k, llm=llm, judge=judge)
+        if args.sample is not None and args.sample < len(examples):
+            # Sous-ensemble reproductible, dans l'ordre d'origine du jeu de test.
+            kept = sorted(
+                random.Random(args.seed).sample(range(len(examples)), args.sample)
+            )
+            examples = [examples[i] for i in kept]
+        report = evaluate(
+            examples,
+            store,
+            k=args.k,
+            llm=llm,
+            judge=judge,
+            verifier=verifier,
+            max_regenerations=args.max_regenerations,
+            calibrate_verifier=args.calibrate_verifier,
+        )
 
     if llm is not None:
-        report.cost = ledger.summary(reference_model=settings.anthropic_model)
+        report.cost = ledger.summary(reference_model=reference_model())
 
     print(f"[retrieval={args.retrieval_mode}]")
     print(format_report(report))
     if report.cost:
-        print(f"Coût LLM (référence sans optimisation : {settings.anthropic_model})")
+        print(f"Coût LLM (référence sans optimisation : {reference_model()})")
         print("\n".join(f"  {k:<32} {v:.6g}" for k, v in report.cost.items()))
     if args.output:
         dump_report(report, args.output)
@@ -129,7 +193,13 @@ def main(argv: list[str] | None = None) -> int:
         report,
         retrieval_mode=args.retrieval_mode,
         llm_model=model_for(LLMRole.JUDGE) if llm is not None else None,
-        synthesis_model=model_for(LLMRole.SYNTHESIS) if llm is not None else None,
+        synthesis_model=(
+            None
+            if llm is None
+            else getattr(llm, "model", None)
+            if args.local_model
+            else model_for(LLMRole.SYNTHESIS)
+        ),
         report_path=args.output,
     )
 

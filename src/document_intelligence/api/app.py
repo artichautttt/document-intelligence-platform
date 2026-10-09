@@ -20,7 +20,9 @@ from document_intelligence.orchestration.tiering import (
     LLMRole,
     build_llm_client,
     build_response_cache,
+    provider_api_key,
 )
+from document_intelligence.orchestration.verification import AnswerVerifier
 from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.qdrant_store import QdrantStore
@@ -48,14 +50,31 @@ def _build_store() -> VectorStore:
 def _build_llm(override: LLMClient | None) -> LLMClient | None:
     if override is not None:
         return override
-    if settings.anthropic_api_key:
-        return build_llm_client(
-            LLMRole.SYNTHESIS,
-            api_key=settings.anthropic_api_key,
-            cache=build_response_cache(),
-        )
+    if provider_api_key():
+        # Fournisseur choisi par LLM_PROVIDER (anthropic, openai ou mistral).
+        return build_llm_client(LLMRole.SYNTHESIS, cache=build_response_cache())
     # Aucun fournisseur LLM n'est configuré : `/query` répondra 503 (cf. get_llm).
     return None
+
+
+def _build_verifier(
+    override: AnswerVerifier | None, llm: LLMClient | None
+) -> AnswerVerifier | None:
+    if override is not None:
+        return override
+    if settings.answer_verification == "none" or llm is None:
+        return None
+    if settings.answer_verification != "crewai":
+        raise ValueError(
+            f"ANSWER_VERIFICATION={settings.answer_verification!r} non supporté "
+            "(valeurs : none, crewai)."
+        )
+    # Import différé : CrewAI est optionnel (groupe `agents`) et lent à importer.
+    from document_intelligence.orchestration.crew_verifier import CrewAIVerifier
+
+    return CrewAIVerifier(
+        build_llm_client(LLMRole.VERIFIER, cache=build_response_cache())
+    )
 
 
 def _start_otel() -> "OtelSink | None":
@@ -80,6 +99,7 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     configure_logging()
     app.state.store = _build_store()
     app.state.llm = _build_llm(app.state.llm_override)
+    app.state.verifier = _build_verifier(app.state.verifier_override, app.state.llm)
 
     metrics_store: SqliteMetricsStore | None = None
     if settings.metrics_db_path:
@@ -91,6 +111,8 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
         "api.startup",
         vector_store_backend=settings.vector_store_backend,
         retrieval_mode=settings.retrieval_mode,
+        llm_provider=settings.llm_provider,
+        answer_verification=app.state.verifier is not None,
         metrics_persistent=metrics_store is not None,
         otel_enabled=otel_sink is not None,
     )
@@ -104,13 +126,17 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("api.shutdown")
 
 
-def create_app(llm: LLMClient | None = None) -> FastAPI:
+def create_app(
+    llm: LLMClient | None = None, verifier: AnswerVerifier | None = None
+) -> FastAPI:
     """Construit l'application FastAPI.
 
     Args:
         llm: implémentation `LLMClient` à utiliser pour `/query`. Permet
             l'injection d'un client réel (ou d'une doublure de test) sans
             modifier le code de l'application.
+        verifier: agent de vérification à utiliser ; par défaut, celui que
+            désigne `ANSWER_VERIFICATION`.
     """
     app = FastAPI(
         title="Document Intelligence Platform",
@@ -118,6 +144,7 @@ def create_app(llm: LLMClient | None = None) -> FastAPI:
         lifespan=_lifespan,
     )
     app.state.llm_override = llm
+    app.state.verifier_override = verifier
 
     register_exception_handlers(app)
     app.include_router(documents.router)

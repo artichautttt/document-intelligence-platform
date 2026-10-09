@@ -50,6 +50,9 @@ def client_without_llm(
     monkeypatch.setattr(
         config.settings, "chroma_persist_directory", str(tmp_path / ".chroma")
     )
+    # Sans cela, une clé présente dans le `.env` local ferait construire un vrai client.
+    monkeypatch.setattr(config.settings, "llm_provider", "anthropic")
+    monkeypatch.setattr(config.settings, "anthropic_api_key", None)
     app = create_app(llm=None)
     with TestClient(app) as test_client:
         yield test_client

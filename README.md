@@ -9,7 +9,7 @@
 Plateforme d'analyse intelligente de documents d'entreprise (rapports financiers,
 contrats juridiques) basée sur une architecture RAG Multi-Agents.
 
-## État du projet — Sprint 6
+## État du projet — Sprint 7
 
 - **Sprint 1** : `ingestion/` (parsing PDF/DOCX) et `chunking/` (découpage structurel).
 - **Sprint 2** : `vectorization/` — interface abstraite `VectorStore`, implémentation
@@ -50,10 +50,20 @@ contrats juridiques) basée sur une architecture RAG Multi-Agents.
     SQLite, voir *Observabilité*.
   - Corpus d'évaluation étendu (63 questions), voir *Évaluation*.
 
+- **Sprint 7** :
+  - Clients **OpenAI** et **Mistral** en plus d'Anthropic, derrière la même
+    interface `LLMClient` ; choix par `LLM_PROVIDER`, voir *Fournisseurs LLM*.
+  - **Agent de vérification CrewAI** inséré dans le graphe LangGraph :
+    vérifie la réponse contre les extraits et déclenche une régénération si
+    elle n'est pas fondée, voir *Agent de vérification*.
+  - **Monitoring Prometheus + Grafana** (latence, taux de refus, coût par
+    requête), voir *Monitoring*.
+
 ## Installation
 
 ```bash
-uv sync
+uv sync                  # cœur + outils de dev
+uv sync --all-groups     # + mlflow, otel, agents (CrewAI)
 ```
 
 ## Qualité
@@ -62,7 +72,7 @@ uv sync
 uv run ruff check .        # lint
 uv run ruff format --check .  # formatage
 uv run mypy               # typage strict
-uv run pytest            # tests (107 tests, 1 skip)
+uv run pytest            # tests (186 passés, 1 skip au 2026-10-09)
 ```
 
 Ces quatre commandes sont exécutées en CI sur chaque push/PR (voir *CI/CD*).
@@ -135,6 +145,55 @@ aucune authentification n'est requise.
   `/query`) plutôt qu'une réponse forcée sans support.
 - **Injection indirecte** : extraits balisés en XML, échappés, et déclarés comme
   données dans le prompt système. Cela réduit le risque, sans l'éliminer.
+
+## Fournisseurs LLM (Anthropic, OpenAI, Mistral)
+
+`LLM_PROVIDER=anthropic|openai|mistral` (défaut `anthropic`) choisit le client
+construit par `orchestration/tiering.build_llm_client`, pour l'API comme pour
+l'évaluation. Chaque fournisseur a sa clé et son modèle de référence :
+
+| `LLM_PROVIDER` | Client | Clé | Modèle par défaut |
+|---|---|---|---|
+| `anthropic` | `AnthropicLLMClient` (API Messages) | `ANTHROPIC_API_KEY` | `ANTHROPIC_MODEL` = `claude-sonnet-5` |
+| `openai` | `OpenAILLMClient` (Chat Completions) | `OPENAI_API_KEY` | `OPENAI_MODEL` = `gpt-4.1-mini` |
+| `mistral` | `MistralLLMClient` (Chat Completion) | `MISTRAL_API_KEY` | `MISTRAL_MODEL` = `mistral-small-latest` |
+
+- **Socle commun** (`orchestration/instrumented.py`) : cache exact-match,
+  journal de coût, tracing `llm.call`, métriques Prometheus et nouvelle
+  tentative sur sortie invalide sont écrits une fois. Un fournisseur
+  n'implémente que deux appels bruts : complétion texte et appel d'outil forcé.
+- **Sorties structurées** : appel de fonction forcé (`tool_choice` nommé) chez
+  les trois fournisseurs. OpenAI n'utilise pas `response_format` strict, qui
+  exige que tous les champs soient requis.
+- **Tiering** : `LLM_SYNTHESIS_MODEL`, `LLM_JUDGE_MODEL` et `LLM_VERIFIER_MODEL`
+  s'appliquent au fournisseur actif. `LLM_LIGHT_MODEL` (Claude Haiku) ne vaut
+  qu'avec Anthropic ; ailleurs, le rôle léger prend le modèle de référence.
+- **Tarifs** (`orchestration/cost.py`) : `gpt-4.1-mini` 0.40 / 1.60 $ et
+  `mistral-small-latest` 0.15 / 0.60 $ par million de tokens, relevés sur des
+  agrégateurs de prix en octobre 2026, **pas sur les grilles officielles**.
+  `mistral-small-latest` est un alias : le modèle visé, donc son prix, peut
+  changer (certaines sources donnent 0.10 / 0.30 $).
+
+Ce qui a été vérifié, et comment :
+
+| Fournisseur | Vérification | Résultat |
+|---|---|---|
+| Anthropic | **Requête réelle** à travers le pipeline (3 fixtures, retrieval hybride, synthèse structurée), client construit par `LLM_PROVIDER=anthropic` | réponse correcte et citée ; 2 274 tokens d'entrée / 168 de sortie ; 2.93 s ; 0.006228 $ |
+| OpenAI | **API simulée** (`httpx.MockTransport`) : le vrai SDK `openai` envoie la requête et parse une réponse au format documenté | 7 tests + 1 test de pipeline RAG complet (ingestion, ChromaDB, LangGraph) |
+| Mistral | **API simulée** (`httpx2.MockTransport`) avec le vrai SDK `mistralai` | mêmes 8 tests |
+
+**OpenAI et Mistral n'ont jamais été appelés en conditions réelles** (pas de
+clé disponible). Les tests prouvent l'intégration avec les SDK : format de
+requête, appel d'outil forcé, parsing, réparation et nouvelle tentative,
+erreurs d'API, tokens et coût. Ils ne prouvent ni que les noms de modèles par
+défaut sont acceptés par les API, ni la qualité des réponses de ces modèles,
+ni leur respect de l'appel d'outil forcé. Avant de les citer comme
+« fonctionnels », il faut une requête réelle (`LLM_PROVIDER=openai` +
+`OPENAI_API_KEY`, puis `python -m document_intelligence.evaluation --sample 5`).
+
+Effet de bord du lock `uv` unifié : CrewAI (groupe `agents`) contraint aussi
+le cœur. `openai` est plafonné à 2.54 (3.x existe) et `pydantic` à 2.12.5 au
+lieu de 2.13.5.
 
 ## Évaluation
 
@@ -333,6 +392,200 @@ Sonnet ; basculer se fait avec `LLM_SYNTHESIS_MODEL=claude-haiku-4-5`.
 - Le juge reste Sonnet. Dans le run baseline il juge ses propres réponses, ce
   qui tend à le favoriser : le résultat Haiku n'est donc pas gonflé par ce biais.
 
+## Agent de vérification (CrewAI)
+
+Après la synthèse, un agent CrewAI « vérificateur de faits » reçoit la
+question, la réponse et les extraits sources. Il rend un verdict structuré :
+`grounded`, `unsupported_claims`, `feedback`. Si la réponse n'est pas fondée,
+le graphe la régénère en transmettant au rédacteur le retour du vérificateur,
+dans la limite de `VERIFICATION_MAX_REGENERATIONS` (1 par défaut). Au-delà, la
+réponse est rendue avec `verified=false`.
+
+```
+route → retrieve → synthesize → verify ─┬─ grounded / limite atteinte → fin
+                       ↑                └─ non fondée → synthesize (avec retour)
+```
+
+```bash
+uv sync --group agents
+ANSWER_VERIFICATION=crewai uv run uvicorn document_intelligence.api.app:app
+uv run python -m document_intelligence.evaluation --sample 30 --verify --calibrate-verifier
+```
+
+**Pourquoi CrewAI plutôt qu'AutoGen** avec ce graphe LangGraph :
+
+- `Crew.kickoff()` est synchrone et s'appelle directement depuis un nœud
+  LangGraph synchrone. AutoGen ≥ 0.4 (`autogen-agentchat`) n'a qu'une API
+  async : il faudrait un `asyncio.run()` dans le nœud, qui échoue quand une
+  boucle tourne déjà, ce qui est le cas sous FastAPI (`/query`).
+- CrewAI accepte un LLM personnalisé (`BaseLLM`). `LLMClientAdapter`
+  (`orchestration/crew_verifier.py`) délègue au `LLMClient` du projet, donc
+  le vérificateur suit le fournisseur actif, le tiering (`LLM_VERIFIER_MODEL`),
+  le cache, le journal de coût et les métriques. Quand CrewAI demande une
+  sortie Pydantic, l'adaptateur passe par `complete_structured` (function
+  calling) : un seul appel LLM par vérification, observé dans les tests.
+- La boucle de régénération reste dans LangGraph (arête conditionnelle) ;
+  CrewAI ne fait que le jugement.
+
+Contrat `AnswerVerifier` (`orchestration/verification.py`) : une autre
+implémentation (doublure, autre framework) se branche sans toucher au graphe.
+Une abstention n'est pas vérifiée (rien à contrôler). Un verdict inexploitable
+laisse la réponse non vérifiée (`verified=null`) sans casser la requête. Une
+erreur d'API est propagée. Une régénération change le prompt, donc le cache ne
+ressert jamais la réponse rejetée. `/query` expose `verified` et
+`regenerations`.
+
+### Mesure (`claude-sonnet-5` partout, 30 questions tirées au hasard, graine 0, k=5, hybride)
+
+Un run, le 2026-10-07 : `rapport_verification30.json`, non versionné. Les 30
+questions comptent 28 répondables et 2 sans réponse.
+
+| | Valeur |
+|---|---|
+| réponses vérifiées (non abstenues) | 22 / 30 (8 abstentions, non vérifiées) |
+| **réponses réelles signalées par l'agent** | **0 / 22** |
+| régénérations déclenchées | 0 |
+| **calibration : copies faussées détectées** | **17 / 17** (5 réponses sans nombre, non testées) |
+| sorties invalides (`output_errors`) | 0 |
+| latence du nœud `verify` (moyenne, n=22) | 2.2 s (synthèse : 2.8 s ; pipeline complet : 5.1 s) |
+| coût vérificateur | 0.271 $ pour 39 appels (≈ 0.0069 $ / appel ; synthèse ≈ 0.0063 $ / appel) |
+| coût total du run (synthèse + vérif. + calibration + juge) | 0.636 $ |
+
+Le juge (même run) donne faithfulness 0.989, answer relevance 0.920, citation
+precision 0.932, 2 / 2 questions sans réponse refusées et 1 refus injustifié
+sur 23 (0.043).
+
+**Boucle de régénération avec les vrais modèles**. Comme aucune réponse réelle
+n'a été signalée, la régénération a été testée à part : la première synthèse
+de chaque question est volontairement faussée (premier nombre altéré), les
+suivantes sont celles du vrai modèle. Script de vérification ponctuel, non
+versionné, mêmes 30 questions :
+
+| | Valeur |
+|---|---|
+| réponses faussées injectées | 17 |
+| rejetées par le vérificateur | 17 / 17 |
+| régénérées, puis validées au 2ᵉ passage | 17 / 17 |
+| valeur faussée absente de la réponse finale | 17 / 17 (valeur d'origine présente dans les 17) |
+| coût de l'expérience | 0.576 $ |
+
+À lire avec précaution :
+
+- **« 0 signalement » ne prouve pas l'absence d'hallucination.** Sur 22
+  réponses, l'agent n'a rien signalé. Le juge, lui, a noté une réponse 0.75 en
+  faithfulness : la durée de confidentialité, où la réponse cite deux articles
+  de deux contrats différents. Le vérificateur l'a validée. Lequel a raison
+  n'a pas été tranché à la main ; c'est un désaccord, pas un faux négatif
+  établi.
+- **La calibration ne teste que des substitutions de nombres**, l'erreur la
+  plus facile à détecter. Selon la réponse, le nombre altéré est un montant,
+  un pourcentage, un numéro d'article ou de trimestre (« Q3 » → « Q6 »). Les
+  extrapolations sans chiffre, les ajouts plausibles et les erreurs de
+  raisonnement ne sont pas mesurés. 17/17 est donc une borne haute
+  optimiste, pas un taux de détection général.
+- Le vérificateur est le même modèle que le générateur et que le juge : leurs
+  angles morts peuvent être communs.
+- Un seul run, 30 questions : suffisant pour montrer que le mécanisme
+  fonctionne, pas pour estimer un taux d'hallucination.
+- **Coût et latence** : la vérification coûte à peu près autant que la
+  synthèse et ajoute ≈ 2.2 s par réponse. Avec `LLM_VERIFIER_MODEL` sur un
+  modèle plus léger, l'économie possible n'a pas été mesurée.
+- CrewAI est lent à importer : 36 s mesurées à froid, 12 s à chaud sur la
+  machine de développement. Il n'est importé que si la vérification est
+  activée. Il ajoute aussi son propre échafaudage de prompt (rôle, objectif,
+  schéma OpenAPI), donc des tokens d'entrée.
+- L'image Docker (`docker/api.Dockerfile`) n'installe pas le groupe `agents` :
+  `ANSWER_VERIFICATION=crewai` n'y fonctionne pas en l'état.
+- Mesures faites sous Python 3.14 en local ; la CI exécute les tests CrewAI
+  sous 3.11 et 3.12 (`uv sync --all-groups`), ce qui n'a pas été vérifié ici.
+
+## Fine-tuning LoRA de la synthèse (expérience)
+
+Objectif : vérifier si un petit modèle open source, spécialisé par LoRA sur la
+tâche de synthèse citée, peut remplacer Claude pour ce nœud. Le modèle choisi
+est `Qwen/Qwen2.5-0.5B-Instruct`, entraîné et servi sur CPU via
+`HFLocalLLMClient`. Le retrieval, le prompt et le schéma `GroundedAnswer` sont
+inchangés.
+
+```bash
+pip install -r finetune/requirements.txt
+uv run python finetune/build_dataset.py --out finetune/data          # distillation (API Claude)
+python finetune/train_lora.py --data finetune/data --out finetune/adapter --epochs 1 --holdout-doc 9
+python -m document_intelligence.evaluation --local-model Qwen/Qwen2.5-0.5B-Instruct \
+    --local-adapter finetune/adapter/epoch1 --output rapport_ft_lora.json
+```
+
+### Jeu de données (distillation, corpus disjoint de l'évaluation)
+
+- Claude rédige 10 documents fictifs (contrats, rapports financiers, audits).
+  Il a l'interdiction d'utiliser les entités du corpus d'évaluation. Ces
+  documents passent par la vraie chaîne ingestion → chunking → retrieval
+  hybride (k=5).
+- Claude rédige aussi les questions : 24 répondables et 6 sans réponse par
+  document. Pour chaque question, il produit la réponse cible à partir des
+  extraits réellement retrouvés, avec le même prompt système que le pipeline.
+- Résultat : **316 exemples**, dont 256 répondables, 194 où le passage attendu
+  figure dans le contexte et 102 cibles d'abstention. Coût de l'enseignant :
+  2,25 $.
+- **Contrôle de fuite** (`leakage_report.json`) :
+  - aucune entité interdite n'apparaît dans le corpus d'entraînement ;
+  - 3 formules génériques sont partagées avec les passages d'évaluation
+    (« manquement grave », « délai de 48 heures », « tribunal de commerce de
+    Lyon ») ;
+  - 2 questions sont quasi identiques à des questions d'évaluation (ratio
+    ≥ 0,8).
+  - **9 exemples exclus** de l'entraînement : ces 2 questions, plus les cibles
+    qui contenaient l'une des 3 formules.
+
+### Entraînement (un seul run)
+
+| Paramètre | Valeur |
+|---|---|
+| LoRA | rang 16, alpha 32, dropout 0,05, q/k/v/o/gate/up/down_proj |
+| Paramètres entraînables | 8 798 208 / 502 830 976 (1,75 %) |
+| Données | 277 train, 30 validation (document 9 entier mis de côté) |
+| Optimisation | AdamW, lr 2e-4 linéaire vers 0, batch effectif 8, 1 époque, perte sur la réponse seule |
+| Matériel / durée | CPU 4 cœurs, gradient checkpointing, **973,8 min** |
+| val_loss | 0,7319 (avant) → **0,4573** ; train_loss 0,4750 |
+
+### Résultat : 63 questions, même juge (`claude-sonnet-5`), même retrieval
+
+| Métrique | Qwen 0.5B base | Qwen 0.5B + LoRA |
+|---|---|---|
+| faithfulness | 0,293 (58 réponses jugées) | **0,839** (31 réponses jugées) |
+| answer_relevance | 0,116 | **0,726** |
+| citation_precision | 0,000 | **0,867** |
+| refus sur questions sans réponse | 0/8 | **7/8** |
+| abstention_accuracy | 0,794 | 0,607 |
+| refus injustifié (passage dans le contexte) | 0,043 | **0,370** (dégradation) |
+| sorties hors schéma | 0 | 2 / 63 |
+| latence moyenne (CPU) | 14,7 s | 17,9 s |
+
+Le retrieval est identique dans les deux runs (hit rate 0,836, MRR 0,701), car
+seule la synthèse change.
+
+**Lecture honnête :**
+
+- **Gains nets** : le modèle de base recopiait l'identifiant d'exemple du
+  prompt et inventait des chiffres. Le modèle LoRA cite des extraits valides
+  et refuse 7 fois sur 8 quand la réponse n'existe pas.
+- **Dégradation** : il refuse à tort dans 37 % des cas où le passage attendu
+  figure dans le contexte, contre 4 % pour le modèle de base. Une partie du gain de faithfulness vient
+  donc de cette prudence excessive : il répond moins souvent (31 réponses
+  jugées contre 58), mais mieux.
+- **Toujours en dessous de Claude** sur la même évaluation : faithfulness
+  1,00, citation precision 0,97, 8/8 refus justifiés et refus injustifié 0,04
+  (voir *Génération mesurée*).
+- **Limites de l'expérience** :
+  - un seul run, une seule graine, une seule époque, sans recherche
+    d'hyperparamètres ;
+  - 63 questions d'évaluation ;
+  - un juge LLM unique ;
+  - un enseignant issu de la même famille que le juge (biais possible) ;
+  - 102 cibles d'abstention sur 316 (32 %), ce qui explique probablement le
+    biais vers le refus ;
+  - aucun intervalle de confiance.
+
 ## Observabilité
 
 - **Tracing** : chaque nœud (`node.route|retrieve|synthesize`), le pipeline,
@@ -361,6 +614,77 @@ Sonnet ; basculer se fait avec `LLM_SYNTHESIS_MODEL=claude-haiku-4-5`.
   tracer les exécutions via `LANGSMITH_TRACING` / `LANGSMITH_API_KEY`. Non
   vérifié ici.
 
+## Monitoring (Prometheus + Grafana)
+
+Même pattern que le Mini-SIEM : `prometheus_client`, registre par défaut,
+scrape par Prometheus, dashboard Grafana provisionné à 4 panels.
+
+`GET /metrics/prometheus` (format texte ; `GET /metrics` reste l'instantané
+JSON historique) expose :
+
+| Métrique | Type | Contenu |
+|---|---|---|
+| `rag_queries_total{outcome}` | compteur | requêtes `/query` : `answered`, `refused` (`sufficient_context=false`), `error` |
+| `rag_query_duration_seconds{outcome}` | histogramme | latence de bout en bout par requête |
+| `rag_query_cost_usd` | histogramme | coût LLM **par requête** : appels faits pendant la requête, au tarif du modèle effectivement appelé (tiering compris), hit de cache = 0 |
+| `rag_llm_cost_usd_total`, `rag_llm_tokens_total`, `rag_llm_calls_total` | compteurs | cumul par `provider`, `model`, `role` (et `direction` / `source`) |
+| `rag_answer_verification_total{result}` | compteur | verdicts de l'agent : `grounded`, `flagged` |
+
+Le coût par requête est accumulé dans une `ContextVar` ouverte autour de
+`/query`. Les appels LLM du vérificateur et des régénérations comptent dans la
+même requête.
+
+```bash
+docker compose up -d --build   # api, qdrant, prometheus (:9090), grafana (:3000)
+```
+
+Fichiers : `monitoring/prometheus/prometheus.yml` (job `rag-api`, cible
+`api:8000/metrics/prometheus`), `monitoring/grafana/provisioning/`
+(datasource et fournisseur de dashboards), `monitoring/grafana/dashboards/rag-pipeline.json`.
+Dashboard « Pipeline RAG », 4 panels : requêtes/s par issue, latence p50/p95,
+taux de refus, coût LLM moyen par requête.
+
+**Testé et vérifié le 2026-10-07** (Docker Desktop, `docker compose up`,
+synthèse sur `claude-haiku-4-5`) :
+
+- Prometheus scrape l'API : cible `rag-api` en `health: up` dans `/api/v1/targets`.
+- Grafana a provisionné la datasource Prometheus et le dashboard « Pipeline
+  RAG » (`/api/datasources`, `/api/search`).
+- Trafic de test, 2 documents ingérés : 4 questions répondues, 2 questions sans
+  réponse dans les documents, 1 requête vide (400). Compteurs observés :
+  `answered` 4, `refused` 2, `error` 1 ; 6 appels Haiku, 12 621 tokens
+  d'entrée / 952 de sortie, 0.017381 $ cumulés (= 12 621 × 1 $ + 952 × 5 $ par
+  million).
+- Les requêtes des 4 panels, exécutées par Grafana (`/api/ds/query`) et par
+  Prometheus, renvoient les mêmes valeurs : taux de refus 0.333 (2 / 6),
+  coût moyen 0.002483 $ / requête, latence p50 2.5 s / p95 2.95 s.
+  **Vérifié par API, pas visuellement dans l'interface Grafana.**
+
+Bug préexistant corrigé à cette occasion : `docker-compose.yml` passe
+`API_KEY=` (chaîne vide) quand la variable n'est pas définie. Or l'API ne
+désactivait l'authentification que pour `None` : sous Docker, `/documents`,
+`/query` et `/metrics` répondaient donc 401 sans en-tête. Une chaîne vide
+vaut désormais « non configurée » (test `test_empty_api_key_disables_authentication`).
+
+Limites :
+
+- Le coût moyen par requête inclut les requêtes en erreur (coût souvent 0),
+  ce qui peut le diluer. Le taux de refus exclut les erreurs.
+- Les panels « taux de refus » et « coût moyen » sont cumulés depuis le
+  démarrage de l'API, lisibles à faible trafic. En production, on préférerait
+  une fenêtre glissante (`increase(...[1h])`).
+- p50/p95 sont interpolés dans les buckets de l'histogramme (bornes 2 s, 3 s,
+  5 s...) : ce sont des approximations, pas des percentiles exacts.
+- Les requêtes rejetées avant le handler (JSON invalide, validation FastAPI)
+  ne sont pas comptées : ce ne sont pas des requêtes RAG.
+- Si `API_KEY` est défini, `/metrics/prometheus` exige `X-API-Key`. La config
+  Prometheus fournie ne l'envoie pas : laisser `API_KEY` vide ou ajouter
+  l'en-tête au scrape.
+- Images `latest` (pas de version épinglée), pas d'Alertmanager ni de règles
+  d'alerte (contrairement au Mini-SIEM), compose seulement (pas de manifests K8s).
+- Seules les requêtes de l'API sont mesurées : l'évaluation CLI n'alimente pas
+  ces métriques de requête.
+
 ## Docker
 
 ```bash
@@ -369,7 +693,8 @@ docker build -f docker/api.Dockerfile -t document-intelligence-api .
 docker compose up --build
 ```
 
-`docker-compose.yml` définit désormais deux services : `api` et `qdrant`. Par
+`docker-compose.yml` définit quatre services : `api`, `qdrant`, `prometheus`
+et `grafana` (voir *Monitoring*). Par
 défaut `api` utilise toujours ChromaDB embarqué (`VECTOR_STORE_BACKEND=chroma`) ;
 passer `VECTOR_STORE_BACKEND=qdrant` bascule sur le service `qdrant` sans
 changer le contrat `VectorStore`.
@@ -385,14 +710,9 @@ changer le contrat `VectorStore`.
 
 ## Hors périmètre (à venir)
 
-- Fine-tuning : non pertinent à ce stade. L'ancrage sur les documents passe par
-  le RAG (les connaissances changent d'un dossier à l'autre), et le fine-tuning
-  n'apporterait rien sans un jeu de données d'entraînement réel, que le projet
-  n'a pas. La démarche serait : mesurer d'abord avec `evaluation/`, puis affiner
-  le retrieval (chunking, re-ranking) avant d'envisager un modèle spécialisé.
-
-- Migration vers un autre fournisseur LLM (OpenAI, modèle local) — l'interface
-  `LLMClient` le permet déjà sans changer les appelants.
+- Requêtes réelles OpenAI et Mistral (clients livrés, testés sur API
+  simulée seulement) ; modèle local (Ollama...) via une implémentation
+  `InstrumentedLLMClient` supplémentaire.
 - Migration vers Pinecone (Qdrant est désormais disponible ; Pinecone resterait
   une implémentation `VectorStore` supplémentaire si besoin).
 - Authentification par clé d'API unique et partagée : pas de gestion

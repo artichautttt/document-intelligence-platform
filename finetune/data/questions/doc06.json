@@ -1,0 +1,159 @@
+{
+ "questions": [
+  {
+   "question": "Où se situe le siège social de Castelbrune Distribution SA ?",
+   "answerable": true,
+   "evidence": "dont le siège social est situé au 48 avenue des Tanneurs, 31500 Toulouse"
+  },
+  {
+   "question": "Quel est le capital social de la société ?",
+   "answerable": true,
+   "evidence": "avec un capital social de 24 600 000 euros"
+  },
+  {
+   "question": "Combien de points de vente le groupe exploite-t-il au 30 juin 2024 ?",
+   "answerable": true,
+   "evidence": "Castelbrune Distribution exploite à la date du 30 juin 2024 un réseau de 187 points de vente répartis sur le territoire national, dont 96 hypermarchés sous l'enseigne Castelbrune Marché et 91 supermarchés de proximité sous l'enseigne Brune Express."
+  },
+  {
+   "question": "Quel est l'effectif en équivalent temps plein au 30 juin 2024 par rapport au 31 décembre 2023 ?",
+   "answerable": true,
+   "evidence": "Le groupe emploie 14 320 salariés équivalents temps plein, contre 13 980 au 31 décembre 2023."
+  },
+  {
+   "question": "Qui préside le Conseil d'Administration et depuis quand ?",
+   "answerable": true,
+   "evidence": "sous la présidence de Monsieur Édouard Favrelle, Président-Directeur Général du groupe depuis le 4 mars 2019"
+  },
+  {
+   "question": "Quel montant a été payé pour l'acquisition de Mativon Alimentation et comment a-t-il été financé ?",
+   "answerable": true,
+   "evidence": "pour un montant total de 38,7 millions d'euros, financé à hauteur de 60 % par emprunt bancaire auprès du Crédit Agricole Sud-Pyrénées et de 40 % par trésorerie disponible"
+  },
+  {
+   "question": "Combien de magasins comprenait l'acquisition de Mativon Alimentation et où étaient-ils situés ?",
+   "answerable": true,
+   "evidence": "Castelbrune Distribution a finalisé l'acquisition de la chaîne régionale Mativon Alimentation, comprenant 22 magasins implantés dans les régions Occitanie et Nouvelle-Aquitaine"
+  },
+  {
+   "question": "Quelle est la surface du nouvel entrepôt logistique inauguré à Castelnaudary et quel en est le coût ?",
+   "answerable": true,
+   "evidence": "le groupe a inauguré un nouvel entrepôt logistique automatisé de 42 000 mètres carrés à Castelnaudary, représentant un investissement de 19,2 millions d'euros"
+  },
+  {
+   "question": "Quelle réduction de coûts de transport est attendue grâce au nouvel entrepôt et sur quelle période ?",
+   "answerable": true,
+   "evidence": "devant générer, selon les estimations internes, une réduction de 11 % des coûts de transport sur les trois prochaines années"
+  },
+  {
+   "question": "Quel a été l'impact financier de la grève des conducteurs routiers en mai 2024 ?",
+   "answerable": true,
+   "evidence": "la grève des conducteurs routiers survenue du 6 au 14 mai 2024 a entraîné une perte de chiffre d'affaires estimée à 4,1 millions d'euros"
+  },
+  {
+   "question": "Quel est le chiffre d'affaires consolidé du premier semestre 2024 et sa progression par rapport à 2023 ?",
+   "answerable": true,
+   "evidence": "Le chiffre d'affaires consolidé du premier semestre 2024 s'établit à 1 847,3 millions d'euros, en progression de 6,4 % par rapport au premier semestre 2023 (1 736,0 millions d'euros)."
+  },
+  {
+   "question": "Quelle part du chiffre d'affaires est réalisée par le segment Castelbrune Marché contre Brune Express ?",
+   "answerable": true,
+   "evidence": "Le segment des hypermarchés Castelbrune Marché représente 1 092,6 millions d'euros de chiffre d'affaires, soit 59,1 % du total, tandis que le segment Brune Express affiche 754,7 millions d'euros, soit 40,9 % du total."
+  },
+  {
+   "question": "Quelle est la progression des ventes en ligne via CastelDrive ?",
+   "answerable": true,
+   "evidence": "Les ventes en ligne, portées par la plateforme CastelDrive, ont atteint 112,4 millions d'euros, en hausse de 17,3 % sur un an."
+  },
+  {
+   "question": "Quel est le résultat opérationnel courant du S1 2024 et la marge correspondante ?",
+   "answerable": true,
+   "evidence": "Le résultat opérationnel courant s'élève à 94,2 millions d'euros, en hausse de 9,1 % par rapport au premier semestre 2023 (86,3 millions d'euros), portant la marge opérationnelle à 5,1 % du chiffre d'affaires contre 5,0 % un an auparavant."
+  },
+  {
+   "question": "Quel est le bénéfice net par action au S1 2024 comparé au S1 2023 ?",
+   "answerable": true,
+   "evidence": "Le bénéfice net par action ressort à 2,14 euros, contre 1,95 euro un an plus tôt, sur une base de 24 600 000 actions en circulation."
+  },
+  {
+   "question": "Quel est le ratio d'endettement net sur EBITDA et quel est le seuil contractuel fixé par les covenants ?",
+   "answerable": true,
+   "evidence": "Le ratio d'endettement net sur EBITDA s'établit à 1,85x, en deçà du seuil contractuel de 2,5x fixé par les covenants bancaires souscrits auprès d'un pool bancaire mené par la Banque Toulousaine de Crédit et la Société Générale Occitanie."
+  },
+  {
+   "question": "Quel dividende par action a été versé et à quelle date ?",
+   "answerable": true,
+   "evidence": "après versement d'un dividende de 1,10 euro par action le 28 mai 2024, représentant une distribution totale de 27,06 millions d'euros"
+  },
+  {
+   "question": "Comment se décomposent les investissements industriels et commerciaux du premier semestre 2024 ?",
+   "answerable": true,
+   "evidence": "Les investissements industriels et commerciaux du premier semestre 2024 s'élèvent à 61,5 millions d'euros, dont 19,2 millions d'euros consacrés à l'entrepôt de Castelnaudary, 14,8 millions d'euros à la rénovation de 23 points de vente existants, et 9,3 millions d'euros au déploiement de nouvelles caisses automatiques dans 58 magasins."
+  },
+  {
+   "question": "Combien de nouveaux magasins Brune Express sont prévus d'ici fin 2024 et dans quels départements ?",
+   "answerable": true,
+   "evidence": "Le groupe prévoit l'ouverture de 11 nouveaux magasins Brune Express d'ici le 31 décembre 2024, principalement dans les départements du Tarn, de l'Aude et de l'Hérault, pour un investissement complémentaire estimé à 8,4 millions d'euros."
+  },
+  {
+   "question": "Comment se répartit l'effectif total du groupe entre les différentes catégories de salariés ?",
+   "answerable": true,
+   "evidence": "Au 30 juin 2024, l'effectif total du groupe atteint 16 740 salariés, dont 14 320 équivalents temps plein, répartis entre 11 240 employés de magasin, 3 180 salariés logistiques et 2 320 salariés administratifs et de siège."
+  },
+  {
+   "question": "Quel est le montant de l'enveloppe d'intéressement signée en janvier 2024 et avec quels syndicats ?",
+   "answerable": true,
+   "evidence": "Un accord d'intéressement a été signé le 22 janvier 2024 avec les organisations syndicales CFDT et FO, prévoyant une enveloppe globale de 6,8 millions d'euros au titre de l'exercice 2024, soit une augmentation de 12 % par rapport à l'accord précédent."
+  },
+  {
+   "question": "Quelle provision a été constituée pour le contentieux prud'homal de Montauban ?",
+   "answerable": true,
+   "evidence": "Une provision de 420 000 euros a été constituée au 30 juin 2024 au titre de ce litige, sur recommandation du cabinet d'avocats Lherbier & Associés."
+  },
+  {
+   "question": "Quel est le risque résiduel estimé et la provision constituée concernant la procédure fiscale ouverte en novembre 2023 ?",
+   "answerable": true,
+   "evidence": "le groupe estime le risque résiduel à 2,1 millions d'euros et a constitué une provision prudentielle de 1,5 million d'euros"
+  },
+  {
+   "question": "Quelles sont les dates des réunions du Conseil d'Administration durant le semestre et quel était le taux de présence moyen ?",
+   "answerable": true,
+   "evidence": "Le Conseil d'Administration, composé de 9 membres dont 3 administrateurs indépendants, s'est réuni à 4 reprises au cours du semestre, les 18 janvier, 14 mars, 25 avril et 12 juillet 2024, avec un taux de présence moyen de 91 %."
+  },
+  {
+   "question": "Quelle est la variation de l'EBITDA entre le S1 2023 et le S1 2024 selon le tableau ?",
+   "answerable": true,
+   "evidence": "EBITDA | 152,8 | 168,9 | +10,5 %"
+  },
+  {
+   "question": "Quel est le montant précis des honoraires versés au cabinet Verneuil Audit pour l'examen limité des comptes ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la répartition géographique détaillée des 96 hypermarchés Castelbrune Marché par région ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant exact de la rémunération du Président-Directeur Général Édouard Favrelle ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est l'évolution du cours de l'action Castelbrune Distribution en bourse sur le semestre ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels sont les principaux concurrents directs de Castelbrune Distribution sur le marché français ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le détail des contrats conclus avec les fournisseurs agricoles locaux ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

@@ -19,13 +19,21 @@ class Settings(BaseSettings):
     qdrant_url: str = Field(default="http://localhost:6333")
     qdrant_collection: str = Field(default="document_chunks")
 
+    # Fournisseur LLM actif : "anthropic" (par défaut), "openai" ou "mistral".
+    llm_provider: str = Field(default="anthropic")
+
     anthropic_api_key: str | None = Field(default=None)
     anthropic_model: str = Field(default="claude-sonnet-5")
+    openai_api_key: str | None = Field(default=None)
+    openai_model: str = Field(default="gpt-4.1-mini")
+    mistral_api_key: str | None = Field(default=None)
+    mistral_model: str = Field(default="mistral-small-latest")
 
     # Model tiering : modèle par rôle d'appel LLM. Vide = `anthropic_model`, qui
     # sert aussi de référence « sans optimisation » pour chiffrer les économies.
     llm_synthesis_model: str | None = Field(default=None)
     llm_judge_model: str | None = Field(default=None)
+    llm_verifier_model: str | None = Field(default=None)
     # Étapes simples (reformulation, classification, extraction de métadonnées).
     llm_light_model: str = Field(default="claude-haiku-4-5")
 
@@ -50,6 +58,11 @@ class Settings(BaseSettings):
     # Nécessite le groupe de dépendances `otel`.
     otel_exporter_otlp_endpoint: str | None = Field(default=None)
     otel_exporter_otlp_headers: str | None = Field(default=None)
+
+    # Agent de vérification des réponses : "none" (défaut) ou "crewai"
+    # (groupe de dépendances `agents`). Régénérations max après un verdict négatif.
+    answer_verification: str = Field(default="none")
+    verification_max_regenerations: int = Field(default=1, ge=0)
 
     # "hybrid" : recherche dense + réordonnancement lexical ; "dense" : dense seul.
     retrieval_mode: str = Field(default="hybrid")

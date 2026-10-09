@@ -1,0 +1,159 @@
+{
+ "questions": [
+  {
+   "question": "Quelle est la superficie totale des bureaux loués au 48 boulevard des Canuts ?",
+   "answerable": true,
+   "evidence": "des locaux à usage exclusif de bureaux situés au 3ème étage de l'immeuble sis 48 boulevard des Canuts, 69004 Lyon, d'une superficie utile de 342 mètres carrés, répartis en seize bureaux individuels, une salle de réunion de 28 mètres carrés et un espace de détente de 15 mètres carrés"
+  },
+  {
+   "question": "Combien de places de parking sont incluses dans le bail et comment sont-elles numérotées ?",
+   "answerable": true,
+   "evidence": "Les locaux comprennent également cinq emplacements de stationnement en sous-sol, numérotés S-12 à S-16"
+  },
+  {
+   "question": "Quelle est la date de début et de fin du bail ?",
+   "answerable": true,
+   "evidence": "qui commenceront à courir le 1er avril 2025 pour se terminer le 31 mars 2034"
+  },
+  {
+   "question": "À quelle date au plus tard le Preneur doit-il notifier son préavis pour résilier à la fin de la première période triennale ?",
+   "answerable": true,
+   "evidence": "soit au plus tard le 30 septembre 2027 pour une sortie au 31 mars 2028"
+  },
+  {
+   "question": "Quel est le montant du loyer mensuel hors taxes ?",
+   "answerable": true,
+   "evidence": "soit un loyer mensuel de 10 260 euros hors taxes"
+  },
+  {
+   "question": "Quel indice est utilisé pour la révision annuelle du loyer ?",
+   "answerable": true,
+   "evidence": "en fonction de la variation de l'indice trimestriel des loyers des activités tertiaires (ILAT) publié par l'INSEE"
+  },
+  {
+   "question": "Quel est le plafond maximal de variation annuelle du loyer prévu par la clause de plafonnement ?",
+   "answerable": true,
+   "evidence": "sans que la variation puisse excéder 3,5 % par an"
+  },
+  {
+   "question": "Quel serait le nouveau loyer annuel après la première révision si l'ILAT augmente de 2,8 % ?",
+   "answerable": true,
+   "evidence": "le nouveau loyer annuel sera porté à 126 568,36 euros hors taxes"
+  },
+  {
+   "question": "Quel est le montant du dépôt de garantie versé par le Preneur ?",
+   "answerable": true,
+   "evidence": "un dépôt de garantie équivalent à trois mois de loyer hors taxes, soit la somme de 30 780 euros"
+  },
+  {
+   "question": "Dans quel délai le dépôt de garantie doit-il être restitué après la remise des clés ?",
+   "answerable": true,
+   "evidence": "Ce dépôt sera restitué dans un délai de deux mois suivant la restitution des clés"
+  },
+  {
+   "question": "Quel pourcentage des charges locatives totales de l'immeuble est à la charge du Preneur ?",
+   "answerable": true,
+   "evidence": "sont refacturées au Preneur au prorata de la surface louée, soit 18 % des charges totales de l'immeuble, estimées à 42 000 euros annuels pour l'exercice 2025"
+  },
+  {
+   "question": "Quel était le montant de la taxe foncière pour l'année 2024 ?",
+   "answerable": true,
+   "evidence": "La taxe foncière, dont le montant s'élevait à 21 450 euros pour l'année 2024"
+  },
+  {
+   "question": "Sur quel fondement légal la taxe foncière est-elle refacturée au Preneur ?",
+   "answerable": true,
+   "evidence": "sera refacturée intégralement au Preneur conformément à l'article 23 de la loi du 18 juin 2014"
+  },
+  {
+   "question": "À quelle activité les locaux sont-ils exclusivement destinés ?",
+   "answerable": true,
+   "evidence": "destinés exclusivement à l'exercice d'une activité de conseil en stratégie d'entreprise et de formation professionnelle"
+  },
+  {
+   "question": "Quel type d'activités est expressément exclu de la destination des lieux ?",
+   "answerable": true,
+   "evidence": "à l'exclusion de toute activité commerciale de vente au détail ou de restauration"
+  },
+  {
+   "question": "Quel montant le Preneur a-t-il dépensé pour les travaux d'aménagement intérieur ?",
+   "answerable": true,
+   "evidence": "des travaux d'aménagement intérieur pour un montant de 87 500 euros hors taxes"
+  },
+  {
+   "question": "Quels travaux le Bailleur s'engage-t-il à réaliser avant le 31 décembre 2025 ?",
+   "answerable": true,
+   "evidence": "le ravalement de la façade extérieure ainsi que la rénovation de la toiture-terrasse, pour un budget prévisionnel de 65 000 euros hors taxes"
+  },
+  {
+   "question": "Quel est le montant minimal de la couverture d'assurance responsabilité civile locative que le Preneur doit souscrire ?",
+   "answerable": true,
+   "evidence": "une police d'assurance multirisque couvrant sa responsabilité civile locative à hauteur minimale de 2 000 000 euros"
+  },
+  {
+   "question": "Avant quelle date le Preneur doit-il justifier chaque année de son attestation d'assurance ?",
+   "answerable": true,
+   "evidence": "à en justifier chaque année au Bailleur avant le 31 janvier"
+  },
+  {
+   "question": "Pendant combien de temps le cessionnaire reste-t-il solidairement responsable du paiement des loyers après une cession ?",
+   "answerable": true,
+   "evidence": "le cessionnaire sera tenu solidairement avec le cédant du paiement des loyers et charges échus à la date de la cession, pendant une durée de douze mois suivant celle-ci"
+  },
+  {
+   "question": "Que se passe-t-il en cas de non-paiement d'un terme de loyer après un commandement de payer resté infructueux ?",
+   "answerable": true,
+   "evidence": "le présent bail sera résilié de plein droit si bon semble au Bailleur, sans qu'il soit besoin de recourir à une décision de justice"
+  },
+  {
+   "question": "Quel délai est accordé pour trouver un accord amiable avant la saisine du Tribunal de Commerce de Lyon ?",
+   "answerable": true,
+   "evidence": "à défaut d'accord amiable constaté dans un délai de trente jours, soumis à la compétence exclusive du Tribunal de Commerce de Lyon"
+  },
+  {
+   "question": "Quel est le montant total facturé au Preneur au titre des charges locatives communes selon le tableau ?",
+   "answerable": true,
+   "evidence": "Charges locatives communes | 42 000 | 18 % soit 7 560 | Régularisation annuelle au 31 mars"
+  },
+  {
+   "question": "Quelle est la périodicité de facturation de l'entretien de la climatisation collective selon le tableau ?",
+   "answerable": true,
+   "evidence": "Entretien climatisation collective | 6 800 | 18 % soit 1 224 | Trimestriel"
+  },
+  {
+   "question": "Qui sont les représentants légaux du Bailleur et du Preneur mentionnés dans le contrat ?",
+   "answerable": true,
+   "evidence": "représentée par Madame Félicie Angrand, agissant en qualité de gérante... représentée par Monsieur Éloi Vasnier, en sa qualité de Président"
+  },
+  {
+   "question": "Quel est le montant de la franchise de loyer accordée au Preneur pendant les travaux d'aménagement ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle pénalité est prévue en cas de retard dans la réalisation des travaux de façade par le Bailleur ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nombre total de salariés que le Preneur emploie dans les locaux loués ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la procédure prévue en cas de sinistre affectant partiellement les locaux loués ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant des honoraires d'agence immobilière liés à la conclusion du bail ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle clause de non-concurrence s'applique au Preneur vis-à-vis d'autres locataires de l'immeuble ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

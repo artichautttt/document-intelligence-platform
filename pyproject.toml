@@ -18,9 +18,15 @@ dependencies = [
     "anthropic>=0.40",
     "langgraph>=0.2",
     "qdrant-client>=1.11",
+    "openai>=1.50",
+    "mistralai>=1.2",
+    "prometheus-client>=0.20",
 ]
 
 [dependency-groups]
+agents = [
+    "crewai>=0.100",
+]
 dev = [
     "pytest>=8.2",
     "pytest-cov>=5.0",
@@ -60,6 +66,11 @@ ignore = ["E501", "B008", "UP042"]
 python_version = "3.13"
 strict = true
 packages = ["document_intelligence"]
+
+# Dépendances de l'expérience de fine-tuning, hors lock (finetune/requirements.txt).
+[[tool.mypy.overrides]]
+module = ["torch", "torch.*", "transformers", "transformers.*", "peft", "peft.*"]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["hatchling"]

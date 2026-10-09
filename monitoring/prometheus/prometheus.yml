@@ -1,0 +1,19 @@
+# Scrape des métriques du pipeline RAG (observability/prometheus.py).
+# Même structure que le Mini-SIEM : un job Prometheus, un job pour l'API.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # L'API FastAPI expose le format texte Prometheus sur /metrics/prometheus
+  # (GET /metrics reste l'instantané JSON historique). Si API_KEY est défini,
+  # cet endpoint exige l'en-tête X-API-Key : laisser API_KEY vide pour ce
+  # compose, ou ajouter l'en-tête au scrape.
+  - job_name: rag-api
+    metrics_path: /metrics/prometheus
+    static_configs:
+      - targets: ["api:8000"]

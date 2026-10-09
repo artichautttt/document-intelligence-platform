@@ -1,0 +1,169 @@
+{
+ "questions": [
+  {
+   "question": "Quelles sont les deux sociétés signataires de ce contrat et qui les représente ?",
+   "answerable": true,
+   "evidence": "DATAPULSE SOLUTIONS SAS, immatriculée au RCS de Lyon sous le numéro 512 348 976... représentée par Monsieur Grégoire Vasseur en qualité de Directeur Général (ci-après le « Prestataire »), et la société MERIDIEM TEXTILE INDUSTRIES SA... représentée par Madame Odile Brachet en qualité de Directrice des Systèmes d'Information (ci-après le « Client »)."
+  },
+  {
+   "question": "Combien de serveurs et de postes de travail sont couverts par l'infogérance ?",
+   "answerable": true,
+   "evidence": "l'administration de 42 serveurs physiques et virtuels, la supervision de 310 postes de travail répartis sur 3 sites industriels (Saint-Étienne, Roanne et Montbrison)"
+  },
+  {
+   "question": "Quel est le nom et la version du progiciel ERP maintenu dans le cadre du contrat ?",
+   "answerable": true,
+   "evidence": "la maintenance corrective et évolutive du progiciel de gestion intégrée FiloTrack ERP v7.3"
+  },
+  {
+   "question": "Quelle est la durée initiale du contrat et ses dates de début et de fin ?",
+   "answerable": true,
+   "evidence": "Le présent Contrat est conclu pour une durée initiale de 36 mois, à compter du 1er septembre 2024 jusqu'au 31 août 2027."
+  },
+  {
+   "question": "Quel préavis de résiliation faut-il respecter avant l'échéance pour éviter la tacite reconduction ?",
+   "answerable": true,
+   "evidence": "sauf dénonciation par l'une des parties notifiée par lettre recommandée avec accusé de réception au moins 4 mois avant l'échéance"
+  },
+  {
+   "question": "Quelle est la durée de la période d'essai et le préavis applicable durant cette période ?",
+   "answerable": true,
+   "evidence": "Une période d'essai de 3 mois, courant du 1er septembre au 30 novembre 2024, est prévue... chaque partie pourra résilier le Contrat moyennant un préavis de 15 jours ouvrés."
+  },
+  {
+   "question": "Quelle est la durée de rétention des sauvegardes quotidiennes ?",
+   "answerable": true,
+   "evidence": "gestion des sauvegardes quotidiennes avec rétention de 90 jours"
+  },
+  {
+   "question": "Quels sont les horaires du support téléphonique de niveau 1 et 2 ?",
+   "answerable": true,
+   "evidence": "assistance téléphonique de niveau 1 et 2 via un centre de support basé à Villeurbanne, joignable de 7h30 à 19h00 du lundi au vendredi"
+  },
+  {
+   "question": "Qui sont les deux référents nommés pour les interventions de niveau 3 ?",
+   "answerable": true,
+   "evidence": "Monsieur Antoine Kerloch, référent technique principal, et Madame Lucille Fargeau, responsable de la sécurité des systèmes d'information"
+  },
+  {
+   "question": "À quelle date le reporting mensuel doit-il être transmis au Client ?",
+   "answerable": true,
+   "evidence": "ce document étant transmis au plus tard le 5 de chaque mois suivant la période concernée"
+  },
+  {
+   "question": "Quel est le taux de disponibilité garanti pour les serveurs critiques ?",
+   "answerable": true,
+   "evidence": "Le Prestataire garantit un taux de disponibilité des serveurs critiques de 99,5% sur une base mensuelle"
+  },
+  {
+   "question": "Quel outil est utilisé pour valider conjointement la résolution des incidents ?",
+   "answerable": true,
+   "evidence": "validé conjointement par les deux parties via l'outil de ticketing ServiceNow Connect"
+  },
+  {
+   "question": "Quels sont les délais de prise en charge et de résolution pour un incident critique (P1) selon le tableau ?",
+   "answerable": true,
+   "evidence": "Critique (P1) | 30 minutes | 4 heures | Inclus dans forfait | 5% de la facture mensuelle"
+  },
+  {
+   "question": "Quelle pénalité s'applique en cas de dépassement du délai de résolution pour un incident majeur (P2) ?",
+   "answerable": true,
+   "evidence": "Majeur (P2) | 1 heure | 8 heures | Inclus dans forfait | 3% de la facture mensuelle"
+  },
+  {
+   "question": "Comment sont facturées les demandes standard (P4) par rapport aux autres niveaux de criticité ?",
+   "answerable": true,
+   "evidence": "Demande standard (P4) | 1 jour ouvré | 5 jours ouvrés | 95 euros HT / heure | Aucune pénalité contractuelle"
+  },
+  {
+   "question": "Quel est le montant mensuel et annuel du forfait de la prestation ?",
+   "answerable": true,
+   "evidence": "Le montant total de la prestation forfaitaire s'élève à 18 400 euros HT par mois, soit 220 800 euros HT par an"
+  },
+  {
+   "question": "Quels sont les tarifs horaires appliqués pour les interventions hors forfait de niveau 1/2 et de niveau 3 ?",
+   "answerable": true,
+   "evidence": "Les prestations complémentaires hors forfait sont facturées au tarif horaire de 95 euros HT pour les interventions de niveau 1 et 2, et 140 euros HT pour les interventions de niveau 3."
+  },
+  {
+   "question": "Quelle est la limite maximale d'augmentation annuelle des tarifs lors de la révision ?",
+   "answerable": true,
+   "evidence": "dans la limite d'une augmentation maximale de 3,5% par an"
+  },
+  {
+   "question": "Quel est le taux de pénalité appliqué en cas de retard de paiement supérieur à 15 jours ?",
+   "answerable": true,
+   "evidence": "Tout retard de paiement supérieur à 15 jours entraînera l'application de pénalités de retard au taux de 12% par an"
+  },
+  {
+   "question": "Combien de techniciens dédiés le Prestataire s'engage-t-il à affecter au contrat ?",
+   "answerable": true,
+   "evidence": "le Prestataire s'engage à affecter à l'exécution du Contrat une équipe stable composée de 8 techniciens dédiés"
+  },
+  {
+   "question": "Pendant combien de temps le Client s'interdit-il de solliciter directement les salariés du Prestataire après la résiliation ?",
+   "answerable": true,
+   "evidence": "pendant toute la durée du Contrat et dans les 12 mois suivant sa résiliation"
+  },
+  {
+   "question": "Quelle est la pénalité maximale cumulée possible en cas de non-respect du seuil de disponibilité ?",
+   "answerable": true,
+   "evidence": "une pénalité de 2% du montant de la facture mensuelle sera appliquée par point de pourcentage manquant en deçà du seuil de 99,5%, dans la limite de 20% du montant mensuel forfaitaire"
+  },
+  {
+   "question": "Dans quel délai le Prestataire doit-il notifier une violation de données personnelles ?",
+   "answerable": true,
+   "evidence": "notifier toute violation de données dans un délai maximal de 72 heures après sa découverte"
+  },
+  {
+   "question": "Quel sous-traitant héberge les infrastructures du Prestataire et où est-il basé ?",
+   "answerable": true,
+   "evidence": "la société CloudBastion Hosting, hébergeur des infrastructures du Prestataire basé à Grenoble, certifié HDS pour les données sensibles"
+  },
+  {
+   "question": "Quel préavis et quelle indemnité s'appliquent en cas de résiliation pour convenance par le Client ?",
+   "answerable": true,
+   "evidence": "La résiliation pour convenance pourra également être demandée par le Client moyennant un préavis de 6 mois et le versement d'une indemnité équivalente à 2 mois de forfait."
+  },
+  {
+   "question": "Quelle est la durée de la période de réversibilité à l'issue du contrat et quel en est le coût ?",
+   "answerable": true,
+   "evidence": "le Prestataire s'engage à assurer une période de réversibilité de 3 mois, incluant la restitution complète des données et de la documentation technique, moyennant un forfait de réversibilité de 12 000 euros HT"
+  },
+  {
+   "question": "Quel tribunal est compétent en cas de litige non résolu à l'amiable ?",
+   "answerable": true,
+   "evidence": "au Tribunal de Commerce de Lyon, compétent exclusivement"
+  },
+  {
+   "question": "Quel est le montant de la caution bancaire exigée du Client à la signature du contrat ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelles sont les modalités précises de calcul de l'indice Syntec appliqué à la révision tarifaire ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du logiciel antivirus déployé sur les postes de travail du Client ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant de l'assurance responsabilité civile professionnelle souscrite par le Prestataire ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelles sont les coordonnées bancaires exactes utilisées pour le virement du forfait mensuel ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nombre exact d'incidents traités lors du premier mois d'exécution du contrat ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

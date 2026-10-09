@@ -1,0 +1,159 @@
+{
+ "questions": [
+  {
+   "question": "Combien de temps le système Medlogis a-t-il été indisponible suite à l'incident du 11 janvier 2024 ?",
+   "answerable": true,
+   "evidence": "un incident de cybersécurité survenu le 11 janvier 2024 ayant entraîné l'indisponibilité du système de gestion des dossiers patients Medlogis pendant 7 heures et 42 minutes"
+  },
+  {
+   "question": "Quel cabinet a été mandaté pour réaliser l'audit et pour quel montant ?",
+   "answerable": true,
+   "evidence": "L'audit a été confié au cabinet indépendant Argyros Sécurité & Conformité, mandaté pour un montant forfaitaire de 86 400 euros hors taxes"
+  },
+  {
+   "question": "Qui était l'auditrice principale en charge de la mission ?",
+   "answerable": true,
+   "evidence": "sous la supervision de Madame Irène Castellane, auditrice principale certifiée ISO 27001 depuis 2017"
+  },
+  {
+   "question": "Combien de postes de travail et de serveurs physiques étaient inclus dans le périmètre de l'audit ?",
+   "answerable": true,
+   "evidence": "Le périmètre retenu couvre 312 postes de travail, 46 serveurs physiques, 128 machines virtuelles hébergées sur l'infrastructure Novarex Cloud Médical"
+  },
+  {
+   "question": "Combien de vulnérabilités techniques ont été recensées au total lors du scan ?",
+   "answerable": true,
+   "evidence": "Un total de 1 142 vulnérabilités techniques a été recensé par l'outil de scan Vulcanis Scan v4.2."
+  },
+  {
+   "question": "Quelle part de son temps Monsieur Grégoire Fontanel consacrait-il à la fonction de RSSI ?",
+   "answerable": true,
+   "evidence": "cette fonction était exercée de manière partielle, à hauteur de 20 % d'un équivalent temps plein, par Monsieur Grégoire Fontanel"
+  },
+  {
+   "question": "Combien de fois le comité de pilotage sécurité s'est-il réuni en 2023, et combien de réunions étaient prévues ?",
+   "answerable": true,
+   "evidence": "Le comité de pilotage sécurité, censé se réunir trimestriellement selon la procédure PROC-SEC-012, ne s'est réuni qu'une seule fois en 2023, le 4 septembre, contre les quatre sessions annuelles prévues."
+  },
+  {
+   "question": "Quel pourcentage des dossiers patients antérieurs à 2019 étaient stockés sans chiffrement, et combien cela représente-t-il de dossiers ?",
+   "answerable": true,
+   "evidence": "41 % des dossiers patients antérieurs à 2019, soit environ 26 400 dossiers, étaient stockés sans chiffrement au repos sur le serveur archive ARCH-07"
+  },
+  {
+   "question": "Combien de comptes utilisateurs appartenant à d'anciens employés étaient encore actifs depuis plus de six mois ?",
+   "answerable": true,
+   "evidence": "212 comptes appartenant à des agents ayant quitté l'établissement depuis plus de six mois"
+  },
+  {
+   "question": "Quel est le délai moyen de désactivation des comptes après départ d'un salarié, comparé au délai recommandé ?",
+   "answerable": true,
+   "evidence": "Le délai moyen de désactivation des comptes après départ a été mesuré à 47 jours, largement supérieur au délai de 48 heures recommandé par la politique interne PSSI-DRH-003."
+  },
+  {
+   "question": "Quel pourcentage des comptes à privilèges élevés bénéficiait de l'authentification multifacteur au moment de l'audit ?",
+   "answerable": true,
+   "evidence": "L'authentification multifacteur (MFA) n'était déployée que sur 23 % des comptes à privilèges élevés"
+  },
+  {
+   "question": "En combien de temps l'équipe d'Argyros a-t-elle obtenu des droits d'administrateur de domaine lors du test d'intrusion interne ?",
+   "answerable": true,
+   "evidence": "Le test d'intrusion interne mené par l'équipe d'Argyros Sécurité & Conformité a permis, en 3 heures et 15 minutes, d'obtenir des droits d'administrateur de domaine à partir d'un poste utilisateur standard"
+  },
+  {
+   "question": "Combien de dispositifs biomédicaux étaient connectés au même VLAN que les postes administratifs ?",
+   "answerable": true,
+   "evidence": "Sur les 19 dispositifs biomédicaux audités, 14 étaient connectés au même segment VLAN que les postes administratifs"
+  },
+  {
+   "question": "Depuis combien de temps les pare-feux périmétriques n'avaient-ils pas reçu de mise à jour de firmware ?",
+   "answerable": true,
+   "evidence": "n'avaient pas reçu de mise à jour de firmware depuis le 3 mai 2022, soit 22 mois sans correctif"
+  },
+  {
+   "question": "Quel était le temps de restauration estimé pour le système Medlogis, comparé à l'objectif RTO contractuel ?",
+   "answerable": true,
+   "evidence": "Le temps de restauration estimé lors de la simulation réalisée le 20 mars 2024 par l'équipe de Monsieur Baptiste Henrion a été de 11 heures et 20 minutes pour le système Medlogis, contre un objectif de reprise d'activité (RTO) contractuel fixé à 4 heures."
+  },
+  {
+   "question": "Quel pourcentage des salariés avait suivi une formation de sensibilisation à la cybersécurité au cours des 24 derniers mois ?",
+   "answerable": true,
+   "evidence": "Sur un effectif total de 612 salariés, seuls 184 agents, soit 30 %, avaient suivi une formation de sensibilisation à la cybersécurité au cours des 24 derniers mois."
+  },
+  {
+   "question": "Quel a été le taux de clic lors de la campagne de simulation de hameçonnage du 19 mars 2024 ?",
+   "answerable": true,
+   "evidence": "a enregistré un taux de clic sur le lien frauduleux de 34 %, et 9 % des destinataires ont transmis leurs identifiants sur la fausse page de connexion"
+  },
+  {
+   "question": "Quand la certification HDS de l'établissement a-t-elle été obtenue et quand arrive-t-elle à échéance ?",
+   "answerable": true,
+   "evidence": "La certification HDS de l'établissement, obtenue initialement le 8 octobre 2020 auprès de l'organisme certificateur Qualivis Certification, arrive à échéance le 7 octobre 2024."
+  },
+  {
+   "question": "Quel budget global a été alloué pour le plan de remédiation et sur quelle durée ?",
+   "answerable": true,
+   "evidence": "Monsieur Thaddée Orsenna, directeur de l'établissement, a validé le 2 avril 2024 un plan de remédiation échelonné sur 9 mois, avec un budget global alloué de 412 000 euros"
+  },
+  {
+   "question": "Quel domaine audité présente le plus grand nombre de vulnérabilités selon le tableau de synthèse ?",
+   "answerable": true,
+   "evidence": "Réseaux et infrastructures | 402 | Élevée | 15 août 2024 | 112 000"
+  },
+  {
+   "question": "Quel est le coût estimé de remédiation pour le domaine des sauvegardes et continuité d'activité ?",
+   "answerable": true,
+   "evidence": "Sauvegardes et continuité d'activité | 97 | Élevée | 15 septembre 2024 | 42 000"
+  },
+  {
+   "question": "Quel score global de maturité cybersécurité l'établissement a-t-il obtenu, comparé à la moyenne sectorielle ?",
+   "answerable": true,
+   "evidence": "avec un score global de 42 sur 100 selon la grille d'évaluation Argyros Maturité Cyber. Ce score, en retrait de 18 points par rapport à la moyenne sectorielle de 60 sur 100 observée en 2023 sur un panel de 34 cliniques comparables"
+  },
+  {
+   "question": "Quelle distance sépare le centre de données de sauvegarde Novarex de l'établissement, et quelle est la règle ANSSI non respectée ?",
+   "answerable": true,
+   "evidence": "les sauvegardes quotidiennes des données critiques étaient effectuées sur un unique site, le centre de données Novarex situé à 4 kilomètres de l'établissement, sans réplication géographique distante. Cette configuration ne respecte pas la règle dite du 3-2-1 préconisée par l'ANSSI, qui impose au minimum une copie hors site à plus de 50 kilomètres."
+  },
+  {
+   "question": "Quelle sanction la CNIL pourrait-elle potentiellement infliger à l'établissement ?",
+   "answerable": true,
+   "evidence": "L'établissement s'expose par ailleurs à une sanction potentielle de la Commission Nationale de l'Informatique et des Libertés, dont le montant pourrait atteindre, selon le barème appliqué à des établissements comparables en 2023, jusqu'à 2 % du chiffre d'affaires annuel, estimé à 47,2 millions d'euros pour la Clinique Sainte-Aldegonde en 2023."
+  },
+  {
+   "question": "Quel est le nom du prochain audit de contrôle programmé et pour quelle période ?",
+   "answerable": true,
+   "evidence": "Un audit de contrôle, désigné RAS-2024-011, est d'ores et déjà programmé pour le premier trimestre 2025 afin de vérifier la correction effective des écarts relevés."
+  },
+  {
+   "question": "Quel est le nombre exact de machines virtuelles présentes sur site physique de l'établissement (hors cloud Novarex) ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du prestataire chargé de la maintenance des scanners IRM Thalion Imaging ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel était le taux de satisfaction du personnel soignant vis-à-vis des mesures de sécurité mises en place après l'audit ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant total des primes d'assurance cyber-risque souscrites par la clinique ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Combien de patients ont été informés individuellement de la fuite potentielle de leurs données ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du successeur désigné pour le poste de RSSI à pourvoir ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

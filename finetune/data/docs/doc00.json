@@ -1,0 +1,126 @@
+{
+ "title": "Contrat de Prestation de Services Informatiques et d'Infogérance n°DPS-MTI-2024-001 entre DATAPULSE SOLUTIONS SAS et MERIDIEM TEXTILE INDUSTRIES SA",
+ "sections": [
+  {
+   "heading": "Article 1 — Parties au contrat",
+   "paragraphs": [
+    "Le présent contrat de prestation de services informatiques (ci-après le « Contrat ») est conclu entre la société DATAPULSE SOLUTIONS SAS, immatriculée au RCS de Lyon sous le numéro 512 348 976, dont le siège social est situé 14 rue des Fonderies, 69003 Lyon, représentée par Monsieur Grégoire Vasseur en qualité de Directeur Général (ci-après le « Prestataire »), et la société MERIDIEM TEXTILE INDUSTRIES SA, immatriculée au RCS de Saint-Étienne sous le numéro 487 221 034, dont le siège social est situé 8 avenue des Manufactures, 42000 Saint-Étienne, représentée par Madame Odile Brachet en qualité de Directrice des Systèmes d'Information (ci-après le « Client »).",
+    "Le Contrat porte le numéro de référence DPS-MTI-2024-001 et constitue le premier document contractuel d'une série relative à la relation d'infogérance entre les deux parties, les documents suivants pouvant porter sur des avenants, des annexes techniques ou des protocoles de sécurité complémentaires."
+   ]
+  },
+  {
+   "heading": "Article 2 — Objet du Contrat",
+   "paragraphs": [
+    "Le présent Contrat a pour objet de définir les conditions dans lesquelles le Prestataire assure l'infogérance complète de l'infrastructure informatique du Client, comprenant notamment l'administration de 42 serveurs physiques et virtuels, la supervision de 310 postes de travail répartis sur 3 sites industriels (Saint-Étienne, Roanne et Montbrison), ainsi que la gestion de la messagerie électronique pour 275 utilisateurs actifs.",
+    "Cette prestation inclut également la maintenance corrective et évolutive du progiciel de gestion intégrée FiloTrack ERP v7.3, utilisé par le Client pour le pilotage de sa production textile, ainsi que la supervision du réseau étendu (WAN) reliant les trois sites via des liens MPLS de 100 Mbps chacun."
+   ]
+  },
+  {
+   "heading": "Article 3 — Durée du Contrat",
+   "paragraphs": [
+    "Le présent Contrat est conclu pour une durée initiale de 36 mois, à compter du 1er septembre 2024 jusqu'au 31 août 2027. Il sera renouvelé par tacite reconduction par périodes successives de 12 mois, sauf dénonciation par l'une des parties notifiée par lettre recommandée avec accusé de réception au moins 4 mois avant l'échéance.",
+    "Une période d'essai de 3 mois, courant du 1er septembre au 30 novembre 2024, est prévue afin de permettre au Client de vérifier la bonne adéquation du dispositif mis en place. Durant cette période, chaque partie pourra résilier le Contrat moyennant un préavis de 15 jours ouvrés."
+   ]
+  },
+  {
+   "heading": "Article 4 — Description des prestations",
+   "paragraphs": [
+    "Le Prestataire s'engage à fournir les services suivants : supervision proactive 24h/24 et 7j/7 de l'infrastructure, maintenance préventive mensuelle des serveurs, gestion des sauvegardes quotidiennes avec rétention de 90 jours, mise à jour trimestrielle des correctifs de sécurité, et assistance téléphonique de niveau 1 et 2 via un centre de support basé à Villeurbanne, joignable de 7h30 à 19h00 du lundi au vendredi.",
+    "Les interventions de niveau 3, nécessitant une expertise technique approfondie, seront assurées par une équipe dédiée de 5 ingénieurs spécialisés, dont Monsieur Antoine Kerloch, référent technique principal, et Madame Lucille Fargeau, responsable de la sécurité des systèmes d'information.",
+    "Le Prestataire fournira également un reporting mensuel détaillé incluant les indicateurs de disponibilité, le nombre d'incidents traités et le taux de résolution au premier contact, ce document étant transmis au plus tard le 5 de chaque mois suivant la période concernée."
+   ]
+  },
+  {
+   "heading": "Article 5 — Niveaux de service (SLA)",
+   "paragraphs": [
+    "Le Prestataire garantit un taux de disponibilité des serveurs critiques de 99,5% sur une base mensuelle, hors fenêtres de maintenance planifiée notifiées avec un préavis de 48 heures. Tout dépassement de cet engagement entraînera l'application de pénalités conformément à l'Article 9.",
+    "Les délais de prise en charge et de résolution des incidents sont classés par ordre de criticité, selon les seuils détaillés dans le tableau figurant à l'Article 6. Un incident est considéré comme résolu lorsque le service impacté retrouve un fonctionnement nominal, validé conjointement par les deux parties via l'outil de ticketing ServiceNow Connect."
+   ]
+  },
+  {
+   "heading": "Article 6 — Grille tarifaire et indicateurs de performance",
+   "paragraphs": [
+    "La rémunération du Prestataire est fixée sur une base forfaitaire mensuelle, complétée par des prestations ponctuelles facturées au temps passé. Le tableau ci-dessous présente la répartition des coûts ainsi que les engagements de délai associés à chaque niveau de criticité des incidents."
+   ]
+  },
+  {
+   "heading": "Article 7 — Conditions financières et facturation",
+   "paragraphs": [
+    "Le montant total de la prestation forfaitaire s'élève à 18 400 euros HT par mois, soit 220 800 euros HT par an, payable par virement bancaire à 30 jours fin de mois à compter de la date d'émission de la facture. Les prestations complémentaires hors forfait sont facturées au tarif horaire de 95 euros HT pour les interventions de niveau 1 et 2, et 140 euros HT pour les interventions de niveau 3.",
+    "Une révision annuelle des tarifs sera appliquée au 1er septembre de chaque année, sur la base de l'indice Syntec publié par la Fédération Syntec, dans la limite d'une augmentation maximale de 3,5% par an. Tout retard de paiement supérieur à 15 jours entraînera l'application de pénalités de retard au taux de 12% par an, conformément à l'article L441-10 du Code de commerce."
+   ]
+  },
+  {
+   "heading": "Article 8 — Obligations des parties",
+   "paragraphs": [
+    "Le Prestataire s'engage à affecter à l'exécution du Contrat une équipe stable composée de 8 techniciens dédiés, à maintenir à jour ses certifications ISO 27001 et à informer le Client de toute modification substantielle de son organisation dans un délai de 10 jours ouvrés.",
+    "Le Client s'engage de son côté à désigner un interlocuteur unique, à fournir au Prestataire un accès sécurisé à ses locaux et systèmes dans un délai raisonnable, et à régler les factures dans les délais convenus. Le Client s'engage également à ne pas solliciter directement les salariés du Prestataire en dehors du cadre contractuel pendant toute la durée du Contrat et dans les 12 mois suivant sa résiliation."
+   ]
+  },
+  {
+   "heading": "Article 9 — Pénalités et sanctions",
+   "paragraphs": [
+    "En cas de non-respect des engagements de disponibilité définis à l'Article 5, une pénalité de 2% du montant de la facture mensuelle sera appliquée par point de pourcentage manquant en deçà du seuil de 99,5%, dans la limite de 20% du montant mensuel forfaitaire.",
+    "En cas de dépassement répété des délais de résolution d'incidents critiques (plus de 3 occurrences sur une période glissante de 6 mois), le Client pourra solliciter une réunion de remédiation dans un délai de 10 jours ouvrés, pouvant déboucher sur un plan d'action correctif obligatoire sous 30 jours."
+   ]
+  },
+  {
+   "heading": "Article 10 — Confidentialité et protection des données",
+   "paragraphs": [
+    "Les parties s'engagent mutuellement à préserver la confidentialité de toutes les informations échangées dans le cadre de l'exécution du Contrat, cette obligation perdurant 5 ans après la fin de la relation contractuelle. Le Prestataire s'engage à traiter les données à caractère personnel conformément au Règlement Général sur la Protection des Données (RGPD) et à notifier toute violation de données dans un délai maximal de 72 heures après sa découverte.",
+    "Un registre des sous-traitants autorisés sera tenu à jour et communiqué au Client, incluant notamment la société CloudBastion Hosting, hébergeur des infrastructures du Prestataire basé à Grenoble, certifié HDS pour les données sensibles."
+   ]
+  },
+  {
+   "heading": "Article 11 — Résiliation",
+   "paragraphs": [
+    "En cas de manquement grave de l'une des parties à ses obligations contractuelles, l'autre partie pourra résilier le Contrat de plein droit après mise en demeure restée infructueuse pendant 30 jours. La résiliation pour convenance pourra également être demandée par le Client moyennant un préavis de 6 mois et le versement d'une indemnité équivalente à 2 mois de forfait.",
+    "À l'issue du Contrat, quelle qu'en soit la cause, le Prestataire s'engage à assurer une période de réversibilité de 3 mois, incluant la restitution complète des données et de la documentation technique, moyennant un forfait de réversibilité de 12 000 euros HT."
+   ]
+  },
+  {
+   "heading": "Article 12 — Dispositions diverses et droit applicable",
+   "paragraphs": [
+    "Le présent Contrat est soumis au droit français. Tout litige relatif à son interprétation ou à son exécution sera soumis, à défaut de résolution amiable dans un délai de 60 jours, au Tribunal de Commerce de Lyon, compétent exclusivement.",
+    "Les annexes techniques, incluant la cartographie détaillée de l'infrastructure et les procédures d'escalade, font partie intégrante du présent Contrat et seront mises à jour semestriellement d'un commun accord entre Monsieur Grégoire Vasseur et Madame Odile Brachet, ou leurs représentants dûment mandatés."
+   ]
+  }
+ ],
+ "table": [
+  [
+   "Niveau de criticité",
+   "Délai de prise en charge",
+   "Délai de résolution cible",
+   "Coût mensuel forfaitaire associé",
+   "Pénalité en cas de dépassement"
+  ],
+  [
+   "Critique (P1)",
+   "30 minutes",
+   "4 heures",
+   "Inclus dans forfait",
+   "5% de la facture mensuelle"
+  ],
+  [
+   "Majeur (P2)",
+   "1 heure",
+   "8 heures",
+   "Inclus dans forfait",
+   "3% de la facture mensuelle"
+  ],
+  [
+   "Mineur (P3)",
+   "4 heures",
+   "48 heures",
+   "Inclus dans forfait",
+   "1% de la facture mensuelle"
+  ],
+  [
+   "Demande standard (P4)",
+   "1 jour ouvré",
+   "5 jours ouvrés",
+   "95 euros HT / heure",
+   "Aucune pénalité contractuelle"
+  ]
+ ]
+}

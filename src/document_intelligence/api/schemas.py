@@ -26,6 +26,9 @@ class QueryResponse(BaseModel):
     answer: str
     citations: list[Citation]
     sufficient_context: bool = True
+    # Agent de vérification (ANSWER_VERIFICATION) : None = réponse non vérifiée.
+    verified: bool | None = None
+    regenerations: int = 0
 
 
 class ErrorResponse(BaseModel):

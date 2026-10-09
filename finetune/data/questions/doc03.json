@@ -1,0 +1,174 @@
+{
+ "questions": [
+  {
+   "question": "Quels sont les numéros RCS respectifs de Brumalys Sciences SAS et Kervanel Biotechnologies SA ?",
+   "answerable": true,
+   "evidence": "Brumalys Sciences SAS, immatriculée au RCS de Grenoble sous le numéro 512 487 963 ... Kervanel Biotechnologies SA, immatriculée au RCS de Nantes sous le numéro 487 221 034"
+  },
+  {
+   "question": "Quels sont les documents contractuels antérieurs qui ont précédé ce quatrième accord ?",
+   "answerable": true,
+   "evidence": "faisant suite à l'Accord-Cadre n°1 (recherche exploratoire), au Protocole n°2 (essais pilotes) et à l'Avenant n°3 (extension budgétaire)"
+  },
+  {
+   "question": "Quelle est la durée de la phase actuelle du Programme de recherche sur le Fibraxel-7 ?",
+   "answerable": true,
+   "evidence": "dont la phase actuelle couvre la période du 1er avril 2024 au 30 septembre 2026, soit une durée de 30 mois"
+  },
+  {
+   "question": "Pendant combien de temps l'obligation de confidentialité s'applique-t-elle après la signature de l'accord ?",
+   "answerable": true,
+   "evidence": "et ce pendant une durée de dix (10) ans à compter de la date de signature du présent Accord, soit jusqu'au 17 juin 2035"
+  },
+  {
+   "question": "Combien de personnes maximum peuvent être habilitées par partie à recevoir les Informations Confidentielles ?",
+   "answerable": true,
+   "evidence": "dans la limite de vingt-trois (23) personnes habilitées par partie"
+  },
+  {
+   "question": "Quel est le montant de la pénalité forfaitaire en cas de violation avérée de la confidentialité ?",
+   "answerable": true,
+   "evidence": "une pénalité forfaitaire de 75 000 euros par manquement avéré"
+  },
+  {
+   "question": "Dans quel délai une partie doit-elle informer l'autre si une divulgation est exigée par une autorité judiciaire ou administrative ?",
+   "answerable": true,
+   "evidence": "sous réserve d'en informer l'autre partie dans un délai de 48 heures"
+  },
+  {
+   "question": "Quel organisme réglementaire peut recevoir certaines données d'essais cliniques sans que cela constitue une violation de l'accord ?",
+   "answerable": true,
+   "evidence": "L'Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) pourra être destinataire de certaines données d'essais cliniques"
+  },
+  {
+   "question": "Quel est l'objectif de taux de résorption osseuse contrôlée visé pour le Fibraxel-7, et sur quelle période ?",
+   "answerable": true,
+   "evidence": "d'atteindre un taux de résorption osseuse contrôlée de 92% sur une période de 18 mois post-implantation, contre 74% pour les matériaux concurrents actuellement commercialisés"
+  },
+  {
+   "question": "Quel site est en charge des essais précliniques sur modèles animaux et de la coordination des essais cliniques de phase I ?",
+   "answerable": true,
+   "evidence": "Kervanel Biotechnologies SA prendra en charge les essais précliniques sur modèles animaux et la coordination des essais cliniques de phase I"
+  },
+  {
+   "question": "Quel est le budget alloué au sous-traitant pour la caractérisation mécanique des échantillons ?",
+   "answerable": true,
+   "evidence": "dans la limite d'un budget alloué de 184 000 euros sur la durée du Programme"
+  },
+  {
+   "question": "Quelle est la répartition du financement total du Programme entre les deux sociétés ?",
+   "answerable": true,
+   "evidence": "financé à hauteur de 55% par Kervanel Biotechnologies SA (1 881 000 euros) et 45% par Brumalys Sciences SAS (1 539 000 euros)"
+  },
+  {
+   "question": "Quel organisme pourrait apporter un financement complémentaire et à quelle hauteur ?",
+   "answerable": true,
+   "evidence": "Un apport complémentaire de 420 000 euros est attendu de Bpifrance au titre du dispositif de soutien à l'innovation biomédicale"
+  },
+  {
+   "question": "Dans quel délai une validation conjointe des deux Directions Générales est-elle requise en cas de dépassement budgétaire important ?",
+   "answerable": true,
+   "evidence": "devront faire l'objet d'une validation conjointe des deux Directions Générales dans un délai de quinze (15) jours ouvrés suivant leur identification"
+  },
+  {
+   "question": "Comment sont répartis les droits de propriété intellectuelle sur les Résultats générés conjointement ?",
+   "answerable": true,
+   "evidence": "seront la copropriété indivise de Brumalys Sciences SAS et Kervanel Biotechnologies SA, à parts égales (50/50)"
+  },
+  {
+   "question": "Quel est le délai maximal pour déposer une demande de brevet après la divulgation d'une invention conjointe ?",
+   "answerable": true,
+   "evidence": "devra être déposée dans un délai maximal de 90 jours après la divulgation de l'invention, auprès de l'Institut National de la Propriété Industrielle (INPI)"
+  },
+  {
+   "question": "Quel est le montant de la redevance prévue pour l'usage des connaissances antérieures de chaque partie ?",
+   "answerable": true,
+   "evidence": "moyennant une redevance symbolique d'un euro"
+  },
+  {
+   "question": "Quel est le taux de redevance sur le chiffre d'affaires net en cas de commercialisation du Fibraxel-7, et quel est son plafond annuel ?",
+   "answerable": true,
+   "evidence": "une redevance de 6,5% du chiffre d'affaires net généré par les ventes, plafonnée à 2 100 000 euros par exercice fiscal"
+  },
+  {
+   "question": "Quel est le montant du paiement initial versé à Brumalys Sciences SAS à l'obtention du marquage CE ?",
+   "answerable": true,
+   "evidence": "Un paiement initial (« upfront payment ») de 250 000 euros sera versé à Brumalys Sciences SAS"
+  },
+  {
+   "question": "Quels sont les montants des paiements d'étapes prévus pour les validations de phase I, phase II et l'autorisation de mise sur le marché ?",
+   "answerable": true,
+   "evidence": "150 000 euros à la validation des essais cliniques de phase I, 300 000 euros à la validation de la phase II, et 500 000 euros à l'obtention de l'autorisation de mise sur le marché délivrée par l'ANSM"
+  },
+  {
+   "question": "Combien de représentants de chaque société composent le Comité de Pilotage Conjoint, et quelle est la fréquence de ses réunions ?",
+   "answerable": true,
+   "evidence": "Un Comité de Pilotage Conjoint sera constitué, composé de trois représentants de chaque partie, se réunissant tous les deux mois"
+  },
+  {
+   "question": "Quel montant minimal de couverture d'assurance responsabilité civile professionnelle chaque partie doit-elle maintenir ?",
+   "answerable": true,
+   "evidence": "une police d'assurance responsabilité civile professionnelle couvrant un montant minimal de 5 000 000 euros par sinistre"
+  },
+  {
+   "question": "Quel est le plafond de responsabilité de chaque partie au titre de l'accord ?",
+   "answerable": true,
+   "evidence": "soit respectivement 3 078 000 euros pour Brumalys Sciences SAS et 3 762 000 euros pour Kervanel Biotechnologies SA"
+  },
+  {
+   "question": "Quelle est la procédure de règlement des litiges avant la saisine du tribunal, et quel tribunal est compétent en dernier recours ?",
+   "answerable": true,
+   "evidence": "à une procédure de médiation conduite par le Centre de Médiation des Affaires de Lyon ... le litige sera porté devant le Tribunal de Commerce de Lyon, seul compétent"
+  },
+  {
+   "question": "Quel est le budget alloué pour les essais cliniques de phase I selon le tableau, et quelle est leur répartition entre les deux sociétés ?",
+   "answerable": true,
+   "evidence": "Essais cliniques Phase I | 915 000 | 25 | 75 | 12 janvier 2026"
+  },
+  {
+   "question": "Quel est le nom du dispositif médical développé dans le cadre de ce partenariat et quelle est sa composition ?",
+   "answerable": true,
+   "evidence": "un composite à base de fibres de polylactide et de nanoparticules de phosphate de calcium"
+  },
+  {
+   "question": "Quelle est la date de la première réunion du Comité de Pilotage Conjoint et où se tiendra-t-elle ?",
+   "answerable": true,
+   "evidence": "la première réunion étant fixée au 25 juillet 2024 dans les locaux de Kervanel Biotechnologies SA à Nantes"
+  },
+  {
+   "question": "Quel est le montant total du budget alloué au Programme et quelle est sa répartition par poste budgétaire selon le tableau ?",
+   "answerable": true,
+   "evidence": "Le budget total alloué au Programme s'élève à 3 420 000 euros"
+  },
+  {
+   "question": "Quel pourcentage des parts de propriété intellectuelle est attribué au Laboratoire de Biomécanique Appliquée de l'Université de Grenoble-Alpes pour les Résultats issus de ses travaux ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du responsable scientifique en charge du suivi quotidien des essais précliniques sur modèles animaux ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelles sont les clauses spécifiques applicables en cas de faillite de l'une des parties pendant la durée du Programme ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant exact des indemnités prévues en cas de retard dans la livraison des prototypes par Brumalys Sciences SAS ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels pays étrangers sont concernés par une éventuelle extension territoriale de la commercialisation du Fibraxel-7 ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom de l'assureur effectivement choisi par Kervanel Biotechnologies SA pour sa police de responsabilité civile ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

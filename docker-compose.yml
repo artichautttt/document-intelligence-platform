@@ -10,7 +10,12 @@ services:
       CHROMA_PERSIST_DIRECTORY: /data/.chroma
       VECTOR_STORE_BACKEND: ${VECTOR_STORE_BACKEND:-chroma}
       QDRANT_URL: http://qdrant:6333
+      # Fournisseur LLM : anthropic (defaut), openai ou mistral
+      LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      LLM_SYNTHESIS_MODEL: ${LLM_SYNTHESIS_MODEL:-}
       API_KEY: ${API_KEY:-}
     volumes:
       - chroma_data:/data/.chroma
@@ -29,9 +34,37 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
+  # Monitoring (meme pattern que le Mini-SIEM) : Prometheus scrape
+  # api:8000/metrics/prometheus, Grafana provisionne la datasource et le
+  # dashboard "Pipeline RAG" (monitoring/grafana/).
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
 volumes:
   chroma_data:
   qdrant_data:
+  prometheus_data:
+  grafana_data:
 
 # Deux vector stores sont disponibles (interface `VectorStore` commune) :
 # ChromaDB (embarque dans le processus `api`, par defaut) et Qdrant (service

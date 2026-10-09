@@ -16,11 +16,15 @@ from document_intelligence.evaluation.models import (
     EvaluationReport,
     ExampleResult,
     GenerationScores,
+    VerificationOutcome,
 )
 from document_intelligence.evaluation.retrieval import is_relevant, retrieval_scores
+from document_intelligence.evaluation.verification import corrupt_answer
 from document_intelligence.orchestration.exceptions import LLMOutputError
 from document_intelligence.orchestration.graph import answer_query
 from document_intelligence.orchestration.llm import LLMClient
+from document_intelligence.orchestration.models import AnswerResult
+from document_intelligence.orchestration.verification import AnswerVerifier
 from document_intelligence.vectorization.models import QueryResult
 from document_intelligence.vectorization.store import VectorStore
 
@@ -82,6 +86,12 @@ def _aggregate(results: list[ExampleResult]) -> dict[str, float]:
                     not result.generation.abstention_correct,
                 )
             add("latency_ms_mean", result.generation.latency_ms)
+        if result.verification:
+            outcome = result.verification
+            add("verification_flag_rate", outcome.flagged)
+            add("verification_final_grounded_rate", outcome.verified_final)
+            if outcome.calibration_flagged is not None:
+                add("calibration_detection_rate", outcome.calibration_flagged)
 
     aggregate = {
         name: round(mean, 4)
@@ -91,6 +101,27 @@ def _aggregate(results: list[ExampleResult]) -> dict[str, float]:
     output_errors = sum(len(r.errors) for r in results)
     if output_errors:
         aggregate["output_errors"] = float(output_errors)
+
+    # Comptes bruts de la vérification, plus parlants que des taux sur un sous-ensemble.
+    outcomes = [r.verification for r in results if r.verification]
+    if outcomes:
+        calibrated = [o for o in outcomes if o.calibration_flagged is not None]
+        aggregate.update(
+            {
+                "verification_checked": float(len(outcomes)),
+                "verification_flagged": float(sum(o.flagged for o in outcomes)),
+                "verification_regenerations": float(
+                    sum(o.regenerations for o in outcomes)
+                ),
+                "verification_final_flagged": float(
+                    sum(o.verified_final is False for o in outcomes)
+                ),
+                "calibration_cases": float(len(calibrated)),
+                "calibration_detected": float(
+                    sum(bool(o.calibration_flagged) for o in calibrated)
+                ),
+            }
+        )
     return aggregate
 
 
@@ -102,7 +133,9 @@ def _score_generation(
     llm: LLMClient,
     judge: LLMClient | None,
     errors: list[str],
-) -> tuple[str | None, GenerationScores | None]:
+    verifier: AnswerVerifier | None = None,
+    max_regenerations: int = 1,
+) -> tuple[AnswerResult | None, GenerationScores | None]:
     """Exécute le pipeline sur une question et note la réponse.
 
     Une sortie de modèle invalide est consignée dans `errors` ; l'exemple garde
@@ -112,7 +145,14 @@ def _score_generation(
     answer = _guarded(
         errors,
         "synthesis",
-        lambda: answer_query(example.question, store=store, llm=llm, k=k),
+        lambda: answer_query(
+            example.question,
+            store=store,
+            llm=llm,
+            k=k,
+            verifier=verifier,
+            max_regenerations=max_regenerations,
+        ),
     )
     latency_ms = (time.perf_counter() - started) * 1000
     if answer is None:
@@ -139,7 +179,7 @@ def _score_generation(
             lambda: answer_relevance(example.question, answer.answer, judge),
         )
 
-    return answer.answer, GenerationScores(
+    return answer, GenerationScores(
         faithfulness=faithfulness_score,
         answer_relevance=relevance_score,
         citation_precision=(
@@ -150,12 +190,51 @@ def _score_generation(
     )
 
 
+def _verification_outcome(
+    example: EvalExample,
+    answer: AnswerResult,
+    retrieved: list[QueryResult],
+    verifier: AnswerVerifier,
+    calibrate: bool,
+    errors: list[str],
+) -> VerificationOutcome | None:
+    """Résumé de la vérification ; avec `calibrate`, soumet une copie faussée."""
+    if not answer.verifications:
+        return None
+    outcome = VerificationOutcome(
+        verdicts=len(answer.verifications),
+        flagged=any(not v.grounded for v in answer.verifications),
+        regenerations=answer.regenerations,
+        verified_final=answer.verified,
+        unsupported_claims=[
+            claim for v in answer.verifications for claim in v.unsupported_claims
+        ],
+        rejected_answers=answer.rejected_answers,
+    )
+    # La copie faussée part de la réponse initiale, avant toute régénération.
+    initial = answer.rejected_answers[0] if answer.rejected_answers else answer.answer
+    corrupted = corrupt_answer(initial) if calibrate else None
+    if corrupted is not None:
+        verdict = _guarded(
+            errors,
+            "calibration",
+            lambda: verifier.verify(example.question, corrupted, retrieved),
+        )
+        if verdict is not None:
+            outcome.calibration_corrupted_answer = corrupted
+            outcome.calibration_flagged = not verdict.grounded
+    return outcome
+
+
 def evaluate(
     examples: list[EvalExample],
     store: VectorStore,
     k: int = 5,
     llm: LLMClient | None = None,
     judge: LLMClient | None = None,
+    verifier: AnswerVerifier | None = None,
+    max_regenerations: int = 1,
+    calibrate_verifier: bool = False,
 ) -> EvaluationReport:
     """Évalue le retrieval et, si `llm` est fourni, la génération.
 
@@ -165,6 +244,10 @@ def evaluate(
         k: nombre de chunks récupérés par question.
         llm: client utilisé par le pipeline. Sans lui, seul le retrieval est évalué.
         judge: LLM-juge pour faithfulness/relevance (par défaut `llm`).
+        verifier: agent de vérification inséré dans le pipeline (optionnel).
+        max_regenerations: régénérations au plus après un verdict négatif.
+        calibrate_verifier: soumet aussi au vérificateur une copie faussée de
+            chaque réponse contenant un nombre (cf. `evaluation.verification`).
     """
     judge = judge or llm
     results: list[ExampleResult] = []
@@ -183,9 +266,28 @@ def evaluate(
         )
 
         if llm is not None:
-            result.answer, result.generation = _score_generation(
-                example, retrieved, store, k, llm, judge, result.errors
+            answer, result.generation = _score_generation(
+                example,
+                retrieved,
+                store,
+                k,
+                llm,
+                judge,
+                result.errors,
+                verifier=verifier,
+                max_regenerations=max_regenerations,
             )
+            if answer is not None:
+                result.answer = answer.answer
+                if verifier is not None:
+                    result.verification = _verification_outcome(
+                        example,
+                        answer,
+                        retrieved,
+                        verifier,
+                        calibrate_verifier,
+                        result.errors,
+                    )
 
         results.append(result)
 

@@ -46,13 +46,44 @@ class GroundedAnswer(BaseModel):
     )
 
 
+class VerificationVerdict(BaseModel):
+    """Verdict de l'agent de vérification sur une réponse et ses extraits sources."""
+
+    grounded: bool = Field(
+        description=(
+            "True si chaque affirmation factuelle de la réponse est explicitement "
+            "soutenue par les extraits ; false sinon."
+        )
+    )
+    unsupported_claims: list[str] = Field(
+        default_factory=list,
+        description="Affirmations de la réponse absentes des extraits ou contredites par eux.",
+    )
+    feedback: str = Field(
+        default="",
+        description="Consigne de correction à destination du rédacteur si grounded=false.",
+    )
+
+
 class AnswerResult(BaseModel):
-    """Réponse finale produite par le pipeline, avec ses citations source."""
+    """Réponse finale produite par le pipeline, avec ses citations source.
+
+    Champs de l'agent de vérification (inchangés s'il est désactivé) :
+    - `verifications` : verdicts successifs, un par réponse vérifiée ;
+    - `verified` : verdict sur **cette** réponse ; `None` si elle n'a pas été
+      vérifiée (vérification désactivée, abstention, verdict inexploitable) ;
+    - `regenerations` : nombre de régénérations déclenchées par un verdict négatif ;
+    - `rejected_answers` : réponses rejetées par le vérificateur puis régénérées.
+    """
 
     query: str
     answer: str
     citations: list[Citation]
     sufficient_context: bool = True
+    verifications: list[VerificationVerdict] = []
+    verified: bool | None = None
+    regenerations: int = 0
+    rejected_answers: list[str] = []
 
 
 class AgentState(BaseModel):
@@ -62,3 +93,7 @@ class AgentState(BaseModel):
     route: RouteDecision | None = None
     retrieved: list[QueryResult] = []
     answer: AnswerResult | None = None
+    # Vérification : verdicts accumulés et consigne transmise à la régénération.
+    verifications: list[VerificationVerdict] = []
+    verification_feedback: str | None = None
+    regenerations: int = 0

@@ -1,0 +1,154 @@
+{
+ "questions": [
+  {
+   "question": "Quel est le chiffre d'affaires consolidé du Groupe Transfreta pour le troisième trimestre 2024 ?",
+   "answerable": true,
+   "evidence": "Le chiffre d'affaires consolidé du troisième trimestre 2024 s'établit à 86,4 millions d'euros, en progression de 6,7 % par rapport aux 81,0 millions d'euros enregistrés au troisième trimestre 2023."
+  },
+  {
+   "question": "Quelle est la date de la réunion du Conseil d'Administration ayant arrêté ce rapport trimestriel ?",
+   "answerable": true,
+   "evidence": "Il a été arrêté par le Conseil d'Administration réuni le 18 octobre 2024 sous la présidence de Madame Cécile Branchard, Directrice Générale, et approuvé à l'unanimité des neuf membres présents."
+  },
+  {
+   "question": "Quelles sont les filiales et la coentreprise intégrées dans le périmètre de consolidation du groupe ?",
+   "answerable": true,
+   "evidence": "Le périmètre de consolidation intègre quatre filiales : Transfreta Entreposage SAS, Routance Express SARL, Fluviopack Logistique SA et la coentreprise Cargotrail Ibérica, détenue à 51 %."
+  },
+  {
+   "question": "Quel cabinet d'audit a certifié les comptes du groupe et depuis quand est-il mandaté ?",
+   "answerable": true,
+   "evidence": "Les comptes ont été audités par le cabinet Delorme & Haquin Audit, mandaté depuis le 12 mars 2019, et certifiés sans réserve le 15 octobre 2024."
+  },
+  {
+   "question": "Quel est le montant de l'investissement réalisé pour la plateforme de cross-docking de Valence-Rhône et comment a-t-il été financé ?",
+   "answerable": true,
+   "evidence": "Le 4 juillet 2024, Transfreta a inauguré sa nouvelle plateforme de cross-docking de Valence-Rhône, d'une surface de 22 400 m², représentant un investissement de 9,6 millions d'euros financé à 60 % par emprunt bancaire auprès de la Banque Régionale du Rhône et à 40 % sur fonds propres."
+  },
+  {
+   "question": "Quel impact financier la grève des chauffeurs routiers de septembre 2024 a-t-elle eu sur le résultat opérationnel du trimestre ?",
+   "answerable": true,
+   "evidence": "Par ailleurs, une grève des chauffeurs routiers affiliés au syndicat SNTR-CGT a entraîné, du 9 au 13 septembre 2024, une baisse d'activité de 11,3 % sur le segment transport longue distance, impactant le résultat opérationnel du trimestre d'environ 480 000 euros."
+  },
+  {
+   "question": "Quelle est la part du chiffre d'affaires total représentée par le segment Transport Routier au T3 2024, et quelle évolution a-t-il connu par rapport à l'année précédente ?",
+   "answerable": true,
+   "evidence": "Le segment Transport Routier représente 52,3 % du chiffre d'affaires total avec 45,2 millions d'euros, contre 46,0 millions d'euros un an plus tôt, soit un recul de 1,7 % attribuable à la baisse des volumes exportés vers l'Italie du Nord."
+  },
+  {
+   "question": "Quelle est la marge d'EBITDA du groupe au T3 2024 et comment se compare-t-elle à celle du T3 2023 ?",
+   "answerable": true,
+   "evidence": "L'EBITDA consolidé du trimestre s'élève à 11,9 millions d'euros, soit une marge de 13,8 %, contre 12,6 % au troisième trimestre 2023."
+  },
+  {
+   "question": "Quel est le taux effectif d'imposition appliqué au résultat net du groupe ce trimestre ?",
+   "answerable": true,
+   "evidence": "Le résultat net part du groupe s'établit à 3,7 millions d'euros, en hausse de 0,4 million par rapport au trimestre précédent, après prise en compte d'une charge d'impôt de 1,8 million d'euros, correspondant à un taux effectif d'imposition de 32,7 %."
+  },
+  {
+   "question": "Quelle est la trésorerie disponible du groupe au 30 septembre 2024 et comment a-t-elle évolué par rapport au 30 juin 2024 ?",
+   "answerable": true,
+   "evidence": "La trésorerie disponible du groupe s'élève à 18,2 millions d'euros au 30 septembre 2024, contre 21,5 millions d'euros au 30 juin 2024, cette diminution s'expliquant notamment par le versement d'un acompte sur dividende de 2,1 millions d'euros décidé par le Conseil d'Administration le 25 juillet 2024."
+  },
+  {
+   "question": "Quel est le ratio dette nette sur EBITDA du groupe et quel est le covenant bancaire applicable ?",
+   "answerable": true,
+   "evidence": "L'endettement financier net atteint 34,8 millions d'euros, portant le ratio dette nette sur EBITDA annualisé à 2,4x, en deçà du covenant bancaire plafonné à 3,0x fixé dans la convention de crédit syndiqué du 6 mai 2022 conclue avec un pool bancaire mené par la Banque Régionale du Rhône et la Caisse Mutuelle du Sud-Est."
+  },
+  {
+   "question": "Quelle est la répartition des investissements (Capex) du trimestre entre les différents projets ?",
+   "answerable": true,
+   "evidence": "Les investissements du trimestre s'élèvent à 6,9 millions d'euros, dont 4,2 millions consacrés à la plateforme de Valence-Rhône mentionnée précédemment et 1,5 million à l'acquisition de 14 remorques frigorifiques destinées au développement de l'activité de transport sous température dirigée, confiée à la filiale Routance Express SARL."
+  },
+  {
+   "question": "Quel éditeur a développé le logiciel WiseStock et quelle est la date prévue pour son déploiement complet ?",
+   "answerable": true,
+   "evidence": "Un montant de 1,2 million d'euros a également été alloué au déploiement du logiciel de gestion d'entrepôt WiseStock, développé par l'éditeur Kelvion Software, dont le déploiement complet est prévu sur les douze sites du groupe d'ici le 30 juin 2025."
+  },
+  {
+   "question": "Quel est le chiffre d'affaires trimestriel de Routance Express SARL et pourquoi a-t-il reculé ?",
+   "answerable": true,
+   "evidence": "Routance Express SARL affiche un chiffre d'affaires de 28,6 millions d'euros, en recul de 2,3 % du fait de la grève de septembre évoquée en section 2."
+  },
+  {
+   "question": "Quelle est la contribution de la coentreprise Cargotrail Ibérica au chiffre d'affaires consolidé du groupe ?",
+   "answerable": true,
+   "evidence": "la coentreprise Cargotrail Ibérica, consolidée par intégration proportionnelle à hauteur de 51 %, contribue pour 2,4 millions d'euros au chiffre d'affaires consolidé du groupe."
+  },
+  {
+   "question": "Combien de collaborateurs en équivalent temps plein le groupe emploie-t-il au 30 septembre 2024 et quelle est l'évolution par rapport au trimestre précédent ?",
+   "answerable": true,
+   "evidence": "Au 30 septembre 2024, le Groupe Transfreta emploie 1 342 collaborateurs en équivalent temps plein, contre 1 298 au 30 juin 2024, soit 44 créations nettes de postes principalement liées à la montée en charge du site de Valence-Rhône, dirigé par Monsieur Julien Pastorelli, Directeur de Site depuis le 1er juillet 2024."
+  },
+  {
+   "question": "Quelle est l'enveloppe maximale prévue par l'accord d'intéressement signé le 3 septembre 2024, et sous quelle condition s'applique-t-elle ?",
+   "answerable": true,
+   "evidence": "Un accord d'intéressement a été signé le 3 septembre 2024 avec les représentants du personnel, prévoyant une enveloppe plafonnée à 850 000 euros pour l'exercice 2024, conditionnée à l'atteinte d'un EBITDA consolidé annuel supérieur à 45 millions d'euros."
+  },
+  {
+   "question": "Quel est le surcoût généré par la hausse du prix du gazole au T3 2024 et quelle part du portefeuille clients est couverte par une clause d'indexation carburant ?",
+   "answerable": true,
+   "evidence": "Le groupe demeure exposé à la volatilité du prix du gazole, dont la hausse de 7,9 % observée entre juillet et septembre 2024 a généré un surcoût estimé à 1,1 million d'euros, partiellement compensé par la clause d'indexation carburant appliquée à 68 % du portefeuille de contrats clients."
+  },
+  {
+   "question": "Quel est le montant des garanties bancaires accordées à Maretto Distribution et à quel risque juridique le groupe est-il par ailleurs exposé ?",
+   "answerable": true,
+   "evidence": "Les engagements hors bilan comprennent des garanties bancaires de 3,4 millions d'euros accordées au bénéfice de la société Maretto Distribution dans le cadre du contrat-cadre signé le 2 août 2024, ainsi qu'un contentieux prud'homal en cours avec deux anciens cadres, pour un risque estimé par les conseils juridiques du groupe à 310 000 euros, provisionné à 100 %."
+  },
+  {
+   "question": "Quelles sont les prévisions de chiffre d'affaires du groupe pour le quatrième trimestre 2024 ?",
+   "answerable": true,
+   "evidence": "La Direction Générale anticipe un chiffre d'affaires du quatrième trimestre compris entre 89 et 92 millions d'euros, porté par la montée en puissance du contrat Maretto Distribution et par le pic saisonnier habituel lié aux fêtes de fin d'année, qui représente historiquement 18 % du chiffre d'affaires annuel du groupe."
+  },
+  {
+   "question": "Qui remplace Madame Florence Ugarte au poste de Directeur Financier Groupe et à partir de quand ?",
+   "answerable": true,
+   "evidence": "Le Conseil d'Administration a entériné la nomination de Monsieur Adrien Keslassy au poste de Directeur Financier Groupe à compter du 1er novembre 2024, en remplacement de Madame Florence Ugarte, partie à la retraite après quatorze années au sein du groupe."
+  },
+  {
+   "question": "À quelle date se tiendra l'Assemblée Générale Ordinaire statuant sur les comptes de l'exercice 2024 ?",
+   "answerable": true,
+   "evidence": "L'Assemblée Générale Ordinaire appelée à statuer sur les comptes de l'exercice 2024 se tiendra le 28 mars 2025 au siège social de Lyon."
+  },
+  {
+   "question": "Quelle est l'évolution de l'endettement financier net entre le T3 2023 et le T3 2024 selon le tableau ?",
+   "answerable": true,
+   "evidence": "Endettement financier net | 31,2 | 33,0 | 34,8 | +11,5 %"
+  },
+  {
+   "question": "Quel est le montant global du plan d'investissement du groupe prévu sur la période 2024-2026 ?",
+   "answerable": true,
+   "evidence": "La solidité du bilan, matérialisée par un ratio dette nette sur EBITDA de 2,4x, préserve les marges de manœuvre nécessaires au financement du plan d'investissement 2024-2026, évalué à 42 millions d'euros sur trois ans."
+  },
+  {
+   "question": "Quel est le montant du chiffre d'affaires prévisionnel pour l'ensemble de l'exercice fiscal 2024 ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le nom du Directeur des Ressources Humaines du groupe ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle agence de notation a attribué une note de crédit au Groupe Transfreta ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quel est le montant du dividende annuel total versé aux actionnaires pour l'exercice 2023 ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quelle est la part de marché du Groupe Transfreta sur le secteur du transport routier en France ?",
+   "answerable": false,
+   "evidence": ""
+  },
+  {
+   "question": "Quels sont les objectifs de réduction des émissions de CO2 fixés par le groupe pour les prochaines années ?",
+   "answerable": false,
+   "evidence": ""
+  }
+ ]
+}

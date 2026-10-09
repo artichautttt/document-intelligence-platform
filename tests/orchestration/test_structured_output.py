@@ -214,3 +214,27 @@ def test_build_synthesis_prompt_escapes_closing_tag() -> None:
 
     assert prompt.count("</extrait>") == 1
     assert prompt.count("<question>") == 1
+
+
+def test_json_fallback_sends_the_shared_instruction_prompt() -> None:
+    """Le repli JSON envoie exactement `json_instruction_prompt` (format du fine-tuning)."""
+    from document_intelligence.orchestration.llm import (
+        LLMClient,
+        json_instruction_prompt,
+    )
+    from document_intelligence.orchestration.models import GroundedAnswer
+
+    class Recording(LLMClient):
+        def __init__(self) -> None:
+            self.prompts: list[str] = []
+
+        def complete(self, prompt: str) -> str:
+            self.prompts.append(prompt)
+            return '{"answer": "ok"}'
+
+    client = Recording()
+    client.complete_structured("question", GroundedAnswer, system="consignes")
+
+    assert client.prompts == [
+        json_instruction_prompt("question", GroundedAnswer, "consignes")
+    ]

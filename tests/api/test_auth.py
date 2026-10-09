@@ -1,6 +1,9 @@
 """Tests de l'authentification par clé d'API (en-tête `X-API-Key`)."""
 
+import pytest
 from fastapi.testclient import TestClient
+
+from document_intelligence.core import config
 
 
 def test_documents_rejects_request_without_api_key(
@@ -48,3 +51,12 @@ def test_health_does_not_require_api_key(client_with_api_key: TestClient) -> Non
     response = client_with_api_key.get("/health")
 
     assert response.status_code == 200
+
+
+def test_empty_api_key_disables_authentication(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`API_KEY=` (vide, cas du docker-compose sans clé) ne doit pas exiger d'en-tête."""
+    monkeypatch.setattr(config.settings, "api_key", "")
+
+    assert client.get("/metrics").status_code == 200

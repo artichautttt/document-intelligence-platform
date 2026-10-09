@@ -1,12 +1,21 @@
-"""Model tiering : choix du modèle Claude selon le rôle de l'appel LLM.
+"""Choix du fournisseur LLM (`LLM_PROVIDER`) et model tiering par rôle d'appel.
 
-- `SYNTHESIS` : réponse finale du RAG — `LLM_SYNTHESIS_MODEL`, sinon `ANTHROPIC_MODEL`.
-- `JUDGE` : LLM-juge de l'évaluation — `LLM_JUDGE_MODEL`, sinon `ANTHROPIC_MODEL`.
+Fournisseur actif : `LLM_PROVIDER` = `anthropic` (défaut), `openai` ou
+`mistral`. Son modèle de référence est respectivement `ANTHROPIC_MODEL`,
+`OPENAI_MODEL` ou `MISTRAL_MODEL` ; c'est aussi la référence « sans
+optimisation » du calcul d'économies.
+
+Rôles :
+- `SYNTHESIS` : réponse finale du RAG — `LLM_SYNTHESIS_MODEL`, sinon la référence.
+- `JUDGE` : LLM-juge de l'évaluation — `LLM_JUDGE_MODEL`, sinon la référence.
+- `VERIFIER` : agent de vérification des réponses — `LLM_VERIFIER_MODEL`,
+  sinon la référence.
 - `LIGHT` : étapes simples (reformulation, classification, extraction de
-  métadonnées) — `LLM_LIGHT_MODEL`, Claude Haiku par défaut.
+  métadonnées) — `LLM_LIGHT_MODEL` (Claude Haiku par défaut) avec Anthropic,
+  la référence avec les autres fournisseurs.
 
-`ANTHROPIC_MODEL` reste le modèle de référence : sans surcharge, le
-comportement est identique à celui d'avant le tiering.
+Sans surcharge et avec `LLM_PROVIDER=anthropic`, le comportement est
+identique à celui d'avant l'ajout des fournisseurs.
 """
 
 from enum import Enum
@@ -16,21 +25,64 @@ from document_intelligence.core.config import Settings, settings
 from document_intelligence.orchestration.anthropic_client import AnthropicLLMClient
 from document_intelligence.orchestration.cache import LLMResponseCache
 from document_intelligence.orchestration.cost import CostLedger
+from document_intelligence.orchestration.instrumented import InstrumentedLLMClient
+from document_intelligence.orchestration.mistral_client import MistralLLMClient
+from document_intelligence.orchestration.openai_client import OpenAILLMClient
+
+PROVIDERS = ("anthropic", "openai", "mistral")
 
 
 class LLMRole(str, Enum):
     SYNTHESIS = "synthesis"
     JUDGE = "judge"
+    VERIFIER = "verifier"
     LIGHT = "light"
 
 
+def active_provider(config: Settings = settings) -> str:
+    """Fournisseur configuré, normalisé.
+
+    Raises:
+        ValueError: si `LLM_PROVIDER` ne désigne pas un fournisseur supporté.
+    """
+    provider = config.llm_provider.strip().lower()
+    if provider not in PROVIDERS:
+        raise ValueError(
+            f"LLM_PROVIDER={config.llm_provider!r} non supporté ; "
+            f"valeurs possibles : {', '.join(PROVIDERS)}."
+        )
+    return provider
+
+
+def reference_model(config: Settings = settings) -> str:
+    """Modèle de référence du fournisseur actif."""
+    return {
+        "anthropic": config.anthropic_model,
+        "openai": config.openai_model,
+        "mistral": config.mistral_model,
+    }[active_provider(config)]
+
+
+def provider_api_key(config: Settings = settings) -> str | None:
+    """Clé d'API du fournisseur actif (`None` si non configurée)."""
+    return {
+        "anthropic": config.anthropic_api_key,
+        "openai": config.openai_api_key,
+        "mistral": config.mistral_api_key,
+    }[active_provider(config)]
+
+
 def model_for(role: LLMRole, config: Settings = settings) -> str:
-    """Modèle configuré pour `role`."""
+    """Modèle configuré pour `role` chez le fournisseur actif."""
     if role is LLMRole.SYNTHESIS:
-        return config.llm_synthesis_model or config.anthropic_model
+        return config.llm_synthesis_model or reference_model(config)
     if role is LLMRole.JUDGE:
-        return config.llm_judge_model or config.anthropic_model
-    return config.llm_light_model
+        return config.llm_judge_model or reference_model(config)
+    if role is LLMRole.VERIFIER:
+        return config.llm_verifier_model or reference_model(config)
+    if active_provider(config) == "anthropic":
+        return config.llm_light_model
+    return reference_model(config)
 
 
 def build_response_cache(config: Settings = settings) -> LLMResponseCache | None:
@@ -46,17 +98,32 @@ def build_response_cache(config: Settings = settings) -> LLMResponseCache | None
 
 def build_llm_client(
     role: LLMRole,
-    api_key: str,
+    api_key: str | None = None,
     *,
     cache: LLMResponseCache | None = None,
     ledger: CostLedger | None = None,
     config: Settings = settings,
-) -> AnthropicLLMClient:
-    """Client Anthropic utilisant le modèle du tier associé à `role`."""
-    return AnthropicLLMClient(
-        api_key=api_key,
-        model=model_for(role, config),
-        role=role.value,
-        cache=cache,
-        ledger=ledger,
+) -> InstrumentedLLMClient:
+    """Client du fournisseur actif, avec le modèle du tier associé à `role`.
+
+    Args:
+        api_key: clé explicite ; par défaut celle du fournisseur actif.
+
+    Raises:
+        ValueError: fournisseur inconnu ou clé d'API absente.
+    """
+    provider = active_provider(config)
+    key = api_key or provider_api_key(config)
+    if not key:
+        raise ValueError(f"Aucune clé d'API configurée pour le fournisseur {provider}.")
+    model = model_for(role, config)
+    client_class: (
+        type[AnthropicLLMClient] | type[OpenAILLMClient] | type[MistralLLMClient]
     )
+    if provider == "openai":
+        client_class = OpenAILLMClient
+    elif provider == "mistral":
+        client_class = MistralLLMClient
+    else:
+        client_class = AnthropicLLMClient
+    return client_class(key, model, role=role.value, cache=cache, ledger=ledger)

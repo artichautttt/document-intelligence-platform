@@ -1,0 +1,127 @@
+{
+ "title": "Rapport d'audit qualité ISO 9001:2015 — Site de production de Vauclairmont — Fabritec Meridion SAS — Document n°8",
+ "sections": [
+  {
+   "heading": "Article 1 — Objet et périmètre de l'audit",
+   "paragraphs": [
+    "Le présent rapport constitue le document n°8 de la série des audits qualité réalisés pour le compte de la société Fabritec Meridion SAS, exploitant le site de production de Vauclairmont (71 530, Saône-et-Loire), spécialisé dans la fabrication de composants hydrauliques pour l'industrie agricole et le bâtiment. L'audit a été conduit du 14 au 17 octobre 2024 par le cabinet Quintessence Audit & Conseil, mandaté par contrat n°QAC-2024-0192 daté du 2 septembre 2024.",
+    "Le périmètre couvre les processus de production des lignes L1 (vérins hydrauliques), L2 (raccords et flexibles) et L3 (assemblage final), ainsi que les fonctions support achats, maintenance et logistique. L'audit vise à vérifier la conformité du système de management de la qualité (SMQ) au référentiel ISO 9001:2015, dans la perspective du renouvellement de la certification délivrée initialement le 11 mars 2019 par l'organisme certificateur Bellatrix Certification International."
+   ]
+  },
+  {
+   "heading": "Article 2 — Équipe d'audit et méthodologie",
+   "paragraphs": [
+    "L'équipe d'audit était composée de Mme Isaline Orsat-Fremy, auditrice principale certifiée IRCA (n° de certification 48217), et de M. Théodore Ravanel, auditeur technique spécialisé en mécanique de précision. Les travaux ont représenté un total de 28 heures d'audit sur site réparties sur 4 journées, incluant 42 entretiens individuels avec le personnel et 17 observations directes de poste.",
+    "La méthodologie appliquée repose sur l'échantillonnage documentaire (112 documents examinés sur un corpus de 340 procédures actives) et sur la traçabilité de 6 lots de production sélectionnés aléatoirement entre juin et septembre 2024, représentant un volume cumulé de 9 870 unités fabriquées."
+   ]
+  },
+  {
+   "heading": "Article 3 — Contexte du site et effectifs",
+   "paragraphs": [
+    "Le site de Vauclairmont emploie 187 salariés en contrat à durée indéterminée et 23 intérimaires au 30 septembre 2024, répartis sur deux équipes en 2x8. Le site a généré un chiffre d'affaires de 34,6 millions d'euros sur l'exercice clos le 31 décembre 2023, en hausse de 6,2 % par rapport à 2022. La production annuelle moyenne s'établit à 1,24 million de pièces.",
+    "Le directeur de site, M. Armand Delcroze, est en poste depuis le 1er avril 2021. La responsable qualité, Mme Florine Bachetta, dirige un service composé de 7 personnes, dont 2 techniciens métrologie et 3 contrôleurs qualité affectés en ligne."
+   ]
+  },
+  {
+   "heading": "Article 4 — Constats généraux et taux de conformité",
+   "paragraphs": [
+    "Sur les 94 exigences normatives évaluées, 81 ont été jugées pleinement satisfaites, soit un taux de conformité global de 86,2 %. Cinq non-conformités majeures et neuf non-conformités mineures ont été relevées, auxquelles s'ajoutent six remarques d'amélioration sans incidence immédiate sur la certification.",
+    "Le taux de conformité constaté est en léger recul par rapport à l'audit précédent (document n°7, daté du 9 novembre 2023), qui affichait 89,4 %. Cette baisse s'explique principalement par le renouvellement de 34 % de l'effectif en ligne L2 au cours des douze derniers mois, générant des écarts de formation documentés en section 6."
+   ]
+  },
+  {
+   "heading": "Article 5 — Non-conformités majeures détaillées",
+   "paragraphs": [
+    "NC-M-01 : absence de validation documentée du processus de soudure par friction sur la ligne L1 depuis le 3 juillet 2024, en violation du point 8.5.1 de la norme. Un volume estimé à 14 200 pièces a été produit sans enregistrement de qualification du poste.",
+    "NC-M-02 : dépassement de l'intervalle d'étalonnage sur 4 des 11 bancs de test de pression hydraulique, le dernier contrôle datant du 18 janvier 2023 alors que la périodicité contractuelle avec le prestataire Calibréa Instruments est fixée à 12 mois. NC-M-03 concerne l'absence de plan d'actions correctives suite à 3 réclamations clients consécutives entre mars et août 2024 portant sur des fuites au niveau des raccords série RX-400.",
+    "Les NC-M-04 et NC-M-05 portent respectivement sur une gestion incomplète des fiches de données de sécurité pour 7 produits chimiques stockés en zone 3, et sur un défaut de traçabilité des lots de matière première en provenance du fournisseur Sidérance Alliages pour la période du 1er au 15 juin 2024."
+   ]
+  },
+  {
+   "heading": "Article 6 — Non-conformités mineures et observations",
+   "paragraphs": [
+    "Les non-conformités mineures concernent notamment : des fiches de poste non mises à jour pour 6 opérateurs de la ligne L2 depuis le changement de gamme opératoire du 22 avril 2024 ; un taux d'achèvement des formations sécurité limité à 71 % sur l'objectif contractuel de 95 % fixé par la direction ; et des écarts d'étiquetage constatés sur 3 palettes en zone d'expédition.",
+    "Par ailleurs, l'auditeur a relevé que le délai moyen de traitement des réclamations clients s'élève à 18,4 jours, contre un engagement interne de 10 jours inscrit dans la procédure PQ-112 version 4 du 5 janvier 2022. Ce délai constitue une non-conformité mineure dès lors qu'il dépasse l'engagement formalisé dans le manuel qualité."
+   ]
+  },
+  {
+   "heading": "Article 7 — Indicateurs de performance qualité",
+   "paragraphs": [
+    "Le tableau de bord qualité du site présente un taux de rebut moyen de 2,3 % sur l'année 2024, contre un objectif cible de 1,8 % fixé en comité de direction du 14 décembre 2023. Le taux de retour client s'établit à 0,74 %, en amélioration par rapport aux 0,91 % enregistrés en 2023.",
+    "Le coût de la non-qualité interne est évalué à 412 000 euros sur les neuf premiers mois de 2024, représentant 1,19 % du chiffre d'affaires du site, contre un seuil d'alerte interne fixé à 1,5 % par la direction financière du groupe Meridion Industries."
+   ]
+  },
+  {
+   "heading": "Article 8 — Tableau de synthèse des indicateurs clés",
+   "paragraphs": [
+    "Le tableau ci-après synthétise les indicateurs chiffrés les plus significatifs collectés durant l'audit, comparés aux objectifs contractuels et aux résultats de l'audit précédent."
+   ]
+  },
+  {
+   "heading": "Article 9 — Actions correctives exigées et échéances",
+   "paragraphs": [
+    "Conformément à l'article 10.2 de la norme ISO 9001:2015, Fabritec Meridion SAS dispose d'un délai de 60 jours calendaires à compter de la date de réception du présent rapport, soit jusqu'au 16 décembre 2024, pour transmettre à Quintessence Audit & Conseil un plan d'actions correctives détaillé pour chacune des cinq non-conformités majeures.",
+    "La revalidation du processus de soudure par friction (NC-M-01) devra être achevée au plus tard le 30 novembre 2024, sous peine de suspension de la ligne L1. L'étalonnage des quatre bancs de test (NC-M-02) a été planifié avec Calibréa Instruments pour intervention les 4 et 5 novembre 2024, pour un montant prévisionnel de 8 450 euros HT.",
+    "Un audit de suivi ciblé, limité aux cinq non-conformités majeures, est programmé pour le 20 janvier 2025. Le maintien de la certification délivrée par Bellatrix Certification International reste conditionné à la clôture effective d'au moins quatre des cinq non-conformités majeures à cette date."
+   ]
+  },
+  {
+   "heading": "Article 10 — Recommandations complémentaires",
+   "paragraphs": [
+    "L'équipe d'audit recommande le renforcement du budget formation, actuellement fixé à 54 000 euros annuels pour l'ensemble du site, afin d'atteindre le taux cible de 95 % de couverture formation sécurité évoqué en section 6. Un investissement complémentaire estimé entre 15 000 et 20 000 euros est suggéré.",
+    "Il est également recommandé d'intégrer un module de suivi automatisé des dates d'étalonnage dans le logiciel de gestion de maintenance assistée par ordinateur Maintenia GMAO, actuellement utilisé à 60 % de ses fonctionnalités disponibles selon les déclarations de M. Ravanel lors de l'entretien du 16 octobre 2024 avec le responsable maintenance, M. Cédric Hannequin."
+   ]
+  },
+  {
+   "heading": "Article 11 — Conclusion de l'audit",
+   "paragraphs": [
+    "Au regard des constats établis, l'équipe d'audit considère que le système de management de la qualité du site de Vauclairmont demeure globalement opérationnel, avec un taux de conformité de 86,2 % jugé satisfaisant mais en retrait par rapport à l'exercice précédent. Les cinq non-conformités majeures identifiées justifient une vigilance renforcée de la direction du site.",
+    "Sous réserve de la mise en œuvre effective du plan d'actions correctives dans les délais impartis et de la clôture favorable de l'audit de suivi du 20 janvier 2025, le renouvellement de la certification ISO 9001:2015 pourra être recommandé à Bellatrix Certification International. Le présent rapport a été transmis le 25 octobre 2024 à M. Armand Delcroze, directeur du site, et à la direction générale de Meridion Industries, en copie au siège social de Lyon-Gerland."
+   ]
+  }
+ ],
+ "table": [
+  [
+   "Indicateur",
+   "Résultat audit n°8 (2024)",
+   "Résultat audit n°7 (2023)",
+   "Objectif contractuel",
+   "Écart vs objectif"
+  ],
+  [
+   "Taux de conformité global SMQ",
+   "86,2 %",
+   "89,4 %",
+   "≥ 90 %",
+   "-3,8 pt"
+  ],
+  [
+   "Taux de rebut production",
+   "2,3 %",
+   "2,0 %",
+   "1,8 %",
+   "+0,5 pt"
+  ],
+  [
+   "Taux de retour client",
+   "0,74 %",
+   "0,91 %",
+   "≤ 0,80 %",
+   "-0,06 pt"
+  ],
+  [
+   "Délai moyen traitement réclamations",
+   "18,4 jours",
+   "15,1 jours",
+   "10 jours",
+   "+8,4 jours"
+  ],
+  [
+   "Coût de la non-qualité interne",
+   "1,19 % du CA",
+   "1,05 % du CA",
+   "≤ 1,5 % du CA",
+   "-0,31 pt"
+  ]
+ ]
+}

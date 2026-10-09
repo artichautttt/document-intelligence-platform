@@ -37,6 +37,24 @@ class GenerationScores(BaseModel):
     latency_ms: float
 
 
+class VerificationOutcome(BaseModel):
+    """Effet de l'agent de vérification sur une question.
+
+    `flagged` : au moins un verdict négatif (sur la réponse initiale ou une
+    régénération). `calibration_*` : verdict sur une copie volontairement
+    faussée de la réponse initiale (cf. `evaluation.verification`).
+    """
+
+    verdicts: int
+    flagged: bool
+    regenerations: int
+    verified_final: bool | None
+    unsupported_claims: list[str] = Field(default_factory=list)
+    rejected_answers: list[str] = Field(default_factory=list)
+    calibration_corrupted_answer: str | None = None
+    calibration_flagged: bool | None = None
+
+
 class ExampleResult(BaseModel):
     """Résultat détaillé d'une question évaluée."""
 
@@ -45,6 +63,7 @@ class ExampleResult(BaseModel):
     generation: GenerationScores | None = None
     answerable: bool = True
     answer: str | None = None
+    verification: VerificationOutcome | None = None
     errors: list[str] = Field(default_factory=list)
 
 

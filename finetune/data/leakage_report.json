@@ -1,0 +1,20 @@
+{
+ "forbidden_entities_found": [],
+ "eval_relevant_substrings_found": [
+  "délai de 48 heures",
+  "manquement grave",
+  "tribunal de commerce de Lyon"
+ ],
+ "near_duplicate_questions_ratio_ge_0.8": [
+  [
+   "Pendant combien de temps la confidentialité survit-elle à la fin du contrat ?",
+   "Pendant combien de temps l'obligation de confidentialité perdure-t-elle après la fin du contrat ?",
+   0.84
+  ],
+  [
+   "Quel tribunal est compétent en cas de litige contractuel ?",
+   "Quel tribunal est compétent en cas de litige non résolu à l'amiable ?",
+   0.8
+  ]
+ ]
+}
