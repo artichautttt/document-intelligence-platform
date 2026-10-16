@@ -1,0 +1,26 @@
+# Secrets : jamais dans le contexte de build
+.env
+.env.*
+!.env.example
+
+# Environnements, caches et artefacts locaux
+.venv/
+venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.chroma/
+.idea/
+**/.idea/
+.git/
+
+# Donnees et rapports locaux (non versionnes)
+mlruns/
+rapport*.json
+*.pdf
+scratch_bench.txt
+finetune/adapter/

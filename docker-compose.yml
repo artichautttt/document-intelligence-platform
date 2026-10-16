@@ -1,3 +1,14 @@
+name: document-intelligence
+
+# Lancement complet : docker compose up --build
+#   api        http://localhost:8000  (docs : /docs)
+#   qdrant     http://localhost:6333
+#   prometheus http://localhost:9090
+#   grafana    http://localhost:3000  (admin / GRAFANA_ADMIN_PASSWORD)
+# Optionnel : docker compose --profile mlflow up  -> MLflow UI sur http://localhost:5000
+#
+# Variables : copier .env.example en .env (lu par compose pour l'interpolation).
+# Sans cle LLM, l'API demarre et /documents fonctionne ; /query repond 503.
 services:
   api:
     build:
@@ -6,39 +17,37 @@ services:
     ports:
       - "8000:8000"
     environment:
-      LOG_LEVEL: INFO
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       CHROMA_PERSIST_DIRECTORY: /data/.chroma
       VECTOR_STORE_BACKEND: ${VECTOR_STORE_BACKEND:-chroma}
       QDRANT_URL: http://qdrant:6333
+      RETRIEVAL_MODE: ${RETRIEVAL_MODE:-hybrid}
       # Fournisseur LLM : anthropic (defaut), openai ou mistral
       LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
       LLM_SYNTHESIS_MODEL: ${LLM_SYNTHESIS_MODEL:-}
+      LLM_INPUT_PRICE_PER_MTOK: ${LLM_INPUT_PRICE_PER_MTOK:-0}
+      LLM_OUTPUT_PRICE_PER_MTOK: ${LLM_OUTPUT_PRICE_PER_MTOK:-0}
       API_KEY: ${API_KEY:-}
     volumes:
       - chroma_data:/data/.chroma
     depends_on:
       - qdrant
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.19.2
     ports:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
 
-  # Monitoring (meme pattern que le Mini-SIEM) : Prometheus scrape
-  # api:8000/metrics/prometheus, Grafana provisionne la datasource et le
-  # dashboard "Pipeline RAG" (monitoring/grafana/).
+  # Monitoring : Prometheus scrape api:8000/metrics/prometheus, Grafana
+  # provisionne la datasource et le dashboard "Pipeline RAG" (monitoring/grafana/).
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.15.0
     ports:
       - "9090:9090"
     volumes:
@@ -48,7 +57,7 @@ services:
       - api
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.2.4
     ports:
       - "3000:3000"
     environment:
@@ -59,6 +68,21 @@ services:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
+
+  # UI MLflow sur les runs d'evaluation locaux (./mlruns, ecrit par
+  # `python -m document_intelligence.evaluation`). Hors demarrage par defaut.
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.16.1
+    profiles: ["mlflow"]
+    ports:
+      - "5000:5000"
+    command: mlflow ui --backend-store-uri file:///mlruns --host 0.0.0.0 --port 5000
+    environment:
+      # Le backend fichier est en mode maintenance depuis MLflow 3.x : meme
+      # deblocage que evaluation/tracking.py.
+      MLFLOW_ALLOW_FILE_STORE: "true"
+    volumes:
+      - ./mlruns:/mlruns
 
 volumes:
   chroma_data:
