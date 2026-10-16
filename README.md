@@ -825,7 +825,10 @@ Limites :
 - **lint** — `ruff check`, `ruff format --check`, puis `mypy --strict` (0 erreur).
 - **test** — `pytest` avec couverture, en matrice Python 3.11 et 3.12.
 - **docker-build** — build des images `ingestion` et `api` via Buildx, avec cache
-  de layers GitHub Actions ; ne démarre que si `lint` et `test` passent.
+  de layers GitHub Actions ; ne démarre que si `lint` et `test` passent. Puis
+  validation de `docker-compose.yml` (`docker compose config -q`) et test de
+  fumée de l'image `api` sans clé LLM : `/health` → 200, upload d'un PDF de
+  test → 201, `/query` → 503 attendu.
 
 ## Hors périmètre (à venir)
 

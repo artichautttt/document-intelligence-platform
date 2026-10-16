@@ -89,3 +89,23 @@ jobs:
           load: true
           cache-from: type=gha,scope=api
           cache-to: type=gha,mode=max,scope=api
+
+      - name: Validate docker-compose.yml
+        run: docker compose config -q
+
+      # Smoke test of the built API image, without any LLM key: health check,
+      # PDF upload (ingestion + embeddings + ChromaDB), and /query must answer 503.
+      - name: Smoke test api image
+        run: |
+          docker run -d --name api-smoke -p 8000:8000 document-intelligence-api:ci
+          trap 'docker logs api-smoke | tail -20; docker rm -f api-smoke >/dev/null' EXIT
+          for i in $(seq 1 30); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' api-smoke)" = healthy ] && break
+            sleep 2
+          done
+          curl -fsS http://localhost:8000/health
+          curl -fsS -F "file=@tests/fixtures/documents/financial_report.pdf" http://localhost:8000/documents
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' \
+            -d '{"query": "Quel est le chiffre d affaires ?", "k": 3}' http://localhost:8000/query)
+          echo "POST /query without LLM key -> $code"
+          test "$code" = 503
