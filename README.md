@@ -6,126 +6,219 @@
 [![Checked with mypy](https://img.shields.io/badge/mypy-strict-2a6db2)](https://mypy-lang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Plateforme d'analyse intelligente de documents d'entreprise (rapports financiers,
-contrats juridiques) basée sur une architecture RAG Multi-Agents.
+Plateforme RAG multi-agents pour interroger des documents d'entreprise (rapports
+financiers, contrats, audits) : API FastAPI, pipeline LangGraph, réponses
+citées et vérifiables, évaluation suivie dans MLflow, conteneurisée avec
+Docker Compose.
 
-## État du projet — Sprint 7
+## Problème
 
-- **Sprint 1** : `ingestion/` (parsing PDF/DOCX) et `chunking/` (découpage structurel).
-- **Sprint 2** : `vectorization/` — interface abstraite `VectorStore`, implémentation
-  ChromaDB (embeddings ONNX locaux, sans dépendance torch).
-- **Sprint 3** : `orchestration/` — pipeline d'agents routage → retrieval → synthèse
-  citée, construit comme une suite de nœuds `AgentState -> AgentState`
-  (`orchestration/nodes.py`). Interface abstraite `LLMClient` (même principe
-  que `VectorStore`).
-- **Sprint 4** : `api/` — API FastAPI exposant l'ingestion (`POST /documents`) et
-  la recherche/synthèse citée (`POST /query`) au-dessus des modules des sprints
-  précédents ; image Docker dédiée et `docker-compose.yml` ; CI GitHub Actions
-  (tests + build des images Docker).
-- **Sprint 5** :
-  - `orchestration/anthropic_client.py` — implémentation concrète de `LLMClient`
-    sur l'API Messages d'Anthropic ; `/query` répond désormais si
-    `ANTHROPIC_API_KEY` est configuré (sinon toujours `503`).
-  - `orchestration/graph.py` — le pipeline est maintenant un `StateGraph`
-    LangGraph dont les nœuds sont directement les fonctions de
-    `orchestration/nodes.py`, sans changement de logique métier.
-  - `vectorization/qdrant_store.py` — seconde implémentation de `VectorStore`
-    sur Qdrant (embeddings ONNX partagés avec ChromaDB) ; sélectionnable via
-    `VECTOR_STORE_BACKEND=qdrant`. Un service `qdrant` a été ajouté à
-    `docker-compose.yml`.
-  - Authentification par clé d'API (en-tête `X-API-Key`) sur `/documents` et
-    `/query`, activée en définissant `API_KEY` ; désactivée par défaut (mode
-    développement) si `API_KEY` n'est pas configuré. `/health` reste public.
+Retrouver une information précise dans des PDF et DOCX d'entreprise (un
+montant, une clause, une échéance) prend du temps, et un LLM interrogé seul
+invente facilement une réponse plausible. La plateforme :
 
-- **Sprint 6** — qualité et exploitation d'un pipeline LLM :
-  - `evaluation/` — évaluation RAG (retrieval + génération), voir *Évaluation*.
-  - `observability/` — tracing par étape, latence, tokens et coût, endpoint
-    `GET /metrics`, voir *Observabilité*.
-  - Synthèse en **sortie structurée** (function calling) avec prompt système
-    few-shot ; les citations sont désormais celles que le modèle déclare, et
-    non plus tous les chunks récupérés, voir *Prompting et sorties structurées*.
-  - `vectorization/hybrid_store.py` — retrieval hybride (dense + BM25 par
-    fusion RRF), activé par défaut (`RETRIEVAL_MODE=hybrid`).
-  - Export OpenTelemetry (compatible Langfuse) et métriques persistantes en
-    SQLite, voir *Observabilité*.
-  - Corpus d'évaluation étendu (63 questions), voir *Évaluation*.
+1. ingère les documents (PDF, DOCX), les découpe par section et les indexe
+   (ChromaDB ou Qdrant, recherche hybride dense + BM25) ;
+2. répond à une question **uniquement à partir des extraits retrouvés**, en
+   citant les passages utilisés, et **refuse de répondre** quand les documents
+   ne contiennent pas l'information ;
+3. mesure ce comportement (faithfulness, précision des citations, refus,
+   coût) sur un jeu de 63 questions, et le surveille en production
+   (Prometheus + Grafana).
 
-- **Sprint 7** :
-  - Clients **OpenAI** et **Mistral** en plus d'Anthropic, derrière la même
-    interface `LLMClient` ; choix par `LLM_PROVIDER`, voir *Fournisseurs LLM*.
-  - **Agent de vérification CrewAI** inséré dans le graphe LangGraph :
-    vérifie la réponse contre les extraits et déclenche une régénération si
-    elle n'est pas fondée, voir *Agent de vérification*.
-  - **Monitoring Prometheus + Grafana** (latence, taux de refus, coût par
-    requête), voir *Monitoring*.
+## Démo
 
-## Installation
+<!-- Remplacer par la capture ou la vidéo (2 min), par exemple :
+![Démo](docs/demo.gif)
+ou [Vidéo de démonstration (2 min)](https://...) -->
+> Emplacement réservé : capture d'écran ou vidéo de démonstration (2 min), à ajouter.
+
+## Architecture
+
+```
+                 ┌──────────────────────── docker compose ────────────────────────┐
+  client HTTP    │                                                                │
+ (curl, /docs) ──┼─► api (FastAPI, :8000)                                         │
+                 │     POST /documents : ingestion PDF/DOCX → chunking par section│
+                 │                       → embeddings ONNX locaux → vector store  │
+                 │     POST /query     : graphe LangGraph                         │
+                 │                       route → retrieve (dense + BM25, RRF)     │
+                 │                       → synthesize (LLM, sortie structurée,    │
+                 │                         citations) → [verify CrewAI, optionnel]│
+                 │     GET /metrics/prometheus                                    │
+                 │        │                    │                                  │
+                 │        │ vector store       │ appel LLM (si clé configurée)    │
+                 │        ▼                    ▼                                  │
+                 │   ChromaDB embarqué    API Anthropic / OpenAI / Mistral        │
+                 │   (volume chroma_data)  (hors compose)                         │
+                 │   ou qdrant (:6333)                                            │
+                 │                                                                │
+                 │   prometheus (:9090) ──scrape──► api                           │
+                 │   grafana (:3000) ──► prometheus (dashboard « Pipeline RAG »)  │
+                 │   mlflow (:5000, profil optionnel) ──► ./mlruns (évaluations)  │
+                 └────────────────────────────────────────────────────────────────┘
+```
+
+## Lancement en une commande
+
+Prérequis : Docker avec Docker Compose. Aucune installation Python n'est
+nécessaire.
+
+```bash
+cp .env.example .env          # optionnel : y mettre ANTHROPIC_API_KEY pour activer /query
+docker compose up --build
+```
+
+| Service | URL | Rôle |
+|---|---|---|
+| `api` | http://localhost:8000 (doc interactive : `/docs`) | API FastAPI |
+| `qdrant` | http://localhost:6333 | vector store dédié (`VECTOR_STORE_BACKEND=qdrant`) |
+| `prometheus` | http://localhost:9090 | collecte des métriques de l'API |
+| `grafana` | http://localhost:3000 (admin / `GRAFANA_ADMIN_PASSWORD`, `admin` par défaut) | dashboard « Pipeline RAG » |
+| `mlflow` (optionnel) | http://localhost:5000 | runs d'évaluation de `./mlruns` : `docker compose --profile mlflow up` |
+
+### Ce qui marche sans clé API, et ce qui en exige une
+
+Vérifié le 2026-10-16 avec `docker compose up --build` (Docker Desktop, Windows) :
+
+| Fonction | Sans clé | Avec `ANTHROPIC_API_KEY` |
+|---|---|---|
+| démarrage des 4 services, `GET /health`, `/docs` | ✅ | ✅ |
+| `POST /documents` (ingestion + indexation, ChromaDB ou Qdrant) | ✅ (modèle d'embedding inclus dans l'image) | ✅ |
+| `POST /query` (réponse citée) | ❌ `503` « Aucun fournisseur LLM n'est configuré » | ✅ `200` |
+| métriques Prometheus, cible scrapée, dashboard Grafana | ✅ | ✅ |
+| UI MLflow (profil `mlflow`) | ✅ | ✅ |
+
+Seule la synthèse de réponse appelle un LLM. Avec `LLM_PROVIDER=openai` ou
+`mistral`, c'est la clé du fournisseur choisi qui est requise (ces deux
+fournisseurs n'ont été testés que sur API simulée, voir plus bas).
+
+### Exemples d'appel
+
+Réponses réelles obtenues pendant la vérification, avec les documents de test
+de `tests/fixtures/documents/` :
+
+```bash
+curl -F "file=@tests/fixtures/documents/financial_report.pdf" http://localhost:8000/documents
+# 201 {"document_id":"4e8ccef8-dbdb-4dca-b7c7-d0125bfa8abe","chunk_count":6}
+
+curl -H "Content-Type: application/json" \
+     -d '{"query": "Quel est le chiffre d affaires du trimestre ?", "k": 5}' \
+     http://localhost:8000/query
+# sans clé : 503 {"detail":"Aucun fournisseur LLM n'est configuré sur ce déploiement."}
+# avec clé (claude-sonnet-5, 2.9 s, 2 285 tokens d'entrée / 228 de sortie) : 200
+# {"query": "...", "answer": "Les chiffres d'affaires trimestriels sont les suivants :
+#   Q1 = 10 800 k€ (marge 17,1%), Q2 = 11 950 k€ (marge 18,0%), Q3 = 12 400 k€
+#   (marge 18,9%), Q4 = 13 050 k€ (marge 19,5%).",
+#  "citations": [1 extrait cité], "sufficient_context": true, ...}
+# (la réponse contient aussi les champs "verified" et "regenerations")
+```
+
+Si `API_KEY` est défini, `/documents`, `/query` et `/metrics` exigent l'en-tête
+`X-API-Key: <valeur>`. `/health` reste public.
+
+## Résultats
+
+Uniquement des chiffres présents dans les rapports d'évaluation et les runs
+MLflow du dépôt de développement (`rapport_*.json` et `mlruns/`, non
+versionnés car locaux). 63 questions, k=5, retrieval hybride, juge
+`claude-sonnet-5`. Un run par configuration.
+
+**Fine-tuning LoRA de la synthèse** (Qwen2.5-0.5B-Instruct, CPU) :
+
+| Métrique | Qwen 0.5B base | Qwen 0.5B + LoRA |
+|---|---|---|
+| faithfulness | 0,29 | **0,84** |
+| citation precision | 0 | **0,87** |
+| refus sur questions sans réponse | 0 / 8 | **7 / 8** |
+| refus injustifiés (passage pourtant retrouvé) | 0,04 | 0,37 (dégradation) |
+
+Sources : `rapport_ft_base.json` / run MLflow `ec0f1756` ; `rapport_ft_lora.json`
+/ run MLflow `602925de`. Un premier run LoRA sur les mêmes 63 questions
+(`a88e4f12`) avait donné faithfulness 0,89 et citation precision 0,73 ; le
+tableau reprend le dernier run, celui dont le rapport est conservé.
+
+**Coût de la synthèse : Sonnet vs Haiku** :
+
+| | `claude-sonnet-5` | `claude-haiku-4-5` |
+|---|---|---|
+| coût de synthèse (63 questions) | 0,390 $ | **0,173 $** (−55,6 %) |
+| faithfulness | 0,977 | 0,994 |
+| citation precision | 0,966 | 0,967 |
+| refus sur questions sans réponse | 8 / 8 | 8 / 8 |
+
+Sources : runs MLflow `49b36005` (Sonnet) et `184ffba6` (Haiku), métrique
+`cost_actual_usd_synthesis`.
+
+Détails, limites et autres mesures (retrieval, agent de vérification) : voir
+*Évaluation*, *Agent de vérification* et *Fine-tuning LoRA* plus bas.
+
+## Qualité
+
+Mesuré le 2026-10-16 (Python 3.11, Windows) :
+
+- `pytest --collect-only -q` : **187 tests** ;
+- `pytest --cov=document_intelligence` : **186 passés, 1 ignoré**, couverture
+  **90 %** (1 965 instructions, 187 non couvertes) ;
+- `ruff check`, `ruff format --check`, `mypy` (strict) : exécutés en CI, voir *CI/CD*.
+
+```bash
+uv sync --all-groups
+uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pytest --cov=document_intelligence
+```
+
+## Structure du dépôt
+
+```
+.
+├── src/document_intelligence/
+│   ├── api/             # FastAPI : /documents, /query, /metrics, /health
+│   ├── ingestion/       # parsing PDF (unstructured + pdfplumber) et DOCX (unstructured)
+│   ├── chunking/        # découpage par section
+│   ├── vectorization/   # VectorStore : ChromaDB, Qdrant, hybride dense + BM25
+│   ├── orchestration/   # graphe LangGraph, clients LLM, tiering, cache, coût, vérificateur CrewAI
+│   ├── evaluation/      # évaluation RAG, jeu de 63 questions (golden/), suivi MLflow
+│   ├── observability/   # tracing, métriques, Prometheus, OpenTelemetry
+│   └── core/            # configuration (variables d'environnement), logs
+├── tests/               # 187 tests pytest, documents de test dans fixtures/
+├── finetune/            # expérience LoRA : jeu de distillation et entraînement
+├── monitoring/          # config Prometheus, provisioning et dashboard Grafana
+├── docker/              # Dockerfiles de l'API et de l'ingestion
+├── docker-compose.yml   # api, qdrant, prometheus, grafana (+ mlflow en profil)
+├── .env.example         # toutes les variables lues par le code, sans valeur secrète
+└── .github/workflows/   # CI : lint, mypy strict, tests 3.11/3.12, build Docker
+```
+
+## Développement local (sans Docker)
 
 ```bash
 uv sync                  # cœur + outils de dev
 uv sync --all-groups     # + mlflow, otel, agents (CrewAI)
+uv run uvicorn document_intelligence.api.app:app --reload
 ```
 
-## Qualité
-
-```bash
-uv run ruff check .        # lint
-uv run ruff format --check .  # formatage
-uv run mypy               # typage strict
-uv run pytest            # tests (186 passés, 1 skip au 2026-10-09)
-```
-
-Ces quatre commandes sont exécutées en CI sur chaque push/PR (voir *CI/CD*).
-
-## Utilisation
+Utilisation en bibliothèque :
 
 ```python
 from document_intelligence.ingestion.service import ingest
 from document_intelligence.chunking.service import chunk_document
 from document_intelligence.vectorization.chroma_store import ChromaStore
-
-document = ingest("rapport.pdf")
-chunks = chunk_document(document)
-
-store = ChromaStore()
-store.add_chunks(chunks)
-
-for result in store.query("resultats financiers du trimestre", k=3):
-    print(result.score, result.provenance.element_ids, result.text[:80])
-```
-
-Orchestration (avec le client Anthropic, ou toute autre implémentation de `LLMClient`) :
-
-```python
 from document_intelligence.orchestration.anthropic_client import AnthropicLLMClient
 from document_intelligence.orchestration.graph import answer_query
 
-llm = AnthropicLLMClient(api_key="sk-ant-...")
+store = ChromaStore()
+store.add_chunks(chunk_document(ingest("rapport.pdf")))
 answer = answer_query(
-    "Quels sont les resultats financiers du trimestre ?", store=store, llm=llm
+    "Quels sont les resultats financiers du trimestre ?",
+    store=store,
+    llm=AnthropicLLMClient(api_key="sk-ant-..."),
 )
-print(answer.answer)
-for citation in answer.citations:
-    print(citation.chunk_id, citation.provenance.element_ids)
+print(answer.answer, [c.chunk_id for c in answer.citations])
 ```
 
-## API
+---
 
-```bash
-uv run uvicorn document_intelligence.api.app:app --reload
-```
-
-- `GET /health` — sonde de disponibilité (publique, sans clé d'API).
-- `POST /documents` — upload multipart d'un fichier PDF/DOCX ; ingestion, chunking
-  et vectorisation, retourne `{document_id, chunk_count}`.
-- `POST /query` — `{"query": "...", "k": 5}` ; exécute le pipeline d'orchestration
-  et retourne la réponse citée. Répond `503` tant qu'aucun `LLMClient` concret
-  n'est configuré (`ANTHROPIC_API_KEY` non défini, ou `create_app(llm=...)`
-  explicitement à `None`).
-
-`/documents` et `/query` exigent l'en-tête `X-API-Key: <valeur>` dès que
-`API_KEY` est défini dans l'environnement ; sinon (mode développement),
-aucune authentification n'est requise.
+# Détails techniques
 
 ## Prompting et sorties structurées
 
@@ -680,7 +773,7 @@ Limites :
 - Si `API_KEY` est défini, `/metrics/prometheus` exige `X-API-Key`. La config
   Prometheus fournie ne l'envoie pas : laisser `API_KEY` vide ou ajouter
   l'en-tête au scrape.
-- Images `latest` (pas de version épinglée), pas d'Alertmanager ni de règles
+- Pas d'Alertmanager ni de règles
   d'alerte (contrairement au Mini-SIEM), compose seulement (pas de manifests K8s).
 - Seules les requêtes de l'API sont mesurées : l'évaluation CLI n'alimente pas
   ces métriques de requête.
@@ -688,16 +781,42 @@ Limites :
 ## Docker
 
 ```bash
-docker build -f docker/ingestion.Dockerfile -t document-intelligence-ingestion .
-docker build -f docker/api.Dockerfile -t document-intelligence-api .
-docker compose up --build
+docker compose up --build                     # api, qdrant, prometheus, grafana
+docker compose --profile mlflow up -d mlflow  # + UI MLflow sur ./mlruns
 ```
 
-`docker-compose.yml` définit quatre services : `api`, `qdrant`, `prometheus`
-et `grafana` (voir *Monitoring*). Par
-défaut `api` utilise toujours ChromaDB embarqué (`VECTOR_STORE_BACKEND=chroma`) ;
-passer `VECTOR_STORE_BACKEND=qdrant` bascule sur le service `qdrant` sans
-changer le contrat `VectorStore`.
+`docker/api.Dockerfile` :
+
+- **deux étages** : le premier installe les dépendances figées par `uv.lock`
+  (`uv sync --frozen --no-dev`, sans les groupes `agents`, `mlflow`, `otel`) ;
+  le second ne reçoit que le virtualenv, sans uv ni cache de build ;
+- **utilisateur non root** (`app`, uid 1000) ;
+- **modèle d'embedding inclus** (all-MiniLM-L6-v2 ONNX, ~90 Mo) : l'upload
+  fonctionne sans accès réseau (vérifié avec `docker run --network none`) ;
+- `HEALTHCHECK` sur `/health` ; `.dockerignore` exclut `.env`, les venvs, les
+  caches, `mlruns/` et les rapports locaux du contexte de build.
+
+Taille mesurée : 1,64 Go, contre 1,57 Go pour l'ancienne image à un étage.
+L'écart vient du modèle désormais inclus (l'ancienne image le téléchargeait au
+premier upload). Le gros du poids vient des dépendances de `unstructured` et
+`chromadb` (spacy, llvmlite, kubernetes...).
+
+Images des autres services épinglées : `qdrant/qdrant:v1.19.2`,
+`prom/prometheus:v3.15.0`, `grafana/grafana:13.2.4`,
+`ghcr.io/mlflow/mlflow:v3.16.1`. Par défaut `api` utilise ChromaDB embarqué
+(volume `chroma_data`) ; `VECTOR_STORE_BACKEND=qdrant` bascule sur le service
+`qdrant` sans changer le contrat `VectorStore` (vérifié : 6 chunks indexés
+dans la collection `document_chunks`).
+
+Limites :
+
+- le groupe `agents` (CrewAI) n'est pas installé dans l'image :
+  `ANSWER_VERIFICATION=crewai` n'y fonctionne pas en l'état ;
+- l'UI MLflow lit les métriques et paramètres des runs ; les artefacts
+  enregistrés avec un chemin absolu Windows ne sont pas lisibles depuis le
+  conteneur ;
+- `docker/ingestion.Dockerfile` (image de bibliothèque, sans service) n'a pas
+  été modifié.
 
 ## CI/CD
 
