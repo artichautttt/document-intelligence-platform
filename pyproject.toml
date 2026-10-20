@@ -21,6 +21,7 @@ dependencies = [
     "openai>=1.50",
     "mistralai>=1.2",
     "prometheus-client>=0.20",
+    "pyyaml>=6.0",
 ]
 
 [dependency-groups]
@@ -70,6 +71,11 @@ packages = ["document_intelligence"]
 # Dépendances de l'expérience de fine-tuning, hors lock (finetune/requirements.txt).
 [[tool.mypy.overrides]]
 module = ["torch", "torch.*", "transformers", "transformers.*", "peft", "peft.*"]
+ignore_missing_imports = true
+
+# PyYAML ne fournit pas de stubs ; seul `yaml.safe_load` est utilisé (rubriques).
+[[tool.mypy.overrides]]
+module = ["yaml"]
 ignore_missing_imports = true
 
 [build-system]
