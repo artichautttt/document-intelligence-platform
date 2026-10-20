@@ -504,8 +504,10 @@ critères notés 0, 1 ou 2, avec une ancre écrite par niveau.
 
 **Juge** (`evaluation/rubric_judge.py`) : il reçoit la question, la réponse,
 les chunks récupérés (marqués s'ils sont cités) et la rubrique, puis rend une
-note et une justification courte par critère. Sortie par appel d'outil forcé,
-schéma dérivé de la rubrique, validation Pydantic stricte. Une sortie invalide
+note et une justification courte par critère. Sortie par appel d'outil forcé
+en mode `strict` (schéma dérivé de la rubrique ; côté API, notes en `enum`
+0/1/2 et sans contrainte de longueur, refusées par ce mode), puis validation
+Pydantic stricte côté client, contraintes comprises. Une sortie invalide
 est retentée une fois puis lève une erreur : aucune note par défaut. Pas de
 cache, pour que chaque passe interroge réellement le modèle. Tokens, coût
 estimé et latence sont relevés par appel. Modèle : `RUBRIC_JUDGE_MODEL`
@@ -534,10 +536,23 @@ uv run python scripts/judge_reliability.py
   sur quelques items et affiche chaque tentative : sortie brute, `stop_reason`,
   tokens, erreur de validation.
 
-**Statut (2026-10-20) : la mesure de fiabilité n'a pas encore été exécutée**,
-faute de crédit API. Une première exécution s'est arrêtée sur l'épuisement du
-crédit, sans résultat exploitable. Aucun chiffre de stabilité ou de fiabilité
-n'est donc publié ici.
+**Statut (2026-10-20) : la mesure de fiabilité n'a pas encore été exécutée.**
+Une première exécution s'est arrêtée sur l'épuisement du crédit API, sans
+résultat exploitable. Aucun chiffre de stabilité ou de fiabilité n'est donc
+publié ici.
+
+**Correction du juge avant la mesure.** Lors de cette première exécution,
+`claude-sonnet-5` a rendu des verdicts invalides. Un diagnostic sur les 5
+items concernés, avant correction, a montré **8 tentatives invalides sur 9** :
+
+- 6 tentatives contenaient un verdict complet, mais placé sous une clé
+  inventée (`score`, `verdict`, `answer`) ;
+- 2 tentatives ne contenaient qu'un champ de remplissage (`"placeholder"`).
+
+La cause n'a pas été établie. Correction : mode `strict` sur l'outil.
+Après correction, le même diagnostic a donné 5 verdicts valides sur 5, en
+une tentative chacun. C'est un seul rejeu de 5 items : il ne prouve pas que
+les échecs ont disparu. Le taux d'échec de la mesure complète le dira.
 
 1. **Échantillon stratifié** (graine 0) : les 8 questions sans réponse
    possible sont toutes gardées, ce sont les seules qui testent un refus

@@ -5,9 +5,10 @@ La rubrique (`rubrics/rag_answer_v1.yaml`) définit des critères notés 0, 1 ou
 les chunks récupérés (marqués s'ils sont cités) et la rubrique, puis rend un
 verdict structuré : une note et une courte justification par critère.
 
-- **Sortie structurée** : appel d'outil forcé dont le schéma est construit à
-  partir de la rubrique (un champ par critère, champs inconnus refusés), puis
-  validation Pydantic stricte (une note `"2"` ou `true` est refusée).
+- **Sortie structurée** : appel d'outil forcé en mode `strict` dont le schéma
+  est construit à partir de la rubrique (un champ par critère, champs inconnus
+  refusés ; notes en `enum` 0/1/2 côté API), puis validation Pydantic stricte
+  côté client (une note `"2"` ou `true` est refusée, longueurs vérifiées).
 - **Température 0** quand le modèle l'accepte. `claude-sonnet-5` (comme les
   modèles Anthropic les plus récents) refuse `temperature` (400) : elle n'est
   alors pas envoyée, et la valeur effective est consignée.
@@ -249,6 +250,57 @@ def build_judge_prompt(item: RubricInput, rubric: Rubric) -> str:
     )
 
 
+_STRICT_UNSUPPORTED_KEYS = frozenset(
+    {
+        "minimum",
+        "maximum",
+        "exclusiveMinimum",
+        "exclusiveMaximum",
+        "multipleOf",
+        "minLength",
+        "maxLength",
+    }
+)
+
+
+def strict_tool_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Schéma envoyé à l'API pour l'outil en mode `strict`.
+
+    Le mode strict n'accepte pas les contraintes numériques ni de longueur :
+    un entier borné devient un `enum` de ses valeurs (0, 1, 2), les longueurs
+    de chaîne sont retirées, et les `$ref` locaux sont remplacés par leur
+    définition. Ces contraintes restent vérifiées côté client par Pydantic.
+    """
+    definitions: dict[str, Any] = schema.get("$defs", {})
+
+    def convert(node: Any) -> Any:
+        if isinstance(node, list):
+            return [convert(item) for item in node]
+        if not isinstance(node, dict):
+            return node
+        if "$ref" in node:
+            name = str(node["$ref"]).removeprefix("#/$defs/")
+            siblings = {k: v for k, v in node.items() if k != "$ref"}
+            return convert({**definitions[name], **siblings})
+        converted = {
+            key: convert(value)
+            for key, value in node.items()
+            if key != "$defs" and key not in _STRICT_UNSUPPORTED_KEYS
+        }
+        if (
+            node.get("type") == "integer"
+            and isinstance(node.get("minimum"), int)
+            and isinstance(node.get("maximum"), int)
+        ):
+            converted["enum"] = list(range(node["minimum"], node["maximum"] + 1))
+        return converted
+
+    result = convert(schema)
+    if not isinstance(result, dict):  # pragma: no cover
+        raise TypeError("schéma JSON inattendu")
+    return result
+
+
 def judge_temperature(model: str) -> float | None:
     """Température envoyée au modèle ; `None` si le modèle refuse ce paramètre."""
     return None if model in SAMPLING_UNSUPPORTED_MODELS else JUDGE_TEMPERATURE
@@ -315,7 +367,9 @@ class RubricJudgeClient(AnthropicLLMClient):
                     {
                         "name": STRUCTURED_TOOL_NAME,
                         "description": STRUCTURED_TOOL_DESCRIPTION,
-                        "input_schema": schema.model_json_schema(),
+                        "input_schema": strict_tool_schema(schema.model_json_schema()),
+                        # Arguments contraints au schéma par l'API (strict tool use).
+                        "strict": True,
                     }
                 ],
                 tool_choice={"type": "tool", "name": STRUCTURED_TOOL_NAME},

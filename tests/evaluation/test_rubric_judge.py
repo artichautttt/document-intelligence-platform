@@ -23,6 +23,7 @@ from document_intelligence.evaluation.rubric_judge import (
     RubricJudgeError,
     build_judge_prompt,
     load_rubric,
+    strict_tool_schema,
     verdict_schema,
 )
 from document_intelligence.orchestration.cost import CostLedger
@@ -179,6 +180,52 @@ class TestPromptAndSchema:
         schema = verdict_schema(load_rubric()).model_json_schema()
         assert schema["required"] == CRITERIA
         assert schema["additionalProperties"] is False
+
+    def test_strict_api_schema_is_strict_compatible_and_same_structure(self) -> None:
+        api_schema = strict_tool_schema(
+            verdict_schema(load_rubric()).model_json_schema()
+        )
+        serialized = json.dumps(api_schema)
+        # Mots-clés refusés par le mode strict, et aucune référence à résoudre.
+        for keyword in (
+            "minimum",
+            "maximum",
+            "minLength",
+            "maxLength",
+            "$ref",
+            "$defs",
+        ):
+            assert f'"{keyword}"' not in serialized
+        assert api_schema["required"] == CRITERIA
+        assert api_schema["additionalProperties"] is False
+        for criterion in CRITERIA:
+            node = api_schema["properties"][criterion]
+            assert node["type"] == "object"
+            assert node["additionalProperties"] is False
+            assert node["required"] == ["score", "justification"]
+            assert node["properties"]["score"]["type"] == "integer"
+            assert node["properties"]["score"]["enum"] == [0, 1, 2]
+            assert node["properties"]["justification"]["type"] == "string"
+        assert api_schema["properties"]["exactitude"]["description"] == "Exactitude"
+
+    def test_strict_conversion_handles_refs_lists_and_scalars(self) -> None:
+        schema = {
+            "$defs": {"N": {"type": "integer", "minimum": 1, "maximum": 3}},
+            "type": "object",
+            "properties": {
+                "n": {"$ref": "#/$defs/N", "description": "d"},
+                "s": {"type": "string", "minLength": 2},
+                "a": {"anyOf": [{"type": "integer", "minimum": 0}, {"type": "null"}]},
+            },
+        }
+        assert strict_tool_schema(schema) == {
+            "type": "object",
+            "properties": {
+                "n": {"type": "integer", "description": "d", "enum": [1, 2, 3]},
+                "s": {"type": "string"},
+                "a": {"anyOf": [{"type": "integer"}, {"type": "null"}]},
+            },
+        }
 
 
 class TestRubricJudge:
@@ -340,6 +387,24 @@ class TestRubricJudgeClient:
     def test_temperature_omitted_when_model_rejects_it(self) -> None:
         kwargs = self._create_kwargs("claude-sonnet-5")
         assert kwargs["extra_body"] is None
+
+    @pytest.mark.parametrize("model", ["claude-sonnet-5", "claude-haiku-4-5"])
+    def test_tool_is_strict_with_api_schema_and_still_forced(self, model: str) -> None:
+        kwargs = self._create_kwargs(model)
+        [tool] = kwargs["tools"]
+        assert tool["strict"] is True
+        assert tool["input_schema"] == strict_tool_schema(
+            verdict_schema(load_rubric()).model_json_schema()
+        )
+        assert kwargs["tool_choice"] == {"type": "tool", "name": "submit_answer"}
+
+    def test_client_side_validation_is_unchanged_by_strict_mode(self) -> None:
+        # L'API applique le schéma assoupli ; Pydantic garde ses contraintes.
+        too_long = _verdict(exactitude={"score": 2, "justification": "x" * 1001})
+        judge, _ = _judge([response(too_long), response(too_long)])
+        with pytest.raises(RubricJudgeError) as error:
+            judge.judge(ITEM)
+        assert "at most 1000" in (error.value.attempts[0].validation_error or "")
 
     def test_raw_output_serializes_every_sdk_block(self) -> None:
         client = RubricJudgeClient("fake-key", "claude-sonnet-5")
