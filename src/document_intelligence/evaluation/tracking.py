@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_TRACKING_URI = "file:./mlruns"
 _EXPERIMENT_NAME = "rag-evaluation"
+_RELIABILITY_EXPERIMENT_NAME = "rag-judge-reliability"
 
 
 def log_evaluation_run(
@@ -94,6 +95,45 @@ def _log_run(
             mlflow.log_artifact(str(report_path))
         else:
             _log_report_as_temp_artifact(report)
+
+
+def log_reliability_run(
+    *,
+    params: dict[str, str | int | float],
+    metrics: dict[str, float],
+    artifacts: list[Path],
+) -> bool:
+    """Enregistre une mesure de fiabilité du juge par rubrique ; ne lève jamais.
+
+    Un run par modèle juge, dans l'expérience `rag-judge-reliability`. Les
+    métriques non calculables ne figurent pas dans `metrics` (rien n'est
+    substitué) : elles restent visibles comme `null` dans le rapport JSON.
+
+    Returns:
+        `True` si le run a été écrit, `False` sinon (mlflow absent ou échec).
+    """
+    if importlib.util.find_spec("mlflow") is None:
+        logger.warning(
+            "mlflow n'est pas installé (groupe optionnel `mlflow`) : run non tracé."
+        )
+        return False
+    try:
+        os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
+        import mlflow
+
+        mlflow.set_tracking_uri(
+            os.environ.get("MLFLOW_TRACKING_URI", _DEFAULT_TRACKING_URI)
+        )
+        mlflow.set_experiment(_RELIABILITY_EXPERIMENT_NAME)
+        with mlflow.start_run():
+            mlflow.log_params(params)
+            mlflow.log_metrics(metrics)
+            for artifact in artifacts:
+                mlflow.log_artifact(str(artifact))
+    except Exception:
+        logger.warning("échec du tracking MLflow ; la mesure continue.", exc_info=True)
+        return False
+    return True
 
 
 def _log_report_as_temp_artifact(report: EvaluationReport) -> None:

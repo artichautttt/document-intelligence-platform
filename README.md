@@ -485,6 +485,104 @@ Sonnet ; basculer se fait avec `LLM_SYNTHESIS_MODEL=claude-haiku-4-5`.
 - Le juge reste Sonnet. Dans le run baseline il juge ses propres réponses, ce
   qui tend à le favoriser : le résultat Haiku n'est donc pas gonflé par ce biais.
 
+## Évaluation par rubrique et fiabilité du juge
+
+Objectif : noter les réponses selon une rubrique explicite, puis mesurer si le
+LLM-juge est stable d'une passe à l'autre et s'il s'accorde avec des notes
+manuelles, au lieu de supposer qu'il est fiable.
+
+**Rubrique** (`evaluation/rubrics/rag_answer_v1.yaml`, versionnée) : cinq
+critères notés 0, 1 ou 2, avec une ancre écrite par niveau.
+
+| Critère | Ce qui est noté |
+|---|---|
+| `sources_verifiables` | chaque affirmation clé est citée et traçable à un chunk |
+| `exactitude` | cohérence avec les chunks récupérés |
+| `absence_hallucination` | aucune information absente du contexte |
+| `refus_justifie` | refuse quand le contexte est insuffisant, ne refuse pas à tort |
+| `concision_formalisme` | réponse concise, ton formel et professionnel |
+
+**Juge** (`evaluation/rubric_judge.py`) : il reçoit la question, la réponse,
+les chunks récupérés (marqués s'ils sont cités) et la rubrique, puis rend une
+note et une justification courte par critère. Sortie par appel d'outil forcé,
+schéma dérivé de la rubrique, validation Pydantic stricte. Une sortie invalide
+est retentée une fois puis lève une erreur : aucune note par défaut. Pas de
+cache, pour que chaque passe interroge réellement le modèle. Tokens, coût
+estimé et latence sont relevés par appel. Modèle : `RUBRIC_JUDGE_MODEL`
+(sinon `LLM_JUDGE_MODEL`, sinon `ANTHROPIC_MODEL`) ; Anthropic uniquement.
+**Température 0 quand le modèle l'accepte** : vérifié par une requête réelle
+le 2026-10-20, `claude-haiku-4-5` accepte `temperature=0` et `claude-sonnet-5`
+la refuse (400, « `temperature` is deprecated for this model »). Pour Sonnet 5,
+elle n'est donc pas envoyée, et le rapport l'indique. Le SDK `anthropic` 1.x
+n'exposant plus ce paramètre, il est transmis par `extra_body`.
+
+**Protocole** :
+
+```bash
+# 1. Échantillon de 30 réponses, généré par le pipeline réel (synthèse = LLM_SYNTHESIS_MODEL)
+uv run python scripts/export_annotation_sample.py
+# 2. Annoter à la main annotations/rag_answer_v1/annotations.csv (colonnes de critères)
+# 3. Une fois le CSV complet : juges, stabilité, fiabilité, MLflow
+uv run python scripts/judge_reliability.py
+```
+
+- `--resume` : chaque évaluation est écrite dans `reliability_raw.json` dès
+  qu'elle se termine (tentatives et sorties brutes comprises). Après une
+  erreur d'API, `--resume` saute les évaluations réussies, qui ne sont donc
+  pas repayées.
+- `scripts/diagnose_judge.py --judge <modèle> --ids <id>...` rejoue le juge
+  sur quelques items et affiche chaque tentative : sortie brute, `stop_reason`,
+  tokens, erreur de validation.
+
+**Statut (2026-10-20) : la mesure de fiabilité n'a pas encore été exécutée**,
+faute de crédit API. Une première exécution s'est arrêtée sur l'épuisement du
+crédit, sans résultat exploitable. Aucun chiffre de stabilité ou de fiabilité
+n'est donc publié ici.
+
+1. **Échantillon stratifié** (graine 0) : les 8 questions sans réponse
+   possible sont toutes gardées, ce sont les seules qui testent un refus
+   justifié. Les 22 autres sont tirées parmi les 55 répondables, au prorata
+   de chaque fichier (5 de `fixtures_qa`, 17 de `extended_qa`). Les questions
+   sans réponse sont donc surreprésentées (8/30 contre 8/63).
+2. **Annotation en aveugle** : le CSV contient id, question, réponse et
+   chunks (cités marqués `[CITÉ]`), et aucune note de juge. Les notes sont
+   faites avant toute exécution du juge. Le juge lit `sample.json`, et non le
+   CSV : un tableur ne peut donc pas altérer ce qu'il juge.
+3. **Juges** : `claude-sonnet-5` et `claude-haiku-4-5` (`--judges`), 3 passes
+   chacun sur les 30 réponses.
+4. **Stabilité**, par critère : part des réponses notées à l'identique par les
+   3 passes, et kappa pondéré quadratique moyen sur les 3 paires de passes.
+5. **Fiabilité**, par critère : note médiane des 3 passes comparée aux notes
+   manuelles, en accord exact, kappa pondéré quadratique et Spearman, avec un
+   IC bootstrap percentile à 95 % (2 000 rééchantillons, graine 0).
+6. **Coût et latence** moyens par évaluation, par juge.
+7. **MLflow** : un run par juge dans l'expérience `rag-judge-reliability`.
+   En paramètres : modèle juge, température, version de rubrique, N, graines.
+   En métriques : les mesures ci-dessus, dont le taux d'échec du juge. En
+   artefacts : le CSV annoté, les résultats bruts (toutes les tentatives) et le
+   rapport JSON.
+   Un échec du tracking n'interrompt rien.
+
+Une métrique non définie (variance nulle, par exemple un critère noté 2
+partout) est affichée « non calculable » et vaut `null` dans le rapport.
+Les rééchantillons bootstrap où elle n'est pas définie sont écartés et
+comptés.
+
+Limites, à lire avant tout chiffre :
+
+- **Un seul annotateur**, qui est aussi l'auteur du système : pas d'accord
+  inter-annotateurs, donc aucun plafond de référence pour l'accord humain-juge.
+- **N = 30**, dont 8 questions sans réponse : les IC bootstrap sont larges,
+  et un kappa peut devenir non calculable si un critère varie peu.
+- **Un run par configuration** (3 passes, une seule génération des réponses) :
+  la variabilité de la synthèse n'est pas mesurée.
+- **Pas de test de significativité** : comparer Sonnet et Haiku sur ces
+  chiffres ne permet pas de conclure qu'un juge est meilleur.
+- La température 0 n'est pas appliquée à `claude-sonnet-5`, donc la stabilité
+  des deux juges n'est pas mesurée dans les mêmes conditions.
+- Le juge, le générateur et l'enseignant du fine-tuning sont de la même
+  famille de modèles (Claude) : leurs biais peuvent être communs.
+
 ## Agent de vérification (CrewAI)
 
 Après la synthèse, un agent CrewAI « vérificateur de faits » reçoit la
