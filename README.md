@@ -9,7 +9,10 @@
 Plateforme RAG multi-agents pour interroger des documents d'entreprise (rapports
 financiers, contrats, audits) : API FastAPI, pipeline LangGraph, réponses
 citées et vérifiables, évaluation suivie dans MLflow, conteneurisée avec
-Docker Compose.
+Docker Compose. Également : serveur MCP (SDK officiel), backend LangChain
+interchangeable avec LangGraph, agent à tool calling natif et garde-fous
+contre la prompt injection (désactivés par défaut), chacun mesuré avec ses
+limites plus bas.
 
 ## Problème
 
@@ -150,16 +153,23 @@ tableau reprend le dernier run, celui dont le rapport est conservé.
 Sources : runs MLflow `49b36005` (Sonnet) et `184ffba6` (Haiku), métrique
 `cost_actual_usd_synthesis`.
 
-Détails, limites et autres mesures (retrieval, agent de vérification) : voir
-*Évaluation*, *Agent de vérification* et *Fine-tuning LoRA* plus bas.
+**Garde-fous contre la prompt injection** (63 questions, 40 attaques écrites
+par l'auteur, 1 run) : 4 / 55 refus injustifiés (7,3 %, au-dessus du seuil de
+5 % fixé, chiffre optimiste car le correctif a été écrit après avoir vu ces
+questions) ; 26 / 40 attaques détectées par les règles, dont seulement 2 / 16
+parmi celles écrites après les règles. Sans garde-fous, aucune attaque n'a été
+exécutée par le modèle dans ce run : l'apport mesuré est un blocage précoce,
+pas une baisse du taux de succès. Détail et limites : *Garde-fous*.
+
+Détails, limites et autres mesures (retrieval, backends LangGraph / LangChain,
+agent de vérification, serveur MCP) : voir les sections correspondantes plus bas.
 
 ## Qualité
 
-Mesuré le 2026-10-16 (Python 3.11, Windows) :
+Mesuré le 2026-10-25 (Python 3.11, Windows) :
 
-- `pytest --collect-only -q` : **187 tests** ;
-- `pytest --cov=document_intelligence` : **186 passés, 1 ignoré**, couverture
-  **90 %** (1 965 instructions, 187 non couvertes) ;
+- `pytest --cov=document_intelligence` : **361 passés, 1 ignoré**, couverture
+  **90 %** (3 356 instructions, 341 non couvertes) ;
 - `ruff check`, `ruff format --check`, `mypy` (strict) : exécutés en CI, voir *CI/CD*.
 
 ```bash
