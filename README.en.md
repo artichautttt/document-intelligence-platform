@@ -237,6 +237,11 @@ Real OpenAI and Mistral requests (clients tested on a simulated API only), a
 hosted public demo, multi-user authentication (a single shared API key is
 supported), and a complete real evaluation of the data agent.
 
+**Demo coming later**: no screenshot or video is published yet, since it would
+require paid API calls that are not being made at the moment. An AWS hosting
+plan (not deployed, no resource created) is in
+[docs/deploy/aws-plan.md](docs/deploy/aws-plan.md) (in French).
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

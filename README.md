@@ -33,10 +33,12 @@ invente facilement une réponse plausible. La plateforme :
 
 ## Démo
 
-<!-- Remplacer par la capture ou la vidéo (2 min), par exemple :
-![Démo](docs/demo.gif)
-ou [Vidéo de démonstration (2 min)](https://...) -->
-> Emplacement réservé : capture d'écran ou vidéo de démonstration (2 min), à ajouter.
+**Démo à venir.** Aucune capture ni vidéo n'est publiée pour l'instant : elle
+demanderait des appels payants à l'API Anthropic qui ne sont pas faits
+actuellement. Les réponses réelles obtenues pendant les vérifications sont
+reproduites dans *Exemples d'appel* et dans les sections de mesure. Le plan
+d'hébergement AWS (non déployé, aucune ressource créée) est dans
+[docs/deploy/aws-plan.md](docs/deploy/aws-plan.md).
 
 ## Architecture
 
