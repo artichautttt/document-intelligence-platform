@@ -3,8 +3,9 @@
 Le serveur est démarré comme le ferait Claude Desktop ou Claude Code
 (`python -m document_intelligence.mcp_server`), sur un vrai ChromaDB contenant
 les trois documents de `tests/fixtures/documents/` (embeddings ONNX locaux).
-Aucune clé LLM : `ask_question` doit répondre par une erreur explicite, les
-deux autres outils fonctionnent réellement.
+Aucune clé LLM : `ask_question` et `ask_data` doivent répondre par une erreur
+explicite ; les outils sans LLM (recherche, liste, `run_sql` sur la base taxi
+versionnée) fonctionnent réellement.
 
 Le sous-processus tourne dans un répertoire vide, pour ne pas lire le `.env`
 du dépôt (une clé locale ferait un vrai appel payant).
@@ -81,12 +82,28 @@ def test_real_client_calls_the_tools_over_stdio(
                 "ask": await session.call_tool(
                     "ask_question", {"question": "Quel est le chiffre d'affaires ?"}
                 ),
+                "sql": await session.call_tool(
+                    "run_sql", {"sql": "SELECT SUM(trip_count) FROM hourly_trips"}
+                ),
+                "sql_write": await session.call_tool(
+                    "run_sql", {"sql": "DELETE FROM zones"}
+                ),
+                "ask_data": await session.call_tool(
+                    "ask_data", {"question": "Combien de trajets en janvier ?"}
+                ),
             }
 
     out = anyio.run(run)
 
     assert out["server"] == "document-intelligence"
-    assert out["tools"] == ["ask_question", "list_documents", "search_documents"]
+    assert out["tools"] == [
+        "ask_data",
+        "ask_question",
+        "describe_tables",
+        "list_documents",
+        "run_sql",
+        "search_documents",
+    ]
 
     documents = out["documents"].structuredContent["documents"]
     assert sorted(Path(d["source_path"]).name for d in documents) == sorted(FIXTURES)
@@ -98,3 +115,9 @@ def test_real_client_calls_the_tools_over_stdio(
 
     assert out["ask"].isError
     assert "Aucun fournisseur LLM" in out["ask"].content[0].text
+
+    assert out["sql"].structuredContent["rows"] == [[3330486]]
+    assert out["sql_write"].isError
+    assert "lecture seule" in out["sql_write"].content[0].text
+    assert out["ask_data"].isError
+    assert "ask_data est indisponible" in out["ask_data"].content[0].text

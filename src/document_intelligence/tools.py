@@ -1,13 +1,17 @@
 """Outils exposés aux clients externes : serveur MCP et agent à tool calling.
 
 Chaque outil est une fonction mince au-dessus des interfaces existantes
-(`VectorStore`, backend RAG configuré) : aucune logique de recherche ou de
-synthèse n'est dupliquée ici. Les entrées sont validées et les sorties sont des modèles
+(`VectorStore`, backend RAG configuré, exécuteur SQL protégé, agent de données) :
+aucune logique de recherche, de synthèse ou d'exécution n'est dupliquée ici. Les entrées sont validées et les sorties sont des modèles
 Pydantic sérialisables (sortie structurée MCP, résultats d'outil Anthropic).
 """
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
+from document_intelligence.data_agent.schema import SCHEMA, DatabaseSchema
+from document_intelligence.data_agent.sql_guard import SafeSQLExecutor, SQLResult
 from document_intelligence.orchestration.backends import RAGBackend
 from document_intelligence.orchestration.exceptions import (
     EmptyQueryError,
@@ -15,6 +19,9 @@ from document_intelligence.orchestration.exceptions import (
 )
 from document_intelligence.vectorization.models import DocumentSummary
 from document_intelligence.vectorization.store import VectorStore
+
+if TYPE_CHECKING:
+    from document_intelligence.orchestration.data_agent import DataAgent
 
 MAX_K = 20
 
@@ -125,3 +132,53 @@ def ask_question(backend: RAGBackend | None, question: str, k: int = 5) -> Cited
 def list_documents(store: VectorStore) -> DocumentList:
     """Documents indexés, avec leur nombre de chunks."""
     return DocumentList(documents=store.list_documents())
+
+
+class DataQueryAnswer(BaseModel):
+    """Réponse de l'agent de données, avec la requête exécutée qui la fonde."""
+
+    question: str
+    answer: str = Field(description="Réponse, suivie de la requête SQL exécutée.")
+    value: float | str | None
+    refused: bool = Field(description="True si la base ne permet pas de répondre.")
+    sql: str | None = Field(description="Requête exécutée qui fonde la réponse.")
+    blocked_queries: int = Field(
+        description="Requêtes du modèle refusées par les garde-fous SQL."
+    )
+
+
+def describe_tables() -> DatabaseSchema:
+    """Schéma documenté de la base de l'agent de données."""
+    return SCHEMA
+
+
+def run_sql(executor: SafeSQLExecutor, sql: str) -> SQLResult:
+    """Exécute une requête SELECT derrière les garde-fous (sans appel LLM).
+
+    Raises:
+        SQLGuardError: requête refusée (écriture, table non autorisée, délai...).
+        SQLExecutionError: requête autorisée mais invalide pour SQLite.
+    """
+    return executor.execute(sql)
+
+
+def ask_data(agent: "DataAgent | None", question: str) -> DataQueryAnswer:
+    """Question en langage naturel → SQL exécuté → réponse citant la requête.
+
+    Raises:
+        ToolUnavailableError: si aucune clé Anthropic n'est configurée.
+    """
+    if agent is None:
+        raise ToolUnavailableError(
+            "Aucune clé Anthropic n'est configurée : ask_data est indisponible, "
+            "run_sql et describe_tables restent utilisables."
+        )
+    result = agent.run(_check_query(question))
+    return DataQueryAnswer(
+        question=question,
+        answer=result.formatted(),
+        value=result.value,
+        refused=result.refused,
+        sql=result.cited_sql,
+        blocked_queries=len(result.blocked_calls),
+    )

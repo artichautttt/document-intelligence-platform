@@ -17,7 +17,9 @@ from document_intelligence.core.logging import configure_logging, get_logger
 from document_intelligence.mcp_server.server import build_server
 from document_intelligence.services import (
     build_backend,
+    build_data_agent,
     build_llm,
+    build_sql_executor,
     build_store,
     build_verifier,
 )
@@ -36,13 +38,23 @@ def main(argv: list[str] | None = None) -> None:
     store = build_store()
     llm = build_llm()
     backend = build_backend(store, llm, build_verifier(None, llm))
-    server = build_server(store, backend, host=args.host, port=args.port)
+    executor = build_sql_executor()
+    data_agent = build_data_agent(executor)
+    server = build_server(
+        store,
+        backend,
+        host=args.host,
+        port=args.port,
+        sql_executor=executor,
+        data_agent=data_agent,
+    )
     get_logger(__name__).info(
         "mcp.startup",
         transport=args.transport,
         vector_store_backend=settings.vector_store_backend,
         retrieval_mode=settings.retrieval_mode,
         rag_backend=backend.name if backend else None,
+        data_agent_model=data_agent.model if data_agent else None,
     )
     server.run(transport=args.transport)
 
