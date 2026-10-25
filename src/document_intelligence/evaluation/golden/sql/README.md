@@ -48,3 +48,21 @@ La règle « distance ≤ 100 miles » de la construction de la base a été ajo
 pendant cette rédaction : 162 trajets bruts aberrants (jusqu'à 276 424 miles)
 pesaient près de la moitié de la distance totale et faussaient les questions de
 distance et de vitesse.
+
+## Mesure réelle (2026-10-25, `claude-sonnet-5`, un seul run, interrompu)
+
+**29 questions sur 40 évaluées lors du seul run réel, le crédit API ayant été épuisé ; 5 questions difficiles et les 6 questions sans réponse n'ont pas été évaluées ; aucun chiffre global d'exactitude n'est donc revendiqué ; jeu écrit par l'auteur avec le schéma sous les yeux.**
+
+| Niveau | Évaluées | Valeur correcte |
+|---|---|---|
+| simple | 10 / 10 | 10 / 10 |
+| intermédiaire | 12 / 12 | 12 / 12 |
+| difficile | 7 / 12 (d01 à d07) | 7 / 7 posées |
+| sans réponse | 0 / 6 | non évalué |
+
+Non évaluées : d08 à d12 (vitesse moyenne, part LaGuardia → Manhattan, jour de
+semaine moyen, seuil de 50 % cumulé, écart carte / espèces) et u01 à u06. Le run
+MLflow (expérience `data-agent`) porte le tag « interrompu : crédit épuisé, non
+représentatif ». Les limites constatées (requêtes de calcul citées sur d03 et
+d04, garde-fous jamais déclenchés par le vrai modèle) sont décrites dans le
+README principal, section *Agent de données text-to-SQL*.

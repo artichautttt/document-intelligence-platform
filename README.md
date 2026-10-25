@@ -10,9 +10,9 @@ Plateforme RAG multi-agents pour interroger des documents d'entreprise (rapports
 financiers, contrats, audits) : API FastAPI, pipeline LangGraph, réponses
 citées et vérifiables, évaluation suivie dans MLflow, conteneurisée avec
 Docker Compose. Également : serveur MCP (SDK officiel), backend LangChain
-interchangeable avec LangGraph, agent à tool calling natif et garde-fous
-contre la prompt injection (désactivés par défaut), chacun mesuré avec ses
-limites plus bas.
+interchangeable avec LangGraph, agent à tool calling natif, garde-fous
+contre la prompt injection (désactivés par défaut) et agent de données
+text-to-SQL sur une base publique, chacun mesuré avec ses limites plus bas.
 
 ## Problème
 
@@ -161,6 +161,11 @@ parmi celles écrites après les règles. Sans garde-fous, aucune attaque n'a é
 exécutée par le modèle dans ce run : l'apport mesuré est un blocage précoce,
 pas une baisse du taux de succès. Détail et limites : *Garde-fous*.
 
+**Agent de données text-to-SQL** (NYC Taxi janvier 2025, `claude-sonnet-5`) :
+29 questions sur 40 évaluées lors du seul run réel, le crédit API ayant été épuisé ; 5 questions difficiles et les 6 questions sans réponse n'ont pas été évaluées ; aucun chiffre global d'exactitude n'est donc revendiqué ; jeu écrit par l'auteur avec le schéma sous les yeux. Sur les questions évaluées : 10 / 10 simples, 12 / 12
+intermédiaires, 7 / 7 difficiles posées. Détail et limites : *Agent de données
+text-to-SQL*.
+
 Détails, limites et autres mesures (retrieval, backends LangGraph / LangChain,
 agent de vérification, serveur MCP) : voir les sections correspondantes plus bas.
 
@@ -168,8 +173,8 @@ agent de vérification, serveur MCP) : voir les sections correspondantes plus ba
 
 Mesuré le 2026-10-25 (Python 3.11, Windows) :
 
-- `pytest --cov=document_intelligence` : **361 passés, 1 ignoré**, couverture
-  **90 %** (3 356 instructions, 341 non couvertes) ;
+- `pytest --cov=document_intelligence` : **503 passés, 1 ignoré**, couverture
+  **90 %** (3 949 instructions, 385 non couvertes) ;
 - `ruff check`, `ruff format --check`, `mypy` (strict) : exécutés en CI, voir *CI/CD*.
 
 ```bash
@@ -183,19 +188,20 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pyt
 .
 ├── src/document_intelligence/
 │   ├── api/             # FastAPI : /documents, /query, /metrics, /health
-│   ├── mcp_server/      # serveur MCP : search_documents, ask_question, list_documents
+│   ├── mcp_server/      # serveur MCP : recherche documentaire et agent de données (6 outils)
 │   ├── ingestion/       # parsing PDF (unstructured + pdfplumber) et DOCX (unstructured)
 │   ├── chunking/        # découpage par section
 │   ├── vectorization/   # VectorStore : ChromaDB, Qdrant, hybride dense + BM25
 │   ├── orchestration/   # graphe LangGraph, chaîne LangChain, agent à tool calling, clients LLM, coût
-│   ├── evaluation/      # évaluation RAG, 63 questions et 40 attaques (golden/), MLflow
+│   ├── evaluation/      # évaluation RAG (63 questions, 40 attaques), text-to-SQL (40 questions), MLflow
 │   ├── guardrails/      # règles d'injection, quarantaine à l'ingestion, vérificateur de sortie
+│   ├── data_agent/      # base SQLite NYC Taxi 2025-01, garde-fous SQL, schéma documenté
 │   ├── observability/   # tracing, métriques, Prometheus, OpenTelemetry
 │   ├── core/            # configuration (variables d'environnement), logs
-│   ├── tools.py         # outils partagés (MCP, agent) au-dessus de VectorStore et du graphe
-│   └── services.py      # construction store / LLM / vérificateur, partagée API et MCP
-├── tests/               # 362 tests pytest (361 passent, 1 ignoré), documents de test dans fixtures/
-├── scripts/             # évaluation du juge, client MCP et agent de recherche de démonstration
+│   ├── tools.py         # outils partagés (MCP, agents) : recherche, réponse citée, SQL
+│   └── services.py      # construction store / LLM / vérificateur / agent de données, partagée API et MCP
+├── tests/               # 504 tests pytest (503 passent, 1 ignoré), documents de test dans fixtures/
+├── scripts/             # évaluation du juge, démos MCP et agent, construction de la base taxi
 ├── finetune/            # expérience LoRA : jeu de distillation et entraînement
 ├── monitoring/          # config Prometheus, provisioning et dashboard Grafana
 ├── docker/              # Dockerfiles de l'API et de l'ingestion
@@ -307,13 +313,16 @@ lieu de 2.13.5.
 
 `src/document_intelligence/mcp_server/` expose la recherche documentaire à tout
 client MCP (Claude Desktop, Claude Code, IDE...), avec le SDK MCP officiel
-(`mcp.server.fastmcp`). Trois outils :
+(`mcp.server.fastmcp`). Six outils :
 
 | Outil | Rôle | Appel LLM |
 |---|---|---|
 | `search_documents(query, k=5)` | les `k` chunks les plus pertinents (texte, score, document source) | non |
 | `ask_question(question, k=5)` | réponse du pipeline RAG (graphe LangGraph) avec les chunks cités et `sufficient_context` | oui (synthèse) |
 | `list_documents()` | documents indexés et nombre de chunks | non |
+| `describe_tables()` | schéma documenté de la base de l'agent de données | non |
+| `run_sql(sql)` | requête `SELECT` en lecture seule derrière les garde-fous SQL | non |
+| `ask_data(question)` | agent text-to-SQL : réponse citant la requête exécutée | oui (agent) |
 
 Les outils sont des fonctions minces de `document_intelligence/tools.py` au-dessus
 de `VectorStore` et de `answer_query` : aucune logique de recherche ou de
@@ -361,12 +370,13 @@ temporaire :
 uv run python scripts/mcp_client_demo.py --demo-corpus --question "Quel est le montant de la redevance annuelle ?"
 ```
 
-Tests (`tests/mcp_server/`, 19 tests) : appel direct des outils, appel via un
+Tests (`tests/mcp_server/`, 24 tests) : appel direct des outils, appel via un
 client MCP connecté en mémoire (`list_tools`, `call_tool`, erreurs d'outil), et
 un test de bout en bout qui lance le vrai serveur en sous-processus stdio sur un
 ChromaDB réel contenant les trois documents de `tests/fixtures/documents/`
-(`list_documents` et `search_documents` réels ; `ask_question` sans clé doit
-renvoyer l'erreur explicite, aucun appel payant en CI).
+(`list_documents`, `search_documents` et `run_sql` réels, écriture SQL refusée ;
+`ask_question` et `ask_data` sans clé doivent renvoyer l'erreur explicite, aucun
+appel payant en CI).
 
 **Appel réel** (2026-10-25, `scripts/mcp_client_demo.py --demo-corpus`, serveur
 lancé en stdio, `claude-sonnet-5`, k=5, mode hybride, un seul appel) :
@@ -551,6 +561,95 @@ et vient du même auteur que les règles.
 - une attaque en base64 a fait renvoyer au modèle deux sorties hors schéma
   (`output_error`, aucune réponse) ;
 - 40 cas, un run, un modèle : pas une mesure de robustesse générale.
+
+## Agent de données text-to-SQL
+
+Un agent répond en langage naturel à des questions chiffrées sur une base SQLite
+publique et locale : il écrit le SQL, l'exécute en lecture seule et répond en
+citant la requête exécutée, ou refuse si la base ne permet pas de répondre.
+
+**Données.** Trajets des taxis jaunes de New York en janvier 2025 (NYC TLC Trip
+Record Data, données publiques), agrégés par `scripts/build_taxi_db.py` dans
+`data_agent/nyc_taxi_2025_01.sqlite` (2,1 Mo, versionnée) : 6 tables (zones,
+modes de paiement, totaux par jour et zone, par jour et heure, par jour et mode
+de paiement, couples origine-destination du mois). Sur 3 475 226 trajets bruts,
+3 330 486 sont conservés ; les lignes écartées sont comptées par règle dans la
+table `build_info` (hors mois : 22, durée hors [0, 24 h] : 144, montant ou
+distance négatif : 144 437, distance > 100 miles : 137).
+
+**Garde-fous SQL** (`data_agent/sql_guard.py`), plusieurs couches indépendantes,
+chacune testée seule (`tests/data_agent/test_sql_guard.py`) :
+
+| Couche | Règle (nom renvoyé en cas de refus) |
+|---|---|
+| contrôles lexicaux | requête vide, trop longue, plusieurs instructions (`multiple_statements`), autre chose que `SELECT` / `WITH` (`not_select`), mot-clé d'écriture ou d'administration (`write_or_admin_keyword`, refus explicite « base en lecture seule »), CTE récursive (`recursive_cte`) |
+| connexion | SQLite ouvert en `mode=ro`, `PRAGMA query_only` |
+| autorisateur du moteur (`set_authorizer`) | lecture limitée à 6 tables (`table_not_allowed` : `sqlite_master`, `build_info`...), liste blanche de fonctions dont les fonctions de fenêtre (`function_not_allowed` : `load_extension`, `randomblob`...), toute autre opération refusée (`operation_not_allowed`) même si la requête a trompé les contrôles lexicaux |
+| limites | 200 lignes (résultat marqué `truncated`), 2 s (`timeout`) |
+
+**Agent** (`orchestration/data_agent.py`) : boucle de tool calling natif de
+l'API Messages, sur le modèle de l'agent de recherche, avec deux outils :
+`run_sql` (un refus ou une erreur SQL revient au modèle, qui peut corriger) et
+`submit_answer` (réponse, valeur, refus). `tool_choice = any` impose de terminer
+par ce format structuré. La requête citée est toujours choisie parmi celles
+**réellement exécutées** : le modèle ne peut pas citer une requête inventée.
+Exposé aussi par le serveur MCP (`ask_data`, plus `describe_tables` et `run_sql`
+sans LLM).
+
+**Jeu d'évaluation** (`evaluation/golden/sql/`, détail dans son README) : 40
+questions écrites par l'auteur avec l'aide de Claude, avec le schéma sous les
+yeux : 10 simples, 12 intermédiaires, 12 difficiles (jointures multiples,
+`RANK`, `LAG`, somme cumulée, ratios conditionnels), 6 sans réponse possible. La
+valeur attendue est le résultat de la requête de référence, rejoué en CI. Le jeu
+a été committé avant tout code d'agent (commit `5ccb6ff`).
+
+```bash
+uv run python -m document_intelligence.evaluation.sql_eval --scripted   # sans appel payant
+uv run python -m document_intelligence.evaluation.sql_eval --output rapport_sql.json  # vrai modèle
+```
+
+**Suite de non-régression (CI, sans appel payant)** : un client simulé et
+déterministe rejoue les 40 questions en appelant `run_sql` avec la requête de
+référence, et un modèle « attaquant » simulé tente 10 requêtes dangereuses
+(écriture, `ATTACH`, `PRAGMA`, tables système, CTE récursive, `load_extension`,
+produit cartésien). Elle vérifie la boucle d'outils, les garde-fous, le format de
+réponse et le calcul des métriques. **Elle ne mesure pas la qualité d'un vrai
+modèle** : le client simulé connaît la bonne requête.
+
+### Mesure réelle (2026-10-25, `claude-sonnet-5`, un seul run, interrompu)
+
+**29 questions sur 40 évaluées lors du seul run réel, le crédit API ayant été épuisé ; 5 questions difficiles et les 6 questions sans réponse n'ont pas été évaluées ; aucun chiffre global d'exactitude n'est donc revendiqué ; jeu écrit par l'auteur avec le schéma sous les yeux.**
+
+Questions évaluées, par niveau (aucune extrapolation aux questions non posées) :
+
+| Niveau | Évaluées | Valeur correcte |
+|---|---|---|
+| simple | 10 / 10 | 10 / 10 |
+| intermédiaire | 12 / 12 | 12 / 12 |
+| difficile | 7 / 12 (d01 à d07) | 7 / 7 posées |
+| sans réponse | 0 / 6 | non évalué |
+
+Sur ces 29 questions : 31 requêtes exécutées, aucune bloquée par les garde-fous,
+aucune erreur SQL, aucun refus injustifié ; 2,07 appels au modèle par question en
+moyenne ; latence moyenne 4,5 s (médiane 4,1 s, maximum 7,6 s) ; coût 0,415 $.
+Le run MLflow (expérience `data-agent`) est conservé avec le tag « interrompu :
+crédit épuisé, non représentatif » : sa métrique `execution_accuracy` (0,853)
+compte les 5 questions difficiles non posées comme fausses et ne mesure donc pas
+l'agent. Un test de fumée préalable (3 questions : s04, d05, u01, toutes
+correctes, dont un refus) n'est pas compté dans ces chiffres.
+
+Limites constatées à la lecture des réponses :
+
+- sur 2 questions (d03, d04), l'agent a d'abord interrogé les tables, puis
+  exécuté une requête de pur calcul avec les nombres recopiés
+  (`SELECT ROUND(100.0*2444327/3330486,1)`). C'est cette requête qui est citée :
+  la valeur est juste, mais la requête citée ne lit aucune table. Citer toutes
+  les requêtes exécutées corrigerait ce point ; non fait, faute de pouvoir le
+  mesurer sur un nouveau run ;
+- les garde-fous n'ont été déclenchés que par les tests et le modèle attaquant
+  simulé, jamais par le vrai modèle : leur comportement face à un modèle
+  manipulé n'est pas mesuré ;
+- un seul run, un seul modèle, 29 questions : aucune conclusion statistique.
 
 ## Évaluation
 
