@@ -29,7 +29,12 @@ def test_logs_run_with_params_metrics_and_artifact(
 
     monkeypatch.setenv("MLFLOW_TRACKING_URI", f"file:{tmp_path / 'mlruns'}")
 
-    log_evaluation_run(_report(), retrieval_mode="hybrid", llm_model="claude-sonnet-5")
+    log_evaluation_run(
+        _report(),
+        retrieval_mode="hybrid",
+        llm_model="claude-sonnet-5",
+        rag_backend="langchain",
+    )
 
     client = mlflow.tracking.MlflowClient(tracking_uri=f"file:{tmp_path / 'mlruns'}")
     experiment = client.get_experiment_by_name("rag-evaluation")
@@ -41,6 +46,7 @@ def test_logs_run_with_params_metrics_and_artifact(
         "llm_model": "claude-sonnet-5",
         "k": "5",
         "dataset_size": "1",
+        "rag_backend": "langchain",
     }
     assert run.data.metrics == {"hit_rate": 1.0, "mrr": 1.0}
 

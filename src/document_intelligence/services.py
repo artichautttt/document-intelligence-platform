@@ -5,6 +5,11 @@ que les deux points d'entrée servent exactement le même pipeline.
 """
 
 from document_intelligence.core.config import settings
+from document_intelligence.orchestration.backends import (
+    LangGraphBackend,
+    RAGBackend,
+    check_backend,
+)
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.orchestration.tiering import (
     LLMRole,
@@ -61,4 +66,33 @@ def build_verifier(
 
     return CrewAIVerifier(
         build_llm_client(LLMRole.VERIFIER, cache=build_response_cache())
+    )
+
+
+def build_backend(
+    store: VectorStore,
+    llm: LLMClient | None,
+    verifier: AnswerVerifier | None = None,
+) -> RAGBackend | None:
+    """Backend de réponse désigné par `RAG_BACKEND` ; `None` sans fournisseur LLM.
+
+    `llm` (éventuellement une doublure injectée) sert le backend `langgraph` ;
+    le backend `langchain` construit son propre modèle de chat Anthropic.
+    """
+    if check_backend(settings.rag_backend) == "langchain":
+        if not settings.anthropic_api_key:
+            return None
+        # Import différé : groupe de dépendances optionnel `langchain`.
+        from document_intelligence.orchestration.langchain_backend import (
+            build_langchain_rag,
+        )
+
+        return build_langchain_rag(store)
+    if llm is None:
+        return None
+    return LangGraphBackend(
+        store,
+        llm,
+        verifier=verifier,
+        max_regenerations=settings.verification_max_regenerations,
     )

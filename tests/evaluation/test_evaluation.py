@@ -19,6 +19,7 @@ from document_intelligence.evaluation.generation import (
 from document_intelligence.evaluation.retrieval import retrieval_scores
 from document_intelligence.ingestion.service import ingest
 from document_intelligence.orchestration.llm import LLMClient, T
+from document_intelligence.orchestration.models import AnswerResult, Citation
 from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.models import QueryResult
@@ -168,6 +169,34 @@ class TestEvaluate:
         assert report.aggregate["abstention_accuracy"] == 0.0
         # le passage était dans le contexte : le refus est imputable à la génération
         assert report.aggregate["false_abstention_rate"] == 1.0
+
+    def test_answer_fn_replaces_the_default_graph(self) -> None:
+        store = ListStore(["le chiffre 48.2 millions", "bruit"])
+        examples = [EvalExample(question="ca ?", relevant_substrings=["48.2 millions"])]
+        calls: list[tuple[str, int]] = []
+
+        def answer_fn(query: str, k: int) -> AnswerResult:
+            calls.append((query, k))
+            chunk = store.query(query, k=1)[0]
+            return AnswerResult(
+                query=query,
+                answer="48.2 millions",
+                citations=[
+                    Citation(
+                        chunk_id=chunk.chunk_id,
+                        provenance=chunk.provenance,
+                        score=chunk.score,
+                    )
+                ],
+            )
+
+        # ScriptedLLM ne sert plus que de juge
+        report = evaluate(examples, store, k=2, llm=ScriptedLLM(), answer_fn=answer_fn)
+
+        assert calls == [("ca ?", 2)]
+        assert report.results[0].answer == "48.2 millions"
+        assert report.aggregate["citation_precision"] == 1.0
+        assert report.aggregate["faithfulness"] == pytest.approx(2 / 3, abs=1e-3)
 
 
 def test_citation_precision() -> None:

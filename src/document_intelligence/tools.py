@@ -1,20 +1,18 @@
 """Outils exposés aux clients externes : serveur MCP et agent à tool calling.
 
 Chaque outil est une fonction mince au-dessus des interfaces existantes
-(`VectorStore`, `answer_query`) : aucune logique de recherche ou de synthèse
-n'est dupliquée ici. Les entrées sont validées et les sorties sont des modèles
+(`VectorStore`, backend RAG configuré) : aucune logique de recherche ou de
+synthèse n'est dupliquée ici. Les entrées sont validées et les sorties sont des modèles
 Pydantic sérialisables (sortie structurée MCP, résultats d'outil Anthropic).
 """
 
 from pydantic import BaseModel, Field
 
+from document_intelligence.orchestration.backends import RAGBackend
 from document_intelligence.orchestration.exceptions import (
     EmptyQueryError,
     OrchestrationError,
 )
-from document_intelligence.orchestration.graph import answer_query
-from document_intelligence.orchestration.llm import LLMClient
-from document_intelligence.orchestration.verification import AnswerVerifier
 from document_intelligence.vectorization.models import DocumentSummary
 from document_intelligence.vectorization.store import VectorStore
 
@@ -95,32 +93,18 @@ def search_documents(store: VectorStore, query: str, k: int = 5) -> SearchResult
     )
 
 
-def ask_question(
-    store: VectorStore,
-    llm: LLMClient | None,
-    question: str,
-    k: int = 5,
-    verifier: AnswerVerifier | None = None,
-    max_regenerations: int = 1,
-) -> CitedAnswer:
-    """Répond à une question via le pipeline RAG existant, avec les sources citées.
+def ask_question(backend: RAGBackend | None, question: str, k: int = 5) -> CitedAnswer:
+    """Répond à une question via le backend RAG configuré, avec les sources citées.
 
     Raises:
         ToolUnavailableError: si aucun fournisseur LLM n'est configuré.
     """
-    if llm is None:
+    if backend is None:
         raise ToolUnavailableError(
             "Aucun fournisseur LLM n'est configuré (clé d'API absente) : "
             "ask_question est indisponible, search_documents reste utilisable."
         )
-    result = answer_query(
-        _check_query(question),
-        store=store,
-        llm=llm,
-        k=_check_k(k),
-        verifier=verifier,
-        max_regenerations=max_regenerations,
-    )
+    result = backend.answer(_check_query(question), k=_check_k(k))
     return CitedAnswer(
         question=result.query,
         answer=result.answer,

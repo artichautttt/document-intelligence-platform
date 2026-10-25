@@ -20,6 +20,7 @@ from document_intelligence.core.config import settings
 from document_intelligence.core.logging import configure_logging
 from document_intelligence.evaluation.corpus import build_extended_corpus
 from document_intelligence.evaluation.runner import (
+    AnswerFn,
     dump_report,
     evaluate,
     format_report,
@@ -67,6 +68,12 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         default=settings.retrieval_mode,
     )
     parser.add_argument("--retrieval-only", action="store_true")
+    parser.add_argument(
+        "--backend",
+        choices=["langgraph", "langchain"],
+        default=settings.rag_backend,
+        help="Backend de réponse : graphe LangGraph (défaut) ou chaîne LangChain.",
+    )
     parser.add_argument(
         "--sample",
         type=int,
@@ -159,6 +166,18 @@ def main(argv: list[str] | None = None) -> int:
         store: VectorStore = (
             HybridStore(chroma) if args.retrieval_mode == "hybrid" else chroma
         )
+        answer_fn: AnswerFn | None = None
+        if llm is not None and args.backend == "langchain":
+            if verifier is not None or args.local_model:
+                raise SystemExit(
+                    "--backend langchain : incompatible avec --verify et --local-model."
+                )
+            from document_intelligence.orchestration.langchain_backend import (
+                build_langchain_rag,
+            )
+
+            # Même journal de coût que le juge : coûts comparables entre backends.
+            answer_fn = build_langchain_rag(store, ledger=ledger).answer
 
         examples = [ex for dataset in args.dataset for ex in load_dataset(dataset)]
         if args.sample is not None and args.sample < len(examples):
@@ -176,12 +195,13 @@ def main(argv: list[str] | None = None) -> int:
             verifier=verifier,
             max_regenerations=args.max_regenerations,
             calibrate_verifier=args.calibrate_verifier,
+            answer_fn=answer_fn,
         )
 
     if llm is not None:
         report.cost = ledger.summary(reference_model=reference_model())
 
-    print(f"[retrieval={args.retrieval_mode}]")
+    print(f"[retrieval={args.retrieval_mode}] [backend={args.backend}]")
     print(format_report(report))
     if report.cost:
         print(f"Coût LLM (référence sans optimisation : {reference_model()})")
@@ -201,6 +221,7 @@ def main(argv: list[str] | None = None) -> int:
             else model_for(LLMRole.SYNTHESIS)
         ),
         report_path=args.output,
+        rag_backend=args.backend,
     )
 
     if (

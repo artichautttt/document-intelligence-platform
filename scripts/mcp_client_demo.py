@@ -28,22 +28,7 @@ import anyio
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from document_intelligence.chunking.service import chunk_document
-from document_intelligence.evaluation.corpus import build_extended_corpus
-from document_intelligence.ingestion.service import ingest
-from document_intelligence.vectorization.chroma_store import ChromaStore
-
-FIXTURES_DIR = Path("tests/fixtures/documents")
-
-
-def build_demo_index(directory: Path) -> Path:
-    """Indexe les fixtures et le corpus étendu de l'évaluation dans un Chroma local."""
-    persist = directory / "chroma"
-    store = ChromaStore(persist_directory=str(persist))
-    paths = sorted(FIXTURES_DIR.glob("*.*")) + build_extended_corpus(directory / "docs")
-    for path in paths:
-        store.add_chunks(chunk_document(ingest(path)))
-    return persist
+from document_intelligence.evaluation.corpus import index_demo_corpus
 
 
 def _show(label: str, result: Any) -> None:
@@ -91,7 +76,11 @@ def main() -> None:
     # ignore_cleanup_errors : sous Windows, Chroma garde ses fichiers ouverts
     # jusqu'à la fin du processus.
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
-        persist = build_demo_index(Path(tmp)) if args.demo_corpus else args.chroma_dir
+        if args.demo_corpus:
+            index_demo_corpus(Path(tmp))
+            persist = Path(tmp) / "chroma"
+        else:
+            persist = args.chroma_dir
         anyio.run(run, persist, args.question, args.search)
 
 

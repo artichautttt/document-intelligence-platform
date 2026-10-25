@@ -15,7 +15,12 @@ import sys
 from document_intelligence.core.config import settings
 from document_intelligence.core.logging import configure_logging, get_logger
 from document_intelligence.mcp_server.server import build_server
-from document_intelligence.services import build_llm, build_store, build_verifier
+from document_intelligence.services import (
+    build_backend,
+    build_llm,
+    build_store,
+    build_verifier,
+)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -30,20 +35,14 @@ def main(argv: list[str] | None = None) -> None:
     configure_logging(stream=sys.stderr)
     store = build_store()
     llm = build_llm()
-    server = build_server(
-        store,
-        llm,
-        verifier=build_verifier(None, llm),
-        max_regenerations=settings.verification_max_regenerations,
-        host=args.host,
-        port=args.port,
-    )
+    backend = build_backend(store, llm, build_verifier(None, llm))
+    server = build_server(store, backend, host=args.host, port=args.port)
     get_logger(__name__).info(
         "mcp.startup",
         transport=args.transport,
         vector_store_backend=settings.vector_store_backend,
         retrieval_mode=settings.retrieval_mode,
-        llm_configured=llm is not None,
+        rag_backend=backend.name if backend else None,
     )
     server.run(transport=args.transport)
 

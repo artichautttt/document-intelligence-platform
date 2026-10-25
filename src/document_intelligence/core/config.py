@@ -70,5 +70,9 @@ class Settings(BaseSettings):
     # "hybrid" : recherche dense + réordonnancement lexical ; "dense" : dense seul.
     retrieval_mode: str = Field(default="hybrid")
 
+    # Backend de réponse RAG : "langgraph" (défaut, graphe historique) ou
+    # "langchain" (chaîne LCEL, groupe de dépendances `langchain`, Anthropic seul).
+    rag_backend: str = Field(default="langgraph")
+
 
 settings = Settings()

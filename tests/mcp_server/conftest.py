@@ -71,8 +71,8 @@ class CitingLLM(LLMClient):
         )
 
 
-@pytest.fixture
-def store() -> InMemoryStore:
+def demo_store() -> InMemoryStore:
+    """Deux documents, trois chunks ; le premier contient la redevance."""
     return InMemoryStore(
         [
             make_chunk(
@@ -90,3 +90,8 @@ def store() -> InMemoryStore:
             ),
         ]
     )
+
+
+@pytest.fixture
+def store() -> InMemoryStore:
+    return demo_store()

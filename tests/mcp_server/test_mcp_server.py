@@ -8,6 +8,7 @@ from mcp import ClientSession
 from mcp.shared.memory import create_connected_server_and_client_session
 
 from document_intelligence.mcp_server import build_server
+from document_intelligence.orchestration.backends import LangGraphBackend
 from document_intelligence.orchestration.llm import LLMClient
 
 from .conftest import CitingLLM, InMemoryStore
@@ -18,9 +19,11 @@ def _with_client(
     llm: LLMClient | None,
     scenario: Callable[[ClientSession], Awaitable[Any]],
 ) -> Any:
+    backend = LangGraphBackend(store, llm) if llm is not None else None
+
     async def run() -> Any:
         async with create_connected_server_and_client_session(
-            build_server(store, llm)
+            build_server(store, backend)
         ) as client:
             return await scenario(client)
 

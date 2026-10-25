@@ -6,6 +6,7 @@ import pytest
 
 from document_intelligence import tools
 from document_intelligence.chunking.models import Chunk
+from document_intelligence.orchestration.backends import LangGraphBackend
 from document_intelligence.orchestration.exceptions import EmptyQueryError
 from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
@@ -43,10 +44,11 @@ class TestAskQuestion:
     ) -> None:
         llm = CitingLLM()
         answer = tools.ask_question(
-            store, llm, "Quel est le montant de la redevance ?", k=3
+            LangGraphBackend(store, llm), "Quel est le montant de la redevance ?", k=3
         )
 
         assert llm.calls == 1
+        assert store.queries == [("Quel est le montant de la redevance ?", 3)]
         assert answer.sufficient_context is True
         assert answer.answer == "La redevance est de 184 000 euros HT."
         assert [s.chunk_id for s in answer.sources] == [store.chunks[0].chunk_id]
@@ -54,7 +56,7 @@ class TestAskQuestion:
 
     def test_without_llm_raises_explicit_error(self, store: InMemoryStore) -> None:
         with pytest.raises(tools.ToolUnavailableError, match="Aucun fournisseur LLM"):
-            tools.ask_question(store, None, "Quel est le montant ?")
+            tools.ask_question(None, "Quel est le montant ?")
 
 
 class TestListDocuments:

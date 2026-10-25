@@ -177,14 +177,14 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pyt
 │   ├── ingestion/       # parsing PDF (unstructured + pdfplumber) et DOCX (unstructured)
 │   ├── chunking/        # découpage par section
 │   ├── vectorization/   # VectorStore : ChromaDB, Qdrant, hybride dense + BM25
-│   ├── orchestration/   # graphe LangGraph, clients LLM, tiering, cache, coût, vérificateur CrewAI
+│   ├── orchestration/   # graphe LangGraph, chaîne LangChain, agent à tool calling, clients LLM, coût
 │   ├── evaluation/      # évaluation RAG, jeu de 63 questions (golden/), suivi MLflow
 │   ├── observability/   # tracing, métriques, Prometheus, OpenTelemetry
 │   ├── core/            # configuration (variables d'environnement), logs
 │   ├── tools.py         # outils partagés (MCP, agent) au-dessus de VectorStore et du graphe
 │   └── services.py      # construction store / LLM / vérificateur, partagée API et MCP
-├── tests/               # 277 tests pytest (276 passent, 1 ignoré), documents de test dans fixtures/
-├── scripts/             # scripts d'évaluation du juge, client MCP de démonstration
+├── tests/               # 301 tests pytest (300 passent, 1 ignoré), documents de test dans fixtures/
+├── scripts/             # évaluation du juge, client MCP et agent de recherche de démonstration
 ├── finetune/            # expérience LoRA : jeu de distillation et entraînement
 ├── monitoring/          # config Prometheus, provisioning et dashboard Grafana
 ├── docker/              # Dockerfiles de l'API et de l'ingestion
@@ -371,6 +371,87 @@ lancé en stdio, `claude-sonnet-5`, k=5, mode hybride, un seul appel) :
 
 Un appel isolé : il montre que la chaîne client MCP → serveur → pipeline →
 API Anthropic fonctionne, pas une latence ou une qualité moyenne.
+
+## Backends RAG interchangeables (LangGraph / LangChain) et agent à tool calling
+
+`RAG_BACKEND` choisit le framework qui orchestre la réponse, pour l'API, le
+serveur MCP et l'évaluation (`--backend`) :
+
+- `langgraph` (défaut) : le graphe existant (routage → retrieval → synthèse →
+  vérification optionnelle) ;
+- `langchain` : une chaîne LCEL (`orchestration/langchain_backend.py`) :
+  `BaseRetriever` LangChain adossé au `VectorStore` du projet → prompt →
+  `ChatAnthropic.with_structured_output`. Groupe de dépendances optionnel
+  `langchain` (`uv sync --group langchain`), fournisseur Anthropic uniquement.
+
+Pour que la comparaison porte sur le framework seul, les deux backends partagent
+le store, les prompts de synthèse, la réparation des arguments d'outil, la
+nouvelle tentative unique sur sortie invalide et la conversion en réponse citée
+(`nodes.build_answer`). Différences assumées côté LangChain : pas de cache de
+réponses (sans effet ici : chaque question n'est posée qu'une fois par run) ni
+d'agent de vérification (`--verify` refusé avec `--backend langchain`).
+
+### Mesure (2026-10-25, 63 questions, k=5, hybride, `claude-sonnet-5` en synthèse et en juge)
+
+**1 run par configuration, pas de conclusion statistique.** Runs MLflow
+(`rag-evaluation`, paramètre `rag_backend`), lancés l'un après l'autre sur la
+même machine.
+
+| Métrique | LangGraph | LangChain | Sur |
+|---|---|---|---|
+| hit rate / MRR / nDCG (retrieval) | 0.836 / 0.701 / 0.735 | 0.836 / 0.701 / 0.735 | 55 répondables |
+| faithfulness | 0.992 | 1.000 | 44 réponses jugées |
+| answer relevance | 0.938 | 0.881 | 44 réponses jugées |
+| citation precision | 0.966 | 0.977 | 44 réponses |
+| questions sans réponse refusées | 8 / 8 | 8 / 8 | 8 |
+| refus injustifié (passage dans le contexte) | 0.043 (2 / 46) | 0.043 (2 / 46) | répondables bien retrouvées |
+| sorties inexploitables (`output_errors`) | 0 | 0 | 63 |
+| latence moyenne / médiane (retrieval + synthèse) | 2.69 s / 2.53 s | 2.67 s / 2.59 s | 63 |
+| coût synthèse / total (juge compris) | 0.391 $ / 0.736 $ | 0.377 $ / 0.722 $ | 151 appels LLM chacun |
+
+Constat chiffré, à lire avec ses limites :
+
+- le retrieval est identique par construction (même store, même requête) ;
+- les deux backends marquent 11 réponses répondables « contexte insuffisant » :
+  10 questions en commun, 1 différente de chaque côté. Sur le chiffre
+  d'affaires 2025, les deux donnent 48,2 M€ mais LangGraph lève le drapeau
+  `sufficient_context = false` ; sur la confidentialité ACME – Nordis (deux
+  clauses du corpus, 5 et 7 ans), LangGraph conclut à 5 ans, LangChain cite
+  les deux sans trancher et se déclare en contexte insuffisant ;
+- les écarts de faithfulness, de relevance et de citation precision
+  correspondent à quelques réponses (relevance < 1 : 7 réponses contre 11 ;
+  faithfulness < 1 : 1 réponse contre 0), du même ordre que la variabilité
+  d'un modèle non déterministe noté par un juge LLM ; un seul run ne permet
+  pas de les attribuer au framework ;
+- latence : maximum 8.6 s (LangGraph) contre 4.1 s (LangChain), dû à un seul
+  appel lent ; la moyenne ne dit rien sur la distribution avec 63 points.
+
+### Agent de recherche à tool calling natif
+
+`orchestration/research_agent.py` : boucle de tool calling de l'API Messages
+d'Anthropic, sans framework. Le modèle choisit entre les deux outils de
+`tools.py` (les mêmes que le serveur MCP) : `ask_question` (réponse citée par
+le backend configuré) et `search_documents` (passages bruts). Chaque appel
+d'outil est journalisé (`agent.tool_call` : nom, arguments, durée, erreur) ; une
+erreur d'outil revient au modèle en `tool_result` avec `is_error`, une erreur
+d'API interrompt ; `max_steps` borne la boucle.
+
+```bash
+uv run python scripts/research_agent_demo.py --sample 6 --seed 0 --output agent_run.json
+```
+
+**Run réel** (2026-10-25, 6 questions tirées du jeu de test, graine 0,
+`claude-sonnet-5`) : 6 exécutions terminées normalement (`end_turn`), en 2 à 3
+appels au modèle ; 10 appels d'outils (6 `ask_question`, 4 `search_documents`
+pour recouper), aucun en erreur ; à la lecture, chaque réponse contient le fait
+attendu par le jeu de test et cite son document. Coût : 0,094 $ (agent
+0,055 $, synthèse 0,038 $). Six questions : une démonstration, pas une mesure de
+qualité.
+
+Ce run a révélé un cas absent des doublures : l'API peut renvoyer un bloc texte
+vide à côté d'un appel d'outil, et refuse ce même bloc s'il lui est renvoyé
+(400 « text content blocks must be non-empty »). Ces blocs sont désormais omis
+(test de régression dans `tests/orchestration/test_research_agent.py`).
 
 ## Évaluation
 

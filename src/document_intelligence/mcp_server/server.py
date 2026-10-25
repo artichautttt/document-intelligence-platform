@@ -2,7 +2,7 @@
 
 Trois outils, adossés aux fonctions de `document_intelligence.tools` :
 - `search_documents(query, k)` : chunks pertinents, sans appel LLM ;
-- `ask_question(question, k)` : réponse du pipeline RAG avec ses sources ;
+- `ask_question(question, k)` : réponse du backend RAG configuré, avec ses sources ;
 - `list_documents()` : documents indexés.
 
 Construit avec le SDK MCP officiel (`mcp.server.fastmcp`). Les outils sont
@@ -14,8 +14,7 @@ from anyio import to_thread
 from mcp.server.fastmcp import FastMCP
 
 from document_intelligence import tools
-from document_intelligence.orchestration.llm import LLMClient
-from document_intelligence.orchestration.verification import AnswerVerifier
+from document_intelligence.orchestration.backends import RAGBackend
 from document_intelligence.vectorization.store import VectorStore
 
 SERVER_NAME = "document-intelligence"
@@ -28,17 +27,15 @@ INSTRUCTIONS = (
 
 def build_server(
     store: VectorStore,
-    llm: LLMClient | None,
-    verifier: AnswerVerifier | None = None,
-    max_regenerations: int = 1,
+    backend: RAGBackend | None,
     host: str = "127.0.0.1",
     port: int = 8001,
 ) -> FastMCP:
-    """Construit le serveur MCP sur un vector store et un client LLM donnés.
+    """Construit le serveur MCP sur un vector store et un backend RAG donnés.
 
     Args:
-        llm: client de synthèse ; `None` = `ask_question` renvoie une erreur
-            explicite, les deux autres outils restent disponibles.
+        backend: backend de réponse (`RAG_BACKEND`) ; `None` = `ask_question`
+            renvoie une erreur explicite, les deux autres outils restent disponibles.
         host, port: adresse d'écoute en transport `streamable-http` (ignorés en stdio).
     """
     server = FastMCP(SERVER_NAME, instructions=INSTRUCTIONS, host=host, port=port)
@@ -55,16 +52,7 @@ def build_server(
         recherche des k meilleurs passages puis synthèse citée). Renvoie la réponse,
         les sources citées et sufficient_context=false si les documents ne
         permettent pas de répondre."""
-        return await to_thread.run_sync(
-            lambda: tools.ask_question(
-                store,
-                llm,
-                question,
-                k=k,
-                verifier=verifier,
-                max_regenerations=max_regenerations,
-            )
-        )
+        return await to_thread.run_sync(tools.ask_question, backend, question, k)
 
     @server.tool()
     async def list_documents() -> tools.DocumentList:

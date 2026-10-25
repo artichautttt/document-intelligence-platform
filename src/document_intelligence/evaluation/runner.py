@@ -30,6 +30,9 @@ from document_intelligence.vectorization.store import VectorStore
 
 _R = TypeVar("_R")
 
+#: Fonction de réponse d'un backend RAG : (question, k) -> réponse citée.
+AnswerFn = Callable[[str, int], AnswerResult]
+
 
 def _guarded(errors: list[str], label: str, call: Callable[[], _R]) -> _R | None:
     """Exécute `call` ; une sortie de modèle invalide est consignée, pas propagée.
@@ -135,6 +138,7 @@ def _score_generation(
     errors: list[str],
     verifier: AnswerVerifier | None = None,
     max_regenerations: int = 1,
+    answer_fn: AnswerFn | None = None,
 ) -> tuple[AnswerResult | None, GenerationScores | None]:
     """Exécute le pipeline sur une question et note la réponse.
 
@@ -145,13 +149,17 @@ def _score_generation(
     answer = _guarded(
         errors,
         "synthesis",
-        lambda: answer_query(
-            example.question,
-            store=store,
-            llm=llm,
-            k=k,
-            verifier=verifier,
-            max_regenerations=max_regenerations,
+        lambda: (
+            answer_fn(example.question, k)
+            if answer_fn is not None
+            else answer_query(
+                example.question,
+                store=store,
+                llm=llm,
+                k=k,
+                verifier=verifier,
+                max_regenerations=max_regenerations,
+            )
         ),
     )
     latency_ms = (time.perf_counter() - started) * 1000
@@ -235,6 +243,7 @@ def evaluate(
     verifier: AnswerVerifier | None = None,
     max_regenerations: int = 1,
     calibrate_verifier: bool = False,
+    answer_fn: AnswerFn | None = None,
 ) -> EvaluationReport:
     """Évalue le retrieval et, si `llm` est fourni, la génération.
 
@@ -248,6 +257,8 @@ def evaluate(
         max_regenerations: régénérations au plus après un verdict négatif.
         calibrate_verifier: soumet aussi au vérificateur une copie faussée de
             chaque réponse contenant un nombre (cf. `evaluation.verification`).
+        answer_fn: backend de réponse alternatif (ex. chaîne LangChain) ; par
+            défaut le graphe LangGraph (`answer_query`) avec `llm` et `verifier`.
     """
     judge = judge or llm
     results: list[ExampleResult] = []
@@ -276,6 +287,7 @@ def evaluate(
                 result.errors,
                 verifier=verifier,
                 max_regenerations=max_regenerations,
+                answer_fn=answer_fn,
             )
             if answer is not None:
                 result.answer = answer.answer

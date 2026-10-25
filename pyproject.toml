@@ -39,6 +39,9 @@ dev = [
     "mypy>=1.11",
     "ruff>=0.6",
 ]
+langchain = [
+    "langchain-anthropic>=1.0",
+]
 # Tracking des runs d'évaluation (paramètres/métriques/artefacts), local par défaut.
 mlflow = [
     "mlflow>=2.14",

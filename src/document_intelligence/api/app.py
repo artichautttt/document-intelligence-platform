@@ -17,7 +17,12 @@ from document_intelligence.observability import (
 )
 from document_intelligence.orchestration.llm import LLMClient
 from document_intelligence.orchestration.verification import AnswerVerifier
-from document_intelligence.services import build_llm, build_store, build_verifier
+from document_intelligence.services import (
+    build_backend,
+    build_llm,
+    build_store,
+    build_verifier,
+)
 
 if TYPE_CHECKING:
     from document_intelligence.observability.otel import OtelSink
@@ -49,6 +54,10 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Sans fournisseur LLM configuré, `app.state.llm` vaut None : `/query` répond 503.
     app.state.llm = build_llm(app.state.llm_override)
     app.state.verifier = build_verifier(app.state.verifier_override, app.state.llm)
+    # Backend de réponse (RAG_BACKEND) ; None sans fournisseur LLM -> 503.
+    app.state.backend = build_backend(
+        app.state.store, app.state.llm, app.state.verifier
+    )
 
     metrics_store: SqliteMetricsStore | None = None
     if settings.metrics_db_path:
@@ -61,6 +70,7 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
         vector_store_backend=settings.vector_store_backend,
         retrieval_mode=settings.retrieval_mode,
         llm_provider=settings.llm_provider,
+        rag_backend=settings.rag_backend,
         answer_verification=app.state.verifier is not None,
         metrics_persistent=metrics_store is not None,
         otel_enabled=otel_sink is not None,

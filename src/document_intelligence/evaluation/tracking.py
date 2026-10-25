@@ -29,6 +29,7 @@ def log_evaluation_run(
     llm_model: str | None,
     synthesis_model: str | None = None,
     report_path: Path | None = None,
+    rag_backend: str = "langgraph",
 ) -> None:
     """Enregistre `report` comme un run MLflow ; ne lève jamais d'exception.
 
@@ -40,6 +41,7 @@ def log_evaluation_run(
             du juge ou à tracer explicitement.
         report_path: rapport JSON détaillé déjà écrit sur disque, à joindre comme
             artefact. Sans lui, un fichier temporaire est écrit puis supprimé.
+        rag_backend: backend de réponse évalué ("langgraph" ou "langchain").
     """
     if importlib.util.find_spec("mlflow") is None:
         logger.warning(
@@ -54,6 +56,7 @@ def log_evaluation_run(
             llm_model=llm_model,
             synthesis_model=synthesis_model,
             report_path=report_path,
+            rag_backend=rag_backend,
         )
     except Exception:
         logger.warning(
@@ -68,6 +71,7 @@ def _log_run(
     llm_model: str | None,
     synthesis_model: str | None,
     report_path: Path | None,
+    rag_backend: str = "langgraph",
 ) -> None:
     # mlflow >= 3 exige cet opt-in explicite pour le backend fichier local
     # ("file:./mlruns") — c'est justement le mode demandé ici, sans serveur dédié.
@@ -81,6 +85,7 @@ def _log_run(
 
     with mlflow.start_run():
         mlflow.log_param("retrieval_mode", retrieval_mode)
+        mlflow.log_param("rag_backend", rag_backend)
         mlflow.log_param("llm_model", llm_model or "none")
         if synthesis_model is not None:
             mlflow.log_param("synthesis_model", synthesis_model)
