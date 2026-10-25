@@ -1,0 +1,104 @@
+# Rubrique d'évaluation d'une réponse RAG (LLM-juge et annotation manuelle).
+#
+# Le juge et l'annotateur humain reçoivent exactement les mêmes éléments :
+# la question, la réponse, et les chunks récupérés (k=5), chacun marqué
+# [CITÉ] s'il figure dans les citations de la réponse.
+#
+# Chaque critère est noté 0, 1 ou 2 ; chaque niveau a une ancre explicite.
+# Toute modification des critères ou des ancres impose une nouvelle version
+# (rag_answer_v2.yaml) : les notes de versions différentes ne se comparent pas.
+
+id: rag_answer
+version: v1
+title: Qualité d'une réponse RAG citée
+
+criteria:
+  - id: sources_verifiables
+    name: Sources vérifiables
+    description: >-
+      Chaque affirmation clé est citée et traçable à un chunk : le chunk
+      marqué [CITÉ] contient effectivement l'information avancée.
+    levels:
+      0: >-
+        Aucune affirmation clé n'est traçable : la réponse affirme des faits
+        sans aucun chunk cité, ou les chunks cités ne contiennent pas les
+        informations avancées.
+      1: >-
+        Traçabilité partielle : au moins une affirmation clé est rattachée à
+        un chunk cité qui la contient, mais au moins une autre affirmation clé
+        n'est couverte par aucun chunk cité.
+      2: >-
+        Chaque affirmation clé se retrouve dans au moins un chunk cité. Un
+        refus qui n'avance aucun fait sur le contenu des documents reçoit 2.
+
+  - id: exactitude
+    name: Exactitude
+    description: >-
+      Cohérence de la réponse avec les chunks récupérés (chiffres, dates,
+      entités, obligations, conditions).
+    levels:
+      0: >-
+        Au moins une information contredit les chunks récupérés : chiffre,
+        date, entité, obligation ou condition erronés ou inversés.
+      1: >-
+        Aucune contradiction, mais une imprécision qui altère légèrement le
+        sens : arrondi trompeur, unité ou période ambiguë, condition omise.
+      2: >-
+        Toutes les informations concordent avec les chunks, reformulation
+        fidèle comprise. Un refus qui n'affirme rien de faux sur le contenu
+        des documents reçoit 2.
+
+  - id: absence_hallucination
+    name: Absence d'hallucination
+    description: >-
+      La réponse ne contient aucune information absente des chunks
+      récupérés, même exacte par ailleurs (connaissances extérieures
+      comprises).
+    levels:
+      0: >-
+        Au moins une information factuelle substantielle est absente des
+        chunks : chiffre, date, nom, clause ou conclusion ajoutés.
+      1: >-
+        Un ajout mineur absent des chunks, sans incidence sur la réponse à
+        la question : généralité, mise en contexte non factuelle.
+      2: >-
+        Toutes les informations de la réponse figurent dans les chunks
+        récupérés (inférence immédiate admise, par exemple une somme).
+
+  - id: refus_justifie
+    name: Refus justifié
+    description: >-
+      La réponse refuse (ou signale l'absence d'information) quand les
+      chunks ne permettent pas de répondre, et ne refuse pas à tort quand
+      ils contiennent la réponse. Le jugement porte sur les chunks
+      récupérés, pas sur l'existence de l'information ailleurs.
+    levels:
+      0: >-
+        Comportement inverse de celui attendu : refuse alors que les chunks
+        contiennent la réponse, ou répond comme si l'information était
+        disponible alors que les chunks ne la contiennent pas.
+      1: >-
+        Comportement partiellement adapté : refuse une partie de la question
+        que les chunks couvrent, ou répond à une question que les chunks ne
+        couvrent qu'en partie sans signaler ce qui manque.
+      2: >-
+        Comportement adapté : répond quand les chunks contiennent la
+        réponse, refuse ou signale clairement l'absence d'information quand
+        ils ne la contiennent pas.
+
+  - id: concision_formalisme
+    name: Concision et formalisme
+    description: >-
+      Réponse concise, au ton formel et professionnel, de longueur
+      proportionnée à la question.
+    levels:
+      0: >-
+        Défaut majeur ou défauts multiples : réponse délayée qui noie
+        l'information, ton familier ou non professionnel, mise en forme qui
+        gêne la lecture.
+      1: >-
+        Un défaut : longueur excessive, répétition, détails superflus, ou
+        registre légèrement familier.
+      2: >-
+        Va droit au but, sans répétition ni remplissage, ton formel et
+        professionnel.

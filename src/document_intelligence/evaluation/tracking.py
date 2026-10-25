@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_TRACKING_URI = "file:./mlruns"
 _EXPERIMENT_NAME = "rag-evaluation"
+_RELIABILITY_EXPERIMENT_NAME = "rag-judge-reliability"
+_GUARDRAILS_EXPERIMENT_NAME = "rag-guardrails"
 
 
 def log_evaluation_run(
@@ -28,6 +30,7 @@ def log_evaluation_run(
     llm_model: str | None,
     synthesis_model: str | None = None,
     report_path: Path | None = None,
+    rag_backend: str = "langgraph",
 ) -> None:
     """Enregistre `report` comme un run MLflow ; ne lève jamais d'exception.
 
@@ -39,6 +42,7 @@ def log_evaluation_run(
             du juge ou à tracer explicitement.
         report_path: rapport JSON détaillé déjà écrit sur disque, à joindre comme
             artefact. Sans lui, un fichier temporaire est écrit puis supprimé.
+        rag_backend: backend de réponse évalué ("langgraph" ou "langchain").
     """
     if importlib.util.find_spec("mlflow") is None:
         logger.warning(
@@ -53,6 +57,7 @@ def log_evaluation_run(
             llm_model=llm_model,
             synthesis_model=synthesis_model,
             report_path=report_path,
+            rag_backend=rag_backend,
         )
     except Exception:
         logger.warning(
@@ -67,6 +72,7 @@ def _log_run(
     llm_model: str | None,
     synthesis_model: str | None,
     report_path: Path | None,
+    rag_backend: str = "langgraph",
 ) -> None:
     # mlflow >= 3 exige cet opt-in explicite pour le backend fichier local
     # ("file:./mlruns") — c'est justement le mode demandé ici, sans serveur dédié.
@@ -80,6 +86,7 @@ def _log_run(
 
     with mlflow.start_run():
         mlflow.log_param("retrieval_mode", retrieval_mode)
+        mlflow.log_param("rag_backend", rag_backend)
         mlflow.log_param("llm_model", llm_model or "none")
         if synthesis_model is not None:
             mlflow.log_param("synthesis_model", synthesis_model)
@@ -94,6 +101,61 @@ def _log_run(
             mlflow.log_artifact(str(report_path))
         else:
             _log_report_as_temp_artifact(report)
+
+
+def log_guardrails_run(
+    *,
+    params: dict[str, str | int | float],
+    metrics: dict[str, float],
+    artifacts: list[Path],
+) -> bool:
+    """Enregistre une mesure des garde-fous (expérience `rag-guardrails`) ; ne lève jamais."""
+    return log_reliability_run(
+        params=params,
+        metrics=metrics,
+        artifacts=artifacts,
+        experiment=_GUARDRAILS_EXPERIMENT_NAME,
+    )
+
+
+def log_reliability_run(
+    *,
+    params: dict[str, str | int | float],
+    metrics: dict[str, float],
+    artifacts: list[Path],
+    experiment: str | None = None,
+) -> bool:
+    """Enregistre une mesure de fiabilité du juge par rubrique ; ne lève jamais.
+
+    Un run par modèle juge, dans l'expérience `rag-judge-reliability`. Les
+    métriques non calculables ne figurent pas dans `metrics` (rien n'est
+    substitué) : elles restent visibles comme `null` dans le rapport JSON.
+
+    Returns:
+        `True` si le run a été écrit, `False` sinon (mlflow absent ou échec).
+    """
+    if importlib.util.find_spec("mlflow") is None:
+        logger.warning(
+            "mlflow n'est pas installé (groupe optionnel `mlflow`) : run non tracé."
+        )
+        return False
+    try:
+        os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
+        import mlflow
+
+        mlflow.set_tracking_uri(
+            os.environ.get("MLFLOW_TRACKING_URI", _DEFAULT_TRACKING_URI)
+        )
+        mlflow.set_experiment(experiment or _RELIABILITY_EXPERIMENT_NAME)
+        with mlflow.start_run():
+            mlflow.log_params(params)
+            mlflow.log_metrics(metrics)
+            for artifact in artifacts:
+                mlflow.log_artifact(str(artifact))
+    except Exception:
+        logger.warning("échec du tracking MLflow ; la mesure continue.", exc_info=True)
+        return False
+    return True
 
 
 def _log_report_as_temp_artifact(report: EvaluationReport) -> None:

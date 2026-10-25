@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from document_intelligence.orchestration.models import Citation
+from document_intelligence.orchestration.models import Citation, GuardrailReport
 
 
 class DocumentIngestResponse(BaseModel):
@@ -10,6 +10,8 @@ class DocumentIngestResponse(BaseModel):
 
     document_id: str
     chunk_count: int
+    # Chunks écartés par les règles d'injection (GUARDRAILS_ENABLED), non indexés.
+    quarantined_chunk_count: int = 0
 
 
 class QueryRequest(BaseModel):
@@ -29,6 +31,8 @@ class QueryResponse(BaseModel):
     # Agent de vérification (ANSWER_VERIFICATION) : None = réponse non vérifiée.
     verified: bool | None = None
     regenerations: int = 0
+    # Garde-fous (GUARDRAILS_ENABLED) : None quand ils sont désactivés.
+    guardrail: GuardrailReport | None = None
 
 
 class ErrorResponse(BaseModel):

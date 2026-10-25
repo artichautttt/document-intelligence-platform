@@ -65,6 +65,22 @@ class VerificationVerdict(BaseModel):
     )
 
 
+class GuardrailReport(BaseModel):
+    """Ce que les garde-fous ont fait d'une requête (`GUARDRAILS_ENABLED`).
+
+    - `blocked_input` : question refusée par une règle d'injection ;
+    - `pass` : réponse vérifiée, inchangée ;
+    - `degraded` : phrases non soutenues par les extraits cités retirées ;
+    - `refused_output` : aucune phrase soutenue, réponse remplacée par un refus ;
+    - `abstention` : le modèle s'est abstenu, message de refus standard.
+    """
+
+    action: str
+    rules: list[str] = []
+    removed_sentences: list[str] = []
+    reasons: list[str] = []
+
+
 class AnswerResult(BaseModel):
     """Réponse finale produite par le pipeline, avec ses citations source.
 
@@ -84,6 +100,10 @@ class AnswerResult(BaseModel):
     verified: bool | None = None
     regenerations: int = 0
     rejected_answers: list[str] = []
+    guardrail: GuardrailReport | None = None
+    # Extraits fournis au modèle : utilisés par le vérificateur de sortie,
+    # jamais sérialisés (ni dans l'API ni dans les rapports).
+    context: list[QueryResult] = Field(default_factory=list, exclude=True)
 
 
 class AgentState(BaseModel):

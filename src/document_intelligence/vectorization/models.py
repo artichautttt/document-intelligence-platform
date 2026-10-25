@@ -17,3 +17,11 @@ class QueryResult(BaseModel):
     text: str
     score: float
     provenance: ChunkProvenance
+
+
+class DocumentSummary(BaseModel):
+    """Un document indexé dans le vector store, avec le nombre de ses chunks."""
+
+    document_id: str
+    source_path: str
+    chunk_count: int

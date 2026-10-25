@@ -18,8 +18,8 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 from document_intelligence.chunking.models import Chunk, ChunkProvenance
 from document_intelligence.core.logging import get_logger
 from document_intelligence.vectorization.exceptions import EmptyChunkListError
-from document_intelligence.vectorization.models import QueryResult
-from document_intelligence.vectorization.store import VectorStore
+from document_intelligence.vectorization.models import DocumentSummary, QueryResult
+from document_intelligence.vectorization.store import VectorStore, summarize_documents
 
 logger = get_logger(__name__)
 
@@ -102,6 +102,25 @@ class QdrantStore(VectorStore):
                 )
             )
         return query_results
+
+    def list_documents(self) -> list[DocumentSummary]:
+        provenances: list[tuple[str, str]] = []
+        offset = None
+        while True:
+            points, offset = self._client.scroll(
+                collection_name=self._collection_name,
+                limit=256,
+                offset=offset,
+                with_payload=["document_id", "source_path"],
+                with_vectors=False,
+            )
+            provenances += [
+                (str(p.payload["document_id"]), str(p.payload["source_path"]))
+                for p in points
+                if p.payload
+            ]
+            if offset is None:
+                return summarize_documents(provenances)
 
     @staticmethod
     def _to_metadata(provenance: ChunkProvenance) -> dict[str, str]:

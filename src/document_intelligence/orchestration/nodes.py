@@ -31,6 +31,7 @@ from document_intelligence.orchestration.verification import (
     build_feedback_block,
     describe_unsupported,
 )
+from document_intelligence.vectorization.models import QueryResult
 from document_intelligence.vectorization.store import VectorStore
 
 logger = get_logger(__name__)
@@ -63,6 +64,44 @@ def retrieve(state: AgentState, store: VectorStore, k: int = 5) -> AgentState:
     return state.model_copy(update={"retrieved": results})
 
 
+def build_answer(
+    query: str, retrieved: list[QueryResult], grounded: GroundedAnswer
+) -> AnswerResult:
+    """Transforme la sortie structurée du modèle en réponse citée.
+
+    Partagée par tous les backends de synthèse (graphe LangGraph, chaîne
+    LangChain) : seules les citations déclarées par le modèle ET présentes dans
+    le contexte récupéré sont conservées ; un identifiant inconnu est une
+    hallucination.
+    """
+    cited_ids = set(grounded.cited_chunk_ids)
+    known_ids = {result.chunk_id for result in retrieved}
+    unknown_ids = cited_ids - known_ids
+    if unknown_ids:
+        logger.warning(
+            "synthesis.unknown_citations",
+            chunk_ids=sorted(unknown_ids),
+            query=query,
+        )
+    if grounded.sufficient_context and not cited_ids & known_ids:
+        logger.warning("synthesis.no_valid_citation", query=query)
+
+    citations = [
+        Citation(
+            chunk_id=result.chunk_id, provenance=result.provenance, score=result.score
+        )
+        for result in retrieved
+        if result.chunk_id in cited_ids and grounded.sufficient_context
+    ]
+    return AnswerResult(
+        query=query,
+        answer=grounded.answer,
+        citations=citations,
+        sufficient_context=grounded.sufficient_context,
+        context=retrieved,
+    )
+
+
 def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
     """Génère une réponse citée à partir des chunks récupérés.
 
@@ -87,37 +126,12 @@ def synthesize(state: AgentState, llm: LLMClient) -> AgentState:
     grounded = llm.complete_structured(
         prompt, GroundedAnswer, system=SYNTHESIS_SYSTEM_PROMPT
     )
-
-    # Seules les citations déclarées par le modèle ET présentes dans le contexte
-    # récupéré sont conservées ; un identifiant inconnu est une hallucination.
-    cited_ids = set(grounded.cited_chunk_ids)
-    known_ids = {result.chunk_id for result in state.retrieved}
-    unknown_ids = cited_ids - known_ids
-    if unknown_ids:
-        logger.warning(
-            "synthesis.unknown_citations",
-            chunk_ids=sorted(unknown_ids),
-            query=state.query,
-        )
-    if grounded.sufficient_context and not cited_ids & known_ids:
-        logger.warning("synthesis.no_valid_citation", query=state.query)
-
-    citations = [
-        Citation(
-            chunk_id=result.chunk_id, provenance=result.provenance, score=result.score
-        )
-        for result in state.retrieved
-        if result.chunk_id in cited_ids and grounded.sufficient_context
-    ]
-
-    answer = AnswerResult(
-        query=state.query,
-        answer=grounded.answer,
-        citations=citations,
-        sufficient_context=grounded.sufficient_context,
-        verifications=state.verifications,
-        regenerations=regenerations,
-        rejected_answers=rejected,
+    answer = build_answer(state.query, state.retrieved, grounded).model_copy(
+        update={
+            "verifications": state.verifications,
+            "regenerations": regenerations,
+            "rejected_answers": rejected,
+        }
     )
     return state.model_copy(
         update={

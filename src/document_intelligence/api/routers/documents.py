@@ -8,7 +8,9 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from document_intelligence.api.dependencies import get_store, verify_api_key
 from document_intelligence.api.schemas import DocumentIngestResponse
 from document_intelligence.chunking.service import chunk_document
+from document_intelligence.core.config import settings
 from document_intelligence.core.logging import get_logger
+from document_intelligence.guardrails import screen_chunks
 from document_intelligence.ingestion.service import ingest
 from document_intelligence.vectorization.store import VectorStore
 
@@ -37,13 +39,21 @@ async def upload_document(
 
         document = ingest(tmp_path)
         chunks = chunk_document(document)
-        store.add_chunks(chunks)
+        quarantined = 0
+        if settings.guardrails_enabled:
+            screening = screen_chunks(chunks)
+            chunks, quarantined = screening.kept, len(screening.quarantined)
+        if chunks:
+            store.add_chunks(chunks)
 
     logger.info(
         "api.document_ingested",
         document_id=document.document_id,
         chunk_count=len(chunks),
+        quarantined_chunk_count=quarantined,
     )
     return DocumentIngestResponse(
-        document_id=document.document_id, chunk_count=len(chunks)
+        document_id=document.document_id,
+        chunk_count=len(chunks),
+        quarantined_chunk_count=quarantined,
     )

@@ -10,6 +10,12 @@ from pathlib import Path
 
 from docx import Document
 
+from document_intelligence.chunking.service import chunk_document
+from document_intelligence.ingestion.service import ingest
+from document_intelligence.vectorization.chroma_store import ChromaStore
+
+DEFAULT_FIXTURES_DIR = Path("tests/fixtures/documents")
+
 # Chaque document : (nom de fichier, titre, [(section, [paragraphes])], tableau)
 _Table = list[list[str]]
 _Section = tuple[str, list[str]]
@@ -359,3 +365,20 @@ def build_extended_corpus(directory: Path) -> list[Path]:
         doc.save(str(path))
         paths.append(path)
     return paths
+
+
+def index_demo_corpus(
+    directory: Path, fixtures_dir: Path = DEFAULT_FIXTURES_DIR
+) -> ChromaStore:
+    """Indexe les fixtures et le corpus étendu dans un ChromaDB sous `directory`.
+
+    Même corpus que l'évaluation par défaut (6 documents) ; utilisé par les
+    scripts de démonstration (client MCP, agent de recherche).
+    """
+    store = ChromaStore(persist_directory=str(directory / "chroma"))
+    fixtures = sorted(
+        p for p in fixtures_dir.iterdir() if p.suffix.lower() in {".pdf", ".docx"}
+    )
+    for path in fixtures + build_extended_corpus(directory / "docs"):
+        store.add_chunks(chunk_document(ingest(path)))
+    return store

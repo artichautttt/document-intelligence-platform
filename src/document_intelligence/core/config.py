@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     llm_verifier_model: str | None = Field(default=None)
     # Étapes simples (reformulation, classification, extraction de métadonnées).
     llm_light_model: str = Field(default="claude-haiku-4-5")
+    # Juge de l'évaluation par rubrique (`evaluation.rubric_judge`), Anthropic
+    # uniquement. Vide = modèle du LLM-juge (`LLM_JUDGE_MODEL`, sinon la référence).
+    rubric_judge_model: str | None = Field(default=None)
 
     # Cache exact-match des réponses LLM (clé = prompt normalisé + modèle).
     # `llm_cache_path` vide = cache en mémoire seule ; sinon fichier JSON local.
@@ -66,6 +69,14 @@ class Settings(BaseSettings):
 
     # "hybrid" : recherche dense + réordonnancement lexical ; "dense" : dense seul.
     retrieval_mode: str = Field(default="hybrid")
+
+    # Backend de réponse RAG : "langgraph" (défaut, graphe historique) ou
+    # "langchain" (chaîne LCEL, groupe de dépendances `langchain`, Anthropic seul).
+    rag_backend: str = Field(default="langgraph")
+    # Garde-fous (règles d'injection en entrée et à l'ingestion, vérificateur de
+    # sortie lexical). Désactivés par défaut : comportement historique inchangé.
+    guardrails_enabled: bool = Field(default=False)
+    guardrails_min_overlap: float = Field(default=0.5, ge=0, le=1)
 
 
 settings = Settings()
