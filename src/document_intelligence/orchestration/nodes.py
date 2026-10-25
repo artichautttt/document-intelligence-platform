@@ -98,6 +98,7 @@ def build_answer(
         answer=grounded.answer,
         citations=citations,
         sufficient_context=grounded.sufficient_context,
+        context=retrieved,
     )
 
 

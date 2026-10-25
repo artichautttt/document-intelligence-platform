@@ -73,6 +73,10 @@ class Settings(BaseSettings):
     # Backend de réponse RAG : "langgraph" (défaut, graphe historique) ou
     # "langchain" (chaîne LCEL, groupe de dépendances `langchain`, Anthropic seul).
     rag_backend: str = Field(default="langgraph")
+    # Garde-fous (règles d'injection en entrée et à l'ingestion, vérificateur de
+    # sortie lexical). Désactivés par défaut : comportement historique inchangé.
+    guardrails_enabled: bool = Field(default=False)
+    guardrails_min_overlap: float = Field(default=0.5, ge=0, le=1)
 
 
 settings = Settings()

@@ -77,8 +77,23 @@ def build_backend(
     """Backend de réponse désigné par `RAG_BACKEND` ; `None` sans fournisseur LLM.
 
     `llm` (éventuellement une doublure injectée) sert le backend `langgraph` ;
-    le backend `langchain` construit son propre modèle de chat Anthropic.
+    le backend `langchain` construit son propre modèle de chat Anthropic. Avec
+    `GUARDRAILS_ENABLED`, le backend est enveloppé dans `GuardedBackend`.
     """
+    backend = _build_raw_backend(store, llm, verifier)
+    if backend is None or not settings.guardrails_enabled:
+        return backend
+    from document_intelligence.guardrails import GuardedBackend
+
+    return GuardedBackend(backend, min_overlap=settings.guardrails_min_overlap)
+
+
+def _build_raw_backend(
+    store: VectorStore,
+    llm: LLMClient | None,
+    verifier: AnswerVerifier | None,
+) -> RAGBackend | None:
+
     if check_backend(settings.rag_backend) == "langchain":
         if not settings.anthropic_api_key:
             return None

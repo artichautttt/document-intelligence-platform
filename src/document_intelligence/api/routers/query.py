@@ -33,4 +33,5 @@ async def query_documents(
         sufficient_context=result.sufficient_context,
         verified=result.verified,
         regenerations=result.regenerations,
+        guardrail=result.guardrail,
     )

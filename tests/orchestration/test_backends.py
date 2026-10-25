@@ -89,3 +89,18 @@ class TestBuildBackend:
         monkeypatch.setattr(settings, "rag_backend", "inconnu")
         with pytest.raises(ValueError):
             build_backend(store, CitingLLM())
+
+
+def test_guardrails_wrap_the_configured_backend(
+    store: InMemoryStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from document_intelligence.guardrails import GuardedBackend
+
+    monkeypatch.setattr(settings, "rag_backend", "langgraph")
+    monkeypatch.setattr(settings, "guardrails_enabled", True)
+
+    backend = build_backend(store, CitingLLM())
+
+    assert isinstance(backend, GuardedBackend)
+    assert backend.name == "langgraph+guardrails"
+    assert isinstance(backend.inner, LangGraphBackend)

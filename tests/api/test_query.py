@@ -54,3 +54,12 @@ def test_query_returns_503_when_llm_not_configured(
     response = client_without_llm.post("/query", json={"query": "quelque chose"})
 
     assert response.status_code == 503
+
+
+def test_guardrail_field_is_null_when_guardrails_disabled(
+    client: TestClient, simple_docx: Path
+) -> None:
+    _upload(client, simple_docx)
+    body = client.post("/query", json={"query": "resultats financiers"}).json()
+    assert body["guardrail"] is None
+    assert "context" not in body

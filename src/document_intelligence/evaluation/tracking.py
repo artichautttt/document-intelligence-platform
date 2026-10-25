@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 _DEFAULT_TRACKING_URI = "file:./mlruns"
 _EXPERIMENT_NAME = "rag-evaluation"
 _RELIABILITY_EXPERIMENT_NAME = "rag-judge-reliability"
+_GUARDRAILS_EXPERIMENT_NAME = "rag-guardrails"
 
 
 def log_evaluation_run(
@@ -102,11 +103,27 @@ def _log_run(
             _log_report_as_temp_artifact(report)
 
 
+def log_guardrails_run(
+    *,
+    params: dict[str, str | int | float],
+    metrics: dict[str, float],
+    artifacts: list[Path],
+) -> bool:
+    """Enregistre une mesure des garde-fous (expérience `rag-guardrails`) ; ne lève jamais."""
+    return log_reliability_run(
+        params=params,
+        metrics=metrics,
+        artifacts=artifacts,
+        experiment=_GUARDRAILS_EXPERIMENT_NAME,
+    )
+
+
 def log_reliability_run(
     *,
     params: dict[str, str | int | float],
     metrics: dict[str, float],
     artifacts: list[Path],
+    experiment: str | None = None,
 ) -> bool:
     """Enregistre une mesure de fiabilité du juge par rubrique ; ne lève jamais.
 
@@ -129,7 +146,7 @@ def log_reliability_run(
         mlflow.set_tracking_uri(
             os.environ.get("MLFLOW_TRACKING_URI", _DEFAULT_TRACKING_URI)
         )
-        mlflow.set_experiment(_RELIABILITY_EXPERIMENT_NAME)
+        mlflow.set_experiment(experiment or _RELIABILITY_EXPERIMENT_NAME)
         with mlflow.start_run():
             mlflow.log_params(params)
             mlflow.log_metrics(metrics)
