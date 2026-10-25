@@ -173,14 +173,18 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pyt
 .
 ├── src/document_intelligence/
 │   ├── api/             # FastAPI : /documents, /query, /metrics, /health
+│   ├── mcp_server/      # serveur MCP : search_documents, ask_question, list_documents
 │   ├── ingestion/       # parsing PDF (unstructured + pdfplumber) et DOCX (unstructured)
 │   ├── chunking/        # découpage par section
 │   ├── vectorization/   # VectorStore : ChromaDB, Qdrant, hybride dense + BM25
 │   ├── orchestration/   # graphe LangGraph, clients LLM, tiering, cache, coût, vérificateur CrewAI
 │   ├── evaluation/      # évaluation RAG, jeu de 63 questions (golden/), suivi MLflow
 │   ├── observability/   # tracing, métriques, Prometheus, OpenTelemetry
-│   └── core/            # configuration (variables d'environnement), logs
-├── tests/               # 187 tests pytest, documents de test dans fixtures/
+│   ├── core/            # configuration (variables d'environnement), logs
+│   ├── tools.py         # outils partagés (MCP, agent) au-dessus de VectorStore et du graphe
+│   └── services.py      # construction store / LLM / vérificateur, partagée API et MCP
+├── tests/               # 277 tests pytest (276 passent, 1 ignoré), documents de test dans fixtures/
+├── scripts/             # scripts d'évaluation du juge, client MCP de démonstration
 ├── finetune/            # expérience LoRA : jeu de distillation et entraînement
 ├── monitoring/          # config Prometheus, provisioning et dashboard Grafana
 ├── docker/              # Dockerfiles de l'API et de l'ingestion
@@ -287,6 +291,86 @@ ni leur respect de l'appel d'outil forcé. Avant de les citer comme
 Effet de bord du lock `uv` unifié : CrewAI (groupe `agents`) contraint aussi
 le cœur. `openai` est plafonné à 2.54 (3.x existe) et `pydantic` à 2.12.5 au
 lieu de 2.13.5.
+
+## Serveur MCP (Model Context Protocol)
+
+`src/document_intelligence/mcp_server/` expose la recherche documentaire à tout
+client MCP (Claude Desktop, Claude Code, IDE...), avec le SDK MCP officiel
+(`mcp.server.fastmcp`). Trois outils :
+
+| Outil | Rôle | Appel LLM |
+|---|---|---|
+| `search_documents(query, k=5)` | les `k` chunks les plus pertinents (texte, score, document source) | non |
+| `ask_question(question, k=5)` | réponse du pipeline RAG (graphe LangGraph) avec les chunks cités et `sufficient_context` | oui (synthèse) |
+| `list_documents()` | documents indexés et nombre de chunks | non |
+
+Les outils sont des fonctions minces de `document_intelligence/tools.py` au-dessus
+de `VectorStore` et de `answer_query` : aucune logique de recherche ou de
+synthèse n'est dupliquée. Le serveur lit la même configuration que l'API
+(`.env`) via `document_intelligence/services.py`, partagé avec l'API. Sans clé
+LLM, `ask_question` renvoie une erreur d'outil explicite ; les deux autres outils
+restent utilisables. `list_documents` s'appuie sur une méthode
+`VectorStore.list_documents()` ajoutée pour Chroma, Qdrant et le mode hybride
+(non abstraite : un backend qui ne la fournit pas lève `NotImplementedError`).
+
+Lancement (transport stdio par défaut ; en stdio, les logs partent sur stderr car
+stdout porte le protocole) :
+
+```bash
+uv run python -m document_intelligence.mcp_server                    # stdio
+uv run python -m document_intelligence.mcp_server --transport streamable-http --port 8001
+```
+
+Connexion depuis Claude Code :
+
+```bash
+claude mcp add document-intelligence -- uv run --directory /chemin/vers/le/depot python -m document_intelligence.mcp_server
+```
+
+Connexion depuis Claude Desktop (`claude_desktop_config.json`) :
+
+```json
+{
+  "mcpServers": {
+    "document-intelligence": {
+      "command": "uv",
+      "args": ["run", "--directory", "/chemin/vers/le/depot", "python", "-m", "document_intelligence.mcp_server"],
+      "env": { "CHROMA_PERSIST_DIRECTORY": "/chemin/vers/le/depot/.chroma" }
+    }
+  }
+}
+```
+
+Client Python (`scripts/mcp_client_demo.py`) : lance le serveur en sous-processus
+stdio, comme le ferait Claude Desktop, puis appelle les trois outils ;
+`--demo-corpus` indexe d'abord les fixtures et le corpus étendu dans un dossier
+temporaire :
+
+```bash
+uv run python scripts/mcp_client_demo.py --demo-corpus --question "Quel est le montant de la redevance annuelle ?"
+```
+
+Tests (`tests/mcp_server/`, 19 tests) : appel direct des outils, appel via un
+client MCP connecté en mémoire (`list_tools`, `call_tool`, erreurs d'outil), et
+un test de bout en bout qui lance le vrai serveur en sous-processus stdio sur un
+ChromaDB réel contenant les trois documents de `tests/fixtures/documents/`
+(`list_documents` et `search_documents` réels ; `ask_question` sans clé doit
+renvoyer l'erreur explicite, aucun appel payant en CI).
+
+**Appel réel** (2026-10-25, `scripts/mcp_client_demo.py --demo-corpus`, serveur
+lancé en stdio, `claude-sonnet-5`, k=5, mode hybride, un seul appel) :
+
+- question : « Quel est le montant de la redevance annuelle ? »
+- réponse : « La redevance annuelle s'élève à 184 000 euros HT, facturée par
+  échéances trimestrielles de 46 000 euros HT. Elle est révisée chaque année selon
+  l'indice Syntec, avec une hausse plafonnée à 4 %. »
+- `sufficient_context = true`, 1 source citée : le chunk « Article 3 - Redevances »
+  de `contrat_licence_helio.docx`, qui contient bien ces trois informations ;
+- latence de l'aller-retour MCP : 3,48 s (retrieval 0,86 s, appel LLM 2,53 s) ;
+- 2 166 tokens en entrée, 201 en sortie, soit 0,0063 $ au tarif de `cost.py`.
+
+Un appel isolé : il montre que la chaîne client MCP → serveur → pipeline →
+API Anthropic fonctionne, pas une latence ou une qualité moyenne.
 
 ## Évaluation
 

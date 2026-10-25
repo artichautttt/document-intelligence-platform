@@ -14,7 +14,7 @@ from collections import Counter
 
 from document_intelligence.chunking.models import Chunk
 from document_intelligence.core.text import normalize
-from document_intelligence.vectorization.models import QueryResult
+from document_intelligence.vectorization.models import DocumentSummary, QueryResult
 from document_intelligence.vectorization.store import VectorStore
 
 _TOKEN = re.compile(r"[a-z0-9]+")
@@ -85,6 +85,9 @@ class HybridStore(VectorStore):
 
     def add_chunks(self, chunks: list[Chunk]) -> None:
         self._inner.add_chunks(chunks)
+
+    def list_documents(self) -> list[DocumentSummary]:
+        return self._inner.list_documents()
 
     def query(self, text: str, k: int = 5) -> list[QueryResult]:
         """Retourne les `k` meilleurs chunks après fusion des classements.

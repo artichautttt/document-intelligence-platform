@@ -22,6 +22,8 @@ dependencies = [
     "mistralai>=1.2",
     "prometheus-client>=0.20",
     "pyyaml>=6.0",
+    "mcp>=1.28",
+    "langchain-core>=1.6",
 ]
 
 [dependency-groups]

@@ -16,8 +16,8 @@ import chromadb
 from document_intelligence.chunking.models import Chunk, ChunkProvenance
 from document_intelligence.core.logging import get_logger
 from document_intelligence.vectorization.exceptions import EmptyChunkListError
-from document_intelligence.vectorization.models import QueryResult
-from document_intelligence.vectorization.store import VectorStore
+from document_intelligence.vectorization.models import DocumentSummary, QueryResult
+from document_intelligence.vectorization.store import VectorStore, summarize_documents
 
 logger = get_logger(__name__)
 
@@ -74,6 +74,12 @@ class ChromaStore(VectorStore):
                 ids, documents, metadatas, distances, strict=True
             )
         ]
+
+    def list_documents(self) -> list[DocumentSummary]:
+        metadatas = self._collection.get(include=["metadatas"])["metadatas"] or []
+        return summarize_documents(
+            [(str(m["document_id"]), str(m["source_path"])) for m in metadatas]
+        )
 
     @staticmethod
     def _to_metadata(provenance: ChunkProvenance) -> dict[str, str]:
