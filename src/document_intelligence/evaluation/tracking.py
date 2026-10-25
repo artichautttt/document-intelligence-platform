@@ -21,6 +21,7 @@ _DEFAULT_TRACKING_URI = "file:./mlruns"
 _EXPERIMENT_NAME = "rag-evaluation"
 _RELIABILITY_EXPERIMENT_NAME = "rag-judge-reliability"
 _GUARDRAILS_EXPERIMENT_NAME = "rag-guardrails"
+_DATA_AGENT_EXPERIMENT_NAME = "data-agent"
 
 
 def log_evaluation_run(
@@ -115,6 +116,21 @@ def log_guardrails_run(
         metrics=metrics,
         artifacts=artifacts,
         experiment=_GUARDRAILS_EXPERIMENT_NAME,
+    )
+
+
+def log_data_agent_run(
+    *,
+    params: dict[str, str | int | float],
+    metrics: dict[str, float],
+    artifacts: list[Path],
+) -> bool:
+    """Enregistre une évaluation de l'agent text-to-SQL (expérience `data-agent`)."""
+    return log_reliability_run(
+        params=params,
+        metrics=metrics,
+        artifacts=artifacts,
+        experiment=_DATA_AGENT_EXPERIMENT_NAME,
     )
 
 

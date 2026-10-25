@@ -30,13 +30,22 @@ def _with_client(
     return anyio.run(run)
 
 
-def test_lists_the_three_tools_with_input_schemas(store: InMemoryStore) -> None:
+def test_lists_the_tools_with_input_schemas(store: InMemoryStore) -> None:
     async def scenario(client: ClientSession) -> Any:
         return (await client.list_tools()).tools
 
     listed = {tool.name: tool for tool in _with_client(store, None, scenario)}
 
-    assert set(listed) == {"search_documents", "ask_question", "list_documents"}
+    assert set(listed) == {
+        "search_documents",
+        "ask_question",
+        "list_documents",
+        "describe_tables",
+        "run_sql",
+        "ask_data",
+    }
+    assert listed["run_sql"].inputSchema["required"] == ["sql"]
+    assert listed["ask_data"].inputSchema["required"] == ["question"]
     assert set(listed["search_documents"].inputSchema["properties"]) == {"query", "k"}
     assert listed["ask_question"].inputSchema["required"] == ["question"]
     assert all(tool.outputSchema for tool in listed.values())
@@ -98,3 +107,75 @@ def test_list_documents(store: InMemoryStore) -> None:
     result = _with_client(store, None, scenario)
 
     assert [d["chunk_count"] for d in result.structuredContent["documents"]] == [2, 1]
+
+
+def test_describe_tables(store: InMemoryStore) -> None:
+    async def scenario(client: ClientSession) -> Any:
+        return await client.call_tool("describe_tables", {})
+
+    result = _with_client(store, None, scenario)
+
+    assert not result.isError
+    names = [t["name"] for t in result.structuredContent["tables"]]
+    assert "od_monthly" in names and "build_info" not in names
+
+
+def test_run_sql_executes_a_select(store: InMemoryStore) -> None:
+    async def scenario(client: ClientSession) -> Any:
+        return await client.call_tool(
+            "run_sql",
+            {"sql": "SELECT COUNT(*) AS n FROM zones WHERE borough = 'Brooklyn'"},
+        )
+
+    result = _with_client(store, None, scenario)
+
+    assert not result.isError
+    assert result.structuredContent["rows"] == [[61]]
+    assert result.structuredContent["truncated"] is False
+
+
+def test_run_sql_write_is_an_explicit_tool_error(store: InMemoryStore) -> None:
+    async def scenario(client: ClientSession) -> Any:
+        return await client.call_tool("run_sql", {"sql": "DROP TABLE zones"})
+
+    result = _with_client(store, None, scenario)
+
+    assert result.isError
+    assert "lecture seule" in result.content[0].text
+
+
+def test_ask_data_without_agent_is_a_tool_error(store: InMemoryStore) -> None:
+    async def scenario(client: ClientSession) -> Any:
+        return await client.call_tool("ask_data", {"question": "Combien de zones ?"})
+
+    result = _with_client(store, None, scenario)
+
+    assert result.isError
+    assert "ask_data est indisponible" in result.content[0].text
+
+
+def test_ask_data_with_a_scripted_agent(store: InMemoryStore) -> None:
+    from document_intelligence.data_agent.sql_guard import SafeSQLExecutor
+    from document_intelligence.evaluation.scripted_sql_client import ScriptedSQLClient
+    from document_intelligence.evaluation.sql_eval_cases import load_sql_eval
+    from document_intelligence.orchestration.data_agent import DataAgent
+
+    cases = load_sql_eval()
+    brooklyn = next(c for c in cases if c.id == "s04")
+    executor = SafeSQLExecutor()
+    agent = DataAgent(ScriptedSQLClient(cases), "scripted", executor)
+
+    async def run() -> Any:
+        async with create_connected_server_and_client_session(
+            build_server(store, None, sql_executor=executor, data_agent=agent)
+        ) as client:
+            return await client.call_tool("ask_data", {"question": brooklyn.question})
+
+    result = anyio.run(run)
+
+    assert not result.isError
+    content = result.structuredContent
+    assert content["value"] == 61 and content["refused"] is False
+    assert content["sql"] == brooklyn.reference_sql
+    assert brooklyn.reference_sql in content["answer"]
+    assert content["blocked_queries"] == 0

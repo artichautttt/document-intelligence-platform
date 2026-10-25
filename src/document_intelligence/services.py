@@ -1,10 +1,15 @@
-"""Construction des services partagés (vector store, LLM, vérificateur) depuis la config.
+"""Construction des services partagés (vector store, LLM, vérificateur, agent de données).
 
 Utilisé par l'API FastAPI (`api.app`) et par le serveur MCP (`mcp_server`), pour
 que les deux points d'entrée servent exactement le même pipeline.
 """
 
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 from document_intelligence.core.config import settings
+from document_intelligence.data_agent import DEFAULT_DB_PATH
+from document_intelligence.data_agent.sql_guard import SafeSQLExecutor
 from document_intelligence.orchestration.backends import (
     LangGraphBackend,
     RAGBackend,
@@ -15,6 +20,7 @@ from document_intelligence.orchestration.tiering import (
     LLMRole,
     build_llm_client,
     build_response_cache,
+    model_for,
     provider_api_key,
 )
 from document_intelligence.orchestration.verification import AnswerVerifier
@@ -22,6 +28,9 @@ from document_intelligence.vectorization.chroma_store import ChromaStore
 from document_intelligence.vectorization.hybrid_store import HybridStore
 from document_intelligence.vectorization.qdrant_store import QdrantStore
 from document_intelligence.vectorization.store import VectorStore
+
+if TYPE_CHECKING:
+    from document_intelligence.orchestration.data_agent import DataAgent
 
 
 def build_store() -> VectorStore:
@@ -110,4 +119,28 @@ def _build_raw_backend(
         llm,
         verifier=verifier,
         max_regenerations=settings.verification_max_regenerations,
+    )
+
+
+def build_sql_executor() -> SafeSQLExecutor:
+    """Exécuteur SQL protégé sur `DATA_AGENT_DB_PATH` (défaut : base taxi)."""
+    path = Path(settings.data_agent_db_path) if settings.data_agent_db_path else None
+    return SafeSQLExecutor(
+        path or DEFAULT_DB_PATH,
+        max_rows=settings.data_agent_max_rows,
+        timeout_s=settings.data_agent_timeout_s,
+    )
+
+
+def build_data_agent(executor: SafeSQLExecutor) -> "DataAgent | None":
+    """Agent de données (client Anthropic direct) ; `None` sans clé Anthropic."""
+    if not settings.anthropic_api_key:
+        return None
+    import anthropic
+
+    from document_intelligence.orchestration.data_agent import DataAgent
+
+    model = settings.data_agent_model or model_for(LLMRole.SYNTHESIS)
+    return DataAgent(
+        anthropic.Anthropic(api_key=settings.anthropic_api_key), model, executor
     )

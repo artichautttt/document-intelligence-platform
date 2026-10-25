@@ -78,5 +78,12 @@ class Settings(BaseSettings):
     guardrails_enabled: bool = Field(default=False)
     guardrails_min_overlap: float = Field(default=0.5, ge=0, le=1)
 
+    # Agent de données text-to-SQL : base SQLite (défaut : base taxi versionnée),
+    # limites de l'exécuteur protégé, modèle (défaut : modèle de synthèse).
+    data_agent_db_path: str | None = Field(default=None)
+    data_agent_max_rows: int = Field(default=200, ge=1, le=10_000)
+    data_agent_timeout_s: float = Field(default=2.0, gt=0, le=60)
+    data_agent_model: str | None = Field(default=None)
+
 
 settings = Settings()
