@@ -6,6 +6,8 @@
 [![Checked with mypy](https://img.shields.io/badge/mypy-strict-2a6db2)](https://mypy-lang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+*English summary: [README.en.md](README.en.md).*
+
 Plateforme RAG multi-agents pour interroger des documents d'entreprise (rapports
 financiers, contrats, audits) : API FastAPI, pipeline LangGraph, réponses
 citées et vérifiables, évaluation suivie dans MLflow, conteneurisée avec
