@@ -22,7 +22,8 @@ Retrouver une information précise dans des PDF et DOCX d'entreprise (un
 montant, une clause, une échéance) prend du temps, et un LLM interrogé seul
 invente facilement une réponse plausible. La plateforme :
 
-1. ingère les documents (PDF, DOCX), les découpe par section et les indexe
+1. ingère les documents (PDF, DOCX, modèles de processus BPMN 2.0), les découpe
+   par section (par tâche pour un BPMN) et les indexe
    (ChromaDB ou Qdrant, recherche hybride dense + BM25) ;
 2. répond à une question **uniquement à partir des extraits retrouvés**, en
    citant les passages utilisés, et **refuse de répondre** quand les documents
@@ -193,8 +194,8 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pyt
 ├── src/document_intelligence/
 │   ├── api/             # FastAPI : /documents, /query, /metrics, /health
 │   ├── mcp_server/      # serveur MCP : recherche documentaire et agent de données (6 outils)
-│   ├── ingestion/       # parsing PDF (unstructured + pdfplumber) et DOCX (unstructured)
-│   ├── chunking/        # découpage par section
+│   ├── ingestion/       # parsing PDF (unstructured + pdfplumber), DOCX (unstructured), BPMN 2.0 (XML)
+│   ├── chunking/        # découpage par section, une tâche par chunk pour un BPMN
 │   ├── vectorization/   # VectorStore : ChromaDB, Qdrant, hybride dense + BM25
 │   ├── orchestration/   # graphe LangGraph, chaîne LangChain, agent à tool calling, clients LLM, coût
 │   ├── evaluation/      # évaluation RAG (63 questions, 40 attaques), text-to-SQL (40 questions), MLflow
@@ -204,7 +205,8 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pyt
 │   ├── core/            # configuration (variables d'environnement), logs
 │   ├── tools.py         # outils partagés (MCP, agents) : recherche, réponse citée, SQL
 │   └── services.py      # construction store / LLM / vérificateur / agent de données, partagée API et MCP
-├── tests/               # 504 tests pytest (503 passent, 1 ignoré), documents de test dans fixtures/
+├── tests/               # 538 tests pytest (537 passent, 1 ignoré), documents de test dans fixtures/
+├── examples/bpmn/       # 3 processus BPMN d'exemple, modélisés à la main (fictifs)
 ├── scripts/             # évaluation du juge, démos MCP et agent, construction de la base taxi
 ├── finetune/            # expérience LoRA : jeu de distillation et entraînement
 ├── monitoring/          # config Prometheus, provisioning et dashboard Grafana
@@ -654,6 +656,78 @@ Limites constatées à la lecture des réponses :
   simulé, jamais par le vrai modèle : leur comportement face à un modèle
   manipulé n'est pas mesuré ;
 - un seul run, un seul modèle, 29 questions : aucune conclusion statistique.
+
+## Ingestion de processus BPMN 2.0
+
+Un fichier `.bpmn` (BPMN 2.0, XML) est ingéré comme un PDF ou un DOCX :
+`BpmnParser` fait partie des parsers par défaut, et `chunk_document` choisit
+`BpmnTaskChunker` pour ce format. Une tâche donne un chunk, jamais découpé,
+qui reprend le nom du processus et décrit la tâche en texte :
+
+- **acteur** : couloir (*lane*) et participant (*pool*) ;
+- **entrées** : tâches précédentes (en remontant à travers les passerelles,
+  avec la branche empruntée), messages reçus, données lues ;
+- **sorties** : tâches suivantes, exécutions en parallèle, fin du processus,
+  messages envoyés, données produites ;
+- **décision** : chaque passerelle exclusive qui suit la tâche, avec ses
+  conditions et leurs cibles, y compris les décisions imbriquées.
+
+La citation suit la hiérarchie processus > tâche :
+`provenance.element_ids = [id du processus, id de la tâche]`, avec les
+identifiants du fichier BPMN. Un fichier qui déclare une DTD ou des entités
+est refusé (`CorruptFileError`).
+
+```text
+Processus : Demande de congés
+Tâche : Notifier le refus motivé
+Type : envoi de message
+Acteur : Manager (Société Exemple)
+Entrées : « Examiner la demande de congés » (décision « Demande approuvée ? » : « Non »)
+Sorties : fin du processus « Demande refusée »
+Description : Le manager explique au salarié la raison du refus et propose, si possible, d'autres dates.
+```
+
+Citation : `element_ids = ["Process_Conges", "Task_NotifierRefus"]`.
+
+Le dossier `examples/bpmn/` contient **trois processus d'exemple modélisés à
+la main** : demande de congés, remboursement d'une note de frais, traitement
+d'un incident informatique (deux participants reliés par des messages). Les
+organisations, règles et montants sont fictifs ; ce ne sont pas des processus
+réels. Ils donnent 19 chunks (5, 6 et 8 tâches).
+
+### Retrieval mesuré (24 questions procédurales, sans LLM, 0 $)
+
+`evaluation/golden/bpmn_qa.jsonl` : 20 questions répondables (qui fait quoi,
+dans quel ordre, que se passe-t-il si...) et 4 sans réponse dans les
+processus. Un passage attendu est une ligne `Tâche : <nom>` ; un test vérifie
+que chacune désigne exactement un chunk. Mesures du 2026-11-05, ChromaDB,
+embeddings ONNX locaux, `--retrieval-only` (hit rate sur les 20 questions
+répondables) :
+
+| Corpus indexé | k | dense : hit rate / MRR / nDCG | hybride : hit rate / MRR / nDCG |
+|---|---|---|---|
+| 3 BPMN (19 chunks) | 1 | 0.600 / 0.600 / 0.600 | 0.650 / 0.650 / 0.650 |
+| 3 BPMN (19 chunks) | 3 | 0.950 / 0.725 / 0.717 | 1.000 / 0.883 / 0.831 |
+| 3 BPMN (19 chunks) | 5 | 1.000 / 0.738 / 0.767 | 1.000 / 0.883 / 0.856 |
+| 3 BPMN + 6 documents d'évaluation (78 chunks) | 1 | 0.600 / 0.600 / 0.600 | 0.600 / 0.600 / 0.600 |
+| 3 BPMN + 6 documents d'évaluation (78 chunks) | 5 | 0.850 / 0.678 / 0.654 | 0.950 / 0.787 / 0.781 |
+
+```bash
+uv run python -m document_intelligence.evaluation --retrieval-only --k 5   --dataset src/document_intelligence/evaluation/golden/bpmn_qa.jsonl   --documents examples/bpmn
+```
+
+Limites :
+
+- trois processus écrits par l'auteur du parser, et des questions écrites en
+  connaissant ces processus : les chiffres vérifient le fonctionnement, ce
+  n'est pas un benchmark ;
+- seul le retrieval est mesuré : la qualité des réponses générées sur ces
+  questions n'a pas été évaluée ;
+- non décrits : contenu des sous-processus, événements attachés aux tâches
+  (*boundary events*), diagramme (BPMNDI). Seuls les fichiers `.bpmn` sont
+  lus (pas d'archive d'outil de modélisation) ;
+- l'évaluation par défaut (63 questions) ne change pas : les exemples BPMN
+  n'y sont pas indexés.
 
 ## Évaluation
 

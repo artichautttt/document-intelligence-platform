@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Processus d'EXEMPLE, modélisé à la main pour tester l'ingestion BPMN 2.0.
+     Organisation, seuils et règles fictifs ; ne décrit aucun processus réel.
+     Pas de diagramme (BPMNDI) : seule la sémantique du processus est décrite. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_Frais" targetNamespace="https://example.org/bpmn/frais">
+  <bpmn:collaboration id="Collab_Frais">
+    <bpmn:participant id="Pool_Frais" name="Société Exemple" processRef="Process_Frais"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_Frais" name="Remboursement d'une note de frais" isExecutable="false">
+    <bpmn:documentation>Un collaborateur se fait rembourser une dépense professionnelle avancée sur ses fonds propres.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_Frais">
+      <bpmn:lane id="Lane_Collaborateur" name="Collaborateur">
+        <bpmn:flowNodeRef>Start_Frais</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DeclarerFrais</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CorrigerNote</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Comptabilite" name="Comptabilité fournisseurs">
+        <bpmn:flowNodeRef>Task_ControlerJustificatifs</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Conforme</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Montant</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Jonction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Rembourser</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Remboursee</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Budget" name="Responsable budgétaire">
+        <bpmn:flowNodeRef>Task_ApprouverDepense</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Approuvee</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InformerRejet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Rejetee</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:dataObject id="DO_Justificatifs"/>
+    <bpmn:dataObjectReference id="DOR_Justificatifs" name="Justificatifs de dépense (factures, tickets)" dataObjectRef="DO_Justificatifs"/>
+    <bpmn:dataObject id="DO_Ordre"/>
+    <bpmn:dataObjectReference id="DOR_Ordre" name="Ordre de virement" dataObjectRef="DO_Ordre"/>
+
+    <bpmn:startEvent id="Start_Frais" name="Dépense professionnelle avancée"/>
+    <bpmn:userTask id="Task_DeclarerFrais" name="Déclarer la note de frais">
+      <bpmn:documentation>Le collaborateur saisit chaque dépense avec sa date, son montant TTC et son motif, dans les trente jours suivant la dépense.</bpmn:documentation>
+      <bpmn:dataOutputAssociation id="DOA_Declarer">
+        <bpmn:targetRef>DOR_Justificatifs</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:userTask>
+    <bpmn:businessRuleTask id="Task_ControlerJustificatifs" name="Contrôler les justificatifs">
+      <bpmn:documentation>La comptabilité vérifie que chaque dépense a un justificatif lisible et respecte la politique de voyage.</bpmn:documentation>
+      <bpmn:dataInputAssociation id="DIA_Controler">
+        <bpmn:sourceRef>DOR_Justificatifs</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="Gw_Conforme" name="Justificatifs conformes ?"/>
+    <bpmn:userTask id="Task_CorrigerNote" name="Corriger la note de frais">
+      <bpmn:documentation>Le collaborateur ajoute le justificatif manquant ou corrige le montant signalé par la comptabilité.</bpmn:documentation>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_Montant" name="Montant total supérieur à 500 euros ?"/>
+    <bpmn:userTask id="Task_ApprouverDepense" name="Approuver la dépense">
+      <bpmn:documentation>Le responsable budgétaire vérifie que la dépense est imputable sur le budget de son service.</bpmn:documentation>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_Approuvee" name="Dépense approuvée ?"/>
+    <bpmn:sendTask id="Task_InformerRejet" name="Informer le collaborateur du rejet"/>
+    <bpmn:exclusiveGateway id="Gw_Jonction"/>
+    <bpmn:serviceTask id="Task_Rembourser" name="Rembourser par virement">
+      <bpmn:documentation>Le virement est émis lors du prochain cycle de paiement hebdomadaire.</bpmn:documentation>
+      <bpmn:dataOutputAssociation id="DOA_Rembourser">
+        <bpmn:targetRef>DOR_Ordre</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_Remboursee" name="Note de frais remboursée"/>
+    <bpmn:endEvent id="End_Rejetee" name="Note de frais rejetée"/>
+
+    <bpmn:sequenceFlow id="F1" sourceRef="Start_Frais" targetRef="Task_DeclarerFrais"/>
+    <bpmn:sequenceFlow id="F2" sourceRef="Task_DeclarerFrais" targetRef="Task_ControlerJustificatifs"/>
+    <bpmn:sequenceFlow id="F3" sourceRef="Task_ControlerJustificatifs" targetRef="Gw_Conforme"/>
+    <bpmn:sequenceFlow id="F4" name="Non" sourceRef="Gw_Conforme" targetRef="Task_CorrigerNote"/>
+    <bpmn:sequenceFlow id="F5" sourceRef="Task_CorrigerNote" targetRef="Task_ControlerJustificatifs"/>
+    <bpmn:sequenceFlow id="F6" name="Oui" sourceRef="Gw_Conforme" targetRef="Gw_Montant"/>
+    <bpmn:sequenceFlow id="F7" name="Oui" sourceRef="Gw_Montant" targetRef="Task_ApprouverDepense"/>
+    <bpmn:sequenceFlow id="F8" name="Non" sourceRef="Gw_Montant" targetRef="Gw_Jonction"/>
+    <bpmn:sequenceFlow id="F9" sourceRef="Task_ApprouverDepense" targetRef="Gw_Approuvee"/>
+    <bpmn:sequenceFlow id="F10" name="Oui" sourceRef="Gw_Approuvee" targetRef="Gw_Jonction"/>
+    <bpmn:sequenceFlow id="F11" name="Non" sourceRef="Gw_Approuvee" targetRef="Task_InformerRejet"/>
+    <bpmn:sequenceFlow id="F12" sourceRef="Gw_Jonction" targetRef="Task_Rembourser"/>
+    <bpmn:sequenceFlow id="F13" sourceRef="Task_Rembourser" targetRef="End_Remboursee"/>
+    <bpmn:sequenceFlow id="F14" sourceRef="Task_InformerRejet" targetRef="End_Rejetee"/>
+  </bpmn:process>
+</bpmn:definitions>

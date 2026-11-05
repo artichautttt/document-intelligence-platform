@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Processus d'EXEMPLE, modélisé à la main pour tester l'ingestion BPMN 2.0.
+     Organisation, niveaux de support et délais fictifs ; ne décrit aucun processus réel.
+     Pas de diagramme (BPMNDI) : seule la sémantique du processus est décrite. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_Incident" targetNamespace="https://example.org/bpmn/incident">
+  <bpmn:collaboration id="Collab_Incident">
+    <bpmn:participant id="Pool_Utilisateur" name="Utilisateur" processRef="Process_Utilisateur"/>
+    <bpmn:participant id="Pool_Support" name="Support informatique" processRef="Process_Support"/>
+    <bpmn:messageFlow id="M1" name="Ticket d'incident" sourceRef="Task_SignalerIncident" targetRef="Start_Ticket"/>
+    <bpmn:messageFlow id="M2" name="Avis de résolution" sourceRef="Task_InformerUtilisateur" targetRef="Task_RecevoirResolution"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_Utilisateur" name="Signalement d'un incident" isExecutable="false">
+    <bpmn:startEvent id="Start_Panne" name="Panne constatée"/>
+    <bpmn:sendTask id="Task_SignalerIncident" name="Signaler l'incident sur le portail">
+      <bpmn:documentation>L'utilisateur décrit le symptôme, l'heure d'apparition et le poste concerné.</bpmn:documentation>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="Task_RecevoirResolution" name="Recevoir l'avis de résolution"/>
+    <bpmn:endEvent id="End_Utilisateur" name="Incident résolu pour l'utilisateur"/>
+    <bpmn:sequenceFlow id="U1" sourceRef="Start_Panne" targetRef="Task_SignalerIncident"/>
+    <bpmn:sequenceFlow id="U2" sourceRef="Task_SignalerIncident" targetRef="Task_RecevoirResolution"/>
+    <bpmn:sequenceFlow id="U3" sourceRef="Task_RecevoirResolution" targetRef="End_Utilisateur"/>
+  </bpmn:process>
+
+  <bpmn:process id="Process_Support" name="Traitement d'un incident informatique" isExecutable="false">
+    <bpmn:documentation>Le support traite un incident signalé par un utilisateur, du ticket à sa clôture.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_Support">
+      <bpmn:lane id="Lane_N1" name="Centre de services (niveau 1)">
+        <bpmn:flowNodeRef>Start_Ticket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_QualifierTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Niveau1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AppliquerSolution</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Jonction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Parallele</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InformerUtilisateur</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Synchro</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Clos</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_N2" name="Équipe d'experts (niveau 2)">
+        <bpmn:flowNodeRef>Task_Diagnostiquer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Corriger</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MettreAJourBase</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:dataStoreReference id="DSR_Base" name="Base de connaissances"/>
+
+    <bpmn:startEvent id="Start_Ticket" name="Ticket reçu"/>
+    <bpmn:userTask id="Task_QualifierTicket" name="Qualifier le ticket">
+      <bpmn:documentation>Le centre de services fixe la priorité selon l'impact et l'urgence, et cherche une solution connue.</bpmn:documentation>
+      <bpmn:dataInputAssociation id="DIA_Qualifier">
+        <bpmn:sourceRef>DSR_Base</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_Niveau1" name="Solution connue au niveau 1 ?"/>
+    <bpmn:userTask id="Task_AppliquerSolution" name="Appliquer la solution connue"/>
+    <bpmn:userTask id="Task_Diagnostiquer" name="Diagnostiquer la cause de l'incident">
+      <bpmn:documentation>L'équipe d'experts analyse les journaux et reproduit le problème.</bpmn:documentation>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_Corriger" name="Corriger l'incident"/>
+    <bpmn:exclusiveGateway id="Gw_Jonction"/>
+    <bpmn:parallelGateway id="Gw_Parallele"/>
+    <bpmn:sendTask id="Task_InformerUtilisateur" name="Informer l'utilisateur de la résolution"/>
+    <bpmn:userTask id="Task_MettreAJourBase" name="Documenter la solution dans la base de connaissances">
+      <bpmn:dataOutputAssociation id="DOA_Base">
+        <bpmn:targetRef>DSR_Base</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gw_Synchro"/>
+    <bpmn:endEvent id="End_Clos" name="Ticket clos"/>
+
+    <bpmn:sequenceFlow id="S1" sourceRef="Start_Ticket" targetRef="Task_QualifierTicket"/>
+    <bpmn:sequenceFlow id="S2" sourceRef="Task_QualifierTicket" targetRef="Gw_Niveau1"/>
+    <bpmn:sequenceFlow id="S3" name="Oui" sourceRef="Gw_Niveau1" targetRef="Task_AppliquerSolution"/>
+    <bpmn:sequenceFlow id="S4" name="Non, escalade au niveau 2" sourceRef="Gw_Niveau1" targetRef="Task_Diagnostiquer"/>
+    <bpmn:sequenceFlow id="S5" sourceRef="Task_Diagnostiquer" targetRef="Task_Corriger"/>
+    <bpmn:sequenceFlow id="S6" sourceRef="Task_AppliquerSolution" targetRef="Gw_Jonction"/>
+    <bpmn:sequenceFlow id="S7" sourceRef="Task_Corriger" targetRef="Gw_Jonction"/>
+    <bpmn:sequenceFlow id="S8" sourceRef="Gw_Jonction" targetRef="Gw_Parallele"/>
+    <bpmn:sequenceFlow id="S9" sourceRef="Gw_Parallele" targetRef="Task_InformerUtilisateur"/>
+    <bpmn:sequenceFlow id="S10" sourceRef="Gw_Parallele" targetRef="Task_MettreAJourBase"/>
+    <bpmn:sequenceFlow id="S11" sourceRef="Task_InformerUtilisateur" targetRef="Gw_Synchro"/>
+    <bpmn:sequenceFlow id="S12" sourceRef="Task_MettreAJourBase" targetRef="Gw_Synchro"/>
+    <bpmn:sequenceFlow id="S13" sourceRef="Gw_Synchro" targetRef="End_Clos"/>
+  </bpmn:process>
+</bpmn:definitions>
