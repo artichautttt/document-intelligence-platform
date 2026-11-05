@@ -49,3 +49,27 @@ def test_upload_document_rejects_corrupt_file(
         )
 
     assert response.status_code == 422
+
+
+def test_upload_bpmn_gives_one_chunk_per_task(client: TestClient) -> None:
+    path = Path("examples/bpmn/exemple_note_de_frais.bpmn")
+    with path.open("rb") as f:
+        response = client.post(
+            "/documents", files={"file": (path.name, f, "application/xml")}
+        )
+
+    assert response.status_code == 201
+    assert response.json()["chunk_count"] == 6
+
+
+def test_upload_bpmn_with_a_dtd_is_rejected(client: TestClient, tmp_path: Path) -> None:
+    path = tmp_path / "entites.bpmn"
+    path.write_bytes(
+        b'<?xml version="1.0"?><!DOCTYPE d [<!ENTITY e "x">]><definitions/>'
+    )
+    with path.open("rb") as f:
+        response = client.post(
+            "/documents", files={"file": (path.name, f, "application/xml")}
+        )
+
+    assert response.status_code == 422

@@ -659,6 +659,12 @@ Limites constatées à la lecture des réponses :
 
 ## Ingestion de processus BPMN 2.0
 
+> **Ce n'est pas un benchmark.** Les trois processus et les 24 questions
+> sont des exemples écrits à la main par l'auteur du parseur, en connaissant
+> son fonctionnement. Les chiffres ci-dessous vérifient que l'ingestion et la
+> citation marchent sur ces exemples ; ils ne disent rien de la qualité sur de
+> vrais modèles de processus.
+
 Un fichier `.bpmn` (BPMN 2.0, XML) est ingéré comme un PDF ou un DOCX :
 `BpmnParser` fait partie des parsers par défaut, et `chunk_document` choisit
 `BpmnTaskChunker` pour ce format. Une tâche donne un chunk, jamais découpé,
@@ -675,7 +681,8 @@ qui reprend le nom du processus et décrit la tâche en texte :
 La citation suit la hiérarchie processus > tâche :
 `provenance.element_ids = [id du processus, id de la tâche]`, avec les
 identifiants du fichier BPMN. Un fichier qui déclare une DTD ou des entités
-est refusé (`CorruptFileError`).
+est refusé (`CorruptFileError`). L'API accepte un `.bpmn` sur `POST /documents`
+(testé en local : 201 et un chunk par tâche ; 422 pour un fichier avec DTD).
 
 ```text
 Processus : Demande de congés
@@ -718,9 +725,8 @@ uv run python -m document_intelligence.evaluation --retrieval-only --k 5   --dat
 
 Limites :
 
-- trois processus écrits par l'auteur du parser, et des questions écrites en
-  connaissant ces processus : les chiffres vérifient le fonctionnement, ce
-  n'est pas un benchmark ;
+- processus et questions écrits par l'auteur du parseur, en connaissant son
+  fonctionnement : le résultat n'est pas un benchmark ;
 - seul le retrieval est mesuré : la qualité des réponses générées sur ces
   questions n'a pas été évaluée ;
 - non décrits : contenu des sous-processus, événements attachés aux tâches
