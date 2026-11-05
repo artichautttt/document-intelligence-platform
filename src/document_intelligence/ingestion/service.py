@@ -6,12 +6,13 @@ from document_intelligence.core.logging import get_logger
 from document_intelligence.ingestion.exceptions import UnsupportedFormatError
 from document_intelligence.ingestion.models import ParsedDocument
 from document_intelligence.ingestion.parsers.base import DocumentParser
+from document_intelligence.ingestion.parsers.bpmn_parser import BpmnParser
 from document_intelligence.ingestion.parsers.docx_parser import DocxParser
 from document_intelligence.ingestion.parsers.pdf_parser import PdfParser
 
 logger = get_logger(__name__)
 
-_DEFAULT_PARSERS: list[DocumentParser] = [PdfParser(), DocxParser()]
+_DEFAULT_PARSERS: list[DocumentParser] = [PdfParser(), DocxParser(), BpmnParser()]
 
 
 def ingest(
@@ -21,7 +22,7 @@ def ingest(
 
     Args:
         path: chemin vers le document à ingérer.
-        parsers: liste de parsers disponibles (par défaut PDF et DOCX). Permet
+        parsers: liste de parsers disponibles (par défaut PDF, DOCX et BPMN). Permet
             l'injection de dépendances pour les tests ou l'ajout de formats.
 
     Raises:

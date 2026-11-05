@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Processus d'EXEMPLE, modélisé à la main pour tester l'ingestion BPMN 2.0.
+     Organisation et règles fictives ; ne décrit aucun processus réel.
+     Pas de diagramme (BPMNDI) : seule la sémantique du processus est décrite. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_Conges" targetNamespace="https://example.org/bpmn/conges">
+  <bpmn:collaboration id="Collab_Conges">
+    <bpmn:participant id="Pool_Conges" name="Société Exemple" processRef="Process_Conges"/>
+  </bpmn:collaboration>
+
+  <bpmn:dataStore id="Store_SIRH" name="SIRH"/>
+
+  <bpmn:process id="Process_Conges" name="Demande de congés" isExecutable="false">
+    <bpmn:documentation>Un salarié demande des congés payés ; son manager décide, le service RH enregistre la décision.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_Conges">
+      <bpmn:lane id="Lane_Salarie" name="Salarié">
+        <bpmn:flowNodeRef>Start_Conges</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SaisirDemande</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Manager" name="Manager">
+        <bpmn:flowNodeRef>Task_ExaminerDemande</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Approuvee</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifierRefus</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Refusee</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_RH" name="Service RH">
+        <bpmn:flowNodeRef>Task_MettreAJourSolde</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ConfirmerConges</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Validee</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:dataObject id="DO_Formulaire"/>
+    <bpmn:dataObjectReference id="DOR_Formulaire" name="Formulaire de demande de congés" dataObjectRef="DO_Formulaire"/>
+    <bpmn:dataStoreReference id="DSR_SIRH" name="SIRH" dataStoreRef="Store_SIRH"/>
+
+    <bpmn:startEvent id="Start_Conges" name="Besoin de congés"/>
+    <bpmn:userTask id="Task_SaisirDemande" name="Saisir la demande de congés">
+      <bpmn:documentation>Le salarié indique les dates de début et de fin et le type de congé, au moins quinze jours avant le départ.</bpmn:documentation>
+      <bpmn:dataOutputAssociation id="DOA_Saisir">
+        <bpmn:targetRef>DOR_Formulaire</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ExaminerDemande" name="Examiner la demande de congés">
+      <bpmn:documentation>Le manager vérifie le solde de congés du salarié et la charge de l'équipe sur la période demandée.</bpmn:documentation>
+      <bpmn:dataInputAssociation id="DIA_Examiner">
+        <bpmn:sourceRef>DOR_Formulaire</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_Approuvee" name="Demande approuvée ?"/>
+    <bpmn:sendTask id="Task_NotifierRefus" name="Notifier le refus motivé">
+      <bpmn:documentation>Le manager explique au salarié la raison du refus et propose, si possible, d'autres dates.</bpmn:documentation>
+    </bpmn:sendTask>
+    <bpmn:serviceTask id="Task_MettreAJourSolde" name="Mettre à jour le solde de congés">
+      <bpmn:documentation>Le service RH déduit les jours accordés du solde du salarié.</bpmn:documentation>
+      <bpmn:dataOutputAssociation id="DOA_Solde">
+        <bpmn:targetRef>DSR_SIRH</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Task_ConfirmerConges" name="Confirmer les congés au salarié"/>
+    <bpmn:endEvent id="End_Validee" name="Congés validés"/>
+    <bpmn:endEvent id="End_Refusee" name="Demande refusée"/>
+
+    <bpmn:sequenceFlow id="F1" sourceRef="Start_Conges" targetRef="Task_SaisirDemande"/>
+    <bpmn:sequenceFlow id="F2" sourceRef="Task_SaisirDemande" targetRef="Task_ExaminerDemande"/>
+    <bpmn:sequenceFlow id="F3" sourceRef="Task_ExaminerDemande" targetRef="Gw_Approuvee"/>
+    <bpmn:sequenceFlow id="F4" name="Oui" sourceRef="Gw_Approuvee" targetRef="Task_MettreAJourSolde"/>
+    <bpmn:sequenceFlow id="F5" name="Non" sourceRef="Gw_Approuvee" targetRef="Task_NotifierRefus"/>
+    <bpmn:sequenceFlow id="F6" sourceRef="Task_MettreAJourSolde" targetRef="Task_ConfirmerConges"/>
+    <bpmn:sequenceFlow id="F7" sourceRef="Task_ConfirmerConges" targetRef="End_Validee"/>
+    <bpmn:sequenceFlow id="F8" sourceRef="Task_NotifierRefus" targetRef="End_Refusee"/>
+  </bpmn:process>
+</bpmn:definitions>

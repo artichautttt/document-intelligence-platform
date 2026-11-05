@@ -2,6 +2,7 @@
 
 from document_intelligence.chunking.models import Chunk
 from document_intelligence.chunking.strategies.base import ChunkingStrategy
+from document_intelligence.chunking.strategies.bpmn_task import BpmnTaskChunker
 from document_intelligence.chunking.strategies.semantic_section import (
     SemanticSectionChunker,
 )
@@ -19,13 +20,19 @@ def chunk_document(
 
     Args:
         document: document préalablement produit par le module d'ingestion.
-        strategy: stratégie de chunking à utiliser (par défaut `SemanticSectionChunker`).
+        strategy: stratégie de chunking à utiliser. Par défaut `BpmnTaskChunker`
+            pour un modèle BPMN (une tâche = un chunk), `SemanticSectionChunker`
+            pour tout autre format.
     """
-    active_strategy = (
-        strategy
-        if strategy is not None
-        else SemanticSectionChunker(max_chunk_chars=settings.max_chunk_chars)
-    )
+    active_strategy: ChunkingStrategy
+    if strategy is not None:
+        active_strategy = strategy
+    elif document.source_format == "bpmn":
+        active_strategy = BpmnTaskChunker()
+    else:
+        active_strategy = SemanticSectionChunker(
+            max_chunk_chars=settings.max_chunk_chars
+        )
 
     chunks = active_strategy.chunk(document)
     logger.info(
