@@ -205,7 +205,7 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pyt
 │   ├── core/            # configuration (variables d'environnement), logs
 │   ├── tools.py         # outils partagés (MCP, agents) : recherche, réponse citée, SQL
 │   └── services.py      # construction store / LLM / vérificateur / agent de données, partagée API et MCP
-├── tests/               # 538 tests pytest (537 passent, 1 ignoré), documents de test dans fixtures/
+├── tests/               # 540 tests pytest (539 passent, 1 ignoré), documents de test dans fixtures/
 ├── examples/bpmn/       # 3 processus BPMN d'exemple, modélisés à la main (fictifs)
 ├── scripts/             # évaluation du juge, démos MCP et agent, construction de la base taxi
 ├── finetune/            # expérience LoRA : jeu de distillation et entraînement
