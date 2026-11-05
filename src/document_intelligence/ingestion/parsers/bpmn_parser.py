@@ -203,11 +203,11 @@ def parse_bpmn(raw: bytes, source: str = "<bpmn>") -> BpmnModel:
 
     participants: dict[str, str] = {}
     process_participant: dict[str, str] = {}
-    for participant in root.iter(f"{_Q}participant"):
-        name = participant.get("name", "")
-        participants[participant.get("id", "")] = name
-        if participant.get("processRef"):
-            process_participant[participant.get("processRef", "")] = name
+    for pool in root.iter(f"{_Q}participant"):
+        name = pool.get("name", "")
+        participants[pool.get("id", "")] = name
+        if pool.get("processRef"):
+            process_participant[pool.get("processRef", "")] = name
 
     data_names: dict[str, str] = {}
     data_objects = {
