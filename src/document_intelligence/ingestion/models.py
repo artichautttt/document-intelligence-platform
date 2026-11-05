@@ -13,6 +13,9 @@ class ElementType(str, Enum):
     TABLE = "table"
     LIST_ITEM = "list_item"
     OTHER = "other"
+    # Modèles de processus BPMN 2.0 : un processus, puis chacune de ses tâches.
+    PROCESS = "process"
+    TASK = "task"
 
 
 class DocumentElement(BaseModel):

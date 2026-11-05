@@ -59,7 +59,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         "--documents",
         type=Path,
         nargs="+",
-        help="Dossiers de PDF/DOCX à ingérer (défaut : fixtures + corpus étendu).",
+        help="Dossiers de PDF/DOCX/BPMN à ingérer (défaut : fixtures + corpus étendu).",
     )
     parser.add_argument("--k", type=int, default=5)
     parser.add_argument(
@@ -161,7 +161,7 @@ def main(argv: list[str] | None = None) -> int:
         chroma = ChromaStore(persist_directory=str(Path(tmp) / "chroma"))
         for directory in directories:
             for path in sorted(directory.iterdir()):
-                if path.suffix.lower() in {".pdf", ".docx"}:
+                if path.suffix.lower() in {".pdf", ".docx", ".bpmn"}:
                     chroma.add_chunks(chunk_document(ingest(path)))
         store: VectorStore = (
             HybridStore(chroma) if args.retrieval_mode == "hybrid" else chroma
